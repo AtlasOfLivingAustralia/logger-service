@@ -88,7 +88,7 @@ public class LoggerController {
 	}
 	
 	/**
-	 * URL: http://152.83.198.112:8080/ala-logger/service/logger/get.json?q=dp123&breakdown=0&eventTypeId=12345
+	 * URL: http://152.83.198.112:8080/ala-logger/service/logger/get.json?q=dp123&eventTypeId=12345&year=2010
 	 * METHOD: "GET"
 	 * 
 	 * Output json format:
@@ -166,8 +166,7 @@ public class LoggerController {
 			LogEventVO logEventVO = mapper.readValue(body, LogEventVO.class);
 			if(logEventVO != null){
 				LogEvent logEvent = new LogEvent(logEventVO.getEventTypeId(), logEventVO.getUserEmail(), 
-						request.getRemoteAddr(), //logEventVO.getUserIP(),
-						logEventVO.getComment(), logEventVO.getRecordCounts());
+						logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
 				logEventDao.save(logEvent);
 			}
 			

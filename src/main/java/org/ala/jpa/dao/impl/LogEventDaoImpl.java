@@ -82,8 +82,9 @@ public class LogEventDaoImpl implements LogEventDao {
 		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
 		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
 		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-		sb.append(" AND le.month LIKE \"" + year + "%\"");
+		sb.append(" AND le.month LIKE \"" + year + "%\"");		
 		sb.append(" GROUP BY ld.entity_uid, le.month");
+		sb.append(" ORDER BY le.month");
 		
 		logger.debug(sb.toString());
 		Query q = em.createNativeQuery(sb.toString());
