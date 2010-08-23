@@ -60,21 +60,27 @@ public class LogEventDaoImpl implements LogEventDao {
 
 	@SuppressWarnings("unchecked")
 	public Collection<LogEvent> findLogEvents() {
-		return em.createQuery("select p from LogEvent p order by p.userEmail, p.userId").getResultList();
+		return em.createQuery("select p from LogEvent p order by p.id").getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	public Collection<LogEvent> findLogEvents(int startIndex, int maxResults) {
-		return em.createQuery("select p from LogEvent p order by p.userEmail, p.userId")
+		return em.createQuery("select p from LogEvent p order by p.id")
         	.setFirstResult(startIndex).setMaxResults(maxResults).getResultList();
 	}
 
 	@SuppressWarnings("unchecked")
 	public Collection<LogEvent> findLogEventsByEmail(String userEmail) {
-		return em.createQuery("select p from LogEvent p where p.userEmail = :userEmail order by p.userEmail, p.userId")
+		return em.createQuery("select p from LogEvent p where p.userEmail = :userEmail order by p.id")
         	.setParameter("userEmail", userEmail).getResultList();
 	}
 
+	@SuppressWarnings("unchecked")
+	public Collection<LogEvent> findLogEventsByUserIp(String userIp) {
+		return em.createQuery("select p from LogEvent p where userIp = :userIp order by p.id")
+        	.setParameter("userIp", userIp).getResultList();
+	}
+	
 	@SuppressWarnings("unchecked")
 	public Collection<Object[]> getLogEventsCount(int log_event_type_id, String entity_uid, String year) {
 		StringBuilder sb = new StringBuilder();
