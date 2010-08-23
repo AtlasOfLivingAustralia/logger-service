@@ -153,6 +153,8 @@ public class LoggerController {
 	 */
 	@RequestMapping(method=RequestMethod.POST, value="/logger")
 	public ModelAndView addLogEvent(@RequestBody String body, HttpServletRequest request, HttpServletResponse response){
+		LogEvent logEvent = null;
+		
 		//check user
 		if(!checkRemoteAddress(request)){
 			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());
@@ -165,15 +167,15 @@ public class LoggerController {
 		try {
 			LogEventVO logEventVO = mapper.readValue(body, LogEventVO.class);
 			if(logEventVO != null){
-				LogEvent logEvent = new LogEvent(logEventVO.getEventTypeId(), logEventVO.getUserEmail(), 
+				logEvent = new LogEvent(logEventVO.getEventTypeId(), logEventVO.getUserEmail(), 
 						logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
-				logEventDao.save(logEvent);
+				logEvent = logEventDao.save(logEvent);
 			}
 			
 		} catch (Exception e) {
 			return this.createErrorResponse(response, HttpStatus.NOT_ACCEPTABLE.value());
 		}			
-		return new ModelAndView(JSON_VIEW_NAME);		
+		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
 	}
 			
 	public List<String> getRemoteAddress() {
