@@ -42,6 +42,11 @@ public interface LogEventDao {
     public Collection<LogEvent> findLogEventsByEmail(String userEmail);
 
     /**
+     * Find LogEvents by userIp.
+     */
+    public Collection<LogEvent> findLogEventsByUserIp(String userIp);
+    
+    /**
      * Saves LogEvent.
      */
     public LogEvent save(LogEvent logEvent);
