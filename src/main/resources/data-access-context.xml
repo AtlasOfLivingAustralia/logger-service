@@ -18,7 +18,7 @@
 	<!-- Configurer that replaces ${...} placeholders with values from properties files -->
 	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location">
-            <value>classpath:bie.properties</value>
+            <value>classpath:logger.properties</value>
 		</property>
 	</bean>
 
