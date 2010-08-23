@@ -139,6 +139,7 @@ public class LoggerController {
    	 * "eventTypeId": 12345,
      * "comment": "For doing some research with..",
      * "userEmail" : "David.Martin@csiro.au",
+     * "userIP": "123.123.123.123",
      * "recordCounts" : {
      * "dp123": 32,
      * "dr143": 22,
