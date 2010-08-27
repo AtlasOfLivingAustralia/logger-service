@@ -99,6 +99,15 @@ public class LogEventDaoImpl implements LogEventDao {
 		
 		return q.getResultList();
 	}
+
+    /**
+     * execute SQL statement
+     */
+	@SuppressWarnings("unchecked")
+	public Collection<Object[]> executeNativeQuery(String sql) {
+		Query q = em.createNativeQuery(sql);
+		return q.getResultList();
+	}
 	
 	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
 	public LogEvent save(LogEvent logEvent) {

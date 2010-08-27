@@ -64,6 +64,11 @@ public interface LogEventDao {
     /**
      * get monthly download count
      */
-    public Collection<Object[]> getLogEventsCount(int log_event_type_id, String entity_uid, String year);    
+    public Collection<Object[]> getLogEventsCount(int log_event_type_id, String entity_uid, String year);
+    
+    /**
+     * execute SQL statement
+     */
+    public Collection<Object[]> executeNativeQuery(String sql);
 }
 

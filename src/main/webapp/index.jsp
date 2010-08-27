@@ -1,6 +1,12 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" session="false" %>
 <%@ page import = "java.util.Date" %> 
-
+<%@ page import = "org.springframework.context.ApplicationContext,  
+		org.springframework.web.context.support.WebApplicationContextUtils,
+		org.ala.jpa.dao.LogEventDao" %>
+<% 
+ApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
+LogEventDao logEventDao = (LogEventDao) applicationContext.getBean(LogEventDao.class);
+%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
@@ -28,6 +34,12 @@
 			Remote user: <%= request.getRemoteUser() %><br>
 			Remote address: <%= request.getRemoteAddr() %><br>
 			Remote host: <%= request.getRemoteHost() %><br>
-		</font>				
+		</font>
+		<hr />
+		<h1> Record Count </h1>	
+		<font size="4">
+			Total Log Event Count: <%= logEventDao.executeNativeQuery("SELECT Count(*) FROM log_event") %><br/>
+			Total Download Count: <%= logEventDao.executeNativeQuery("SELECT SUM(record_count) FROM log_detail") %><br/>
+		</font>		
 	</body>    
 </html>
