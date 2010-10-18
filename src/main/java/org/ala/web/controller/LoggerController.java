@@ -181,7 +181,7 @@ public class LoggerController {
 			}
 			
 		} catch (Exception e) {
-			logger.error("Invalid LogEvent Type or Id: " + logEventVO.getEventTypeId(), e);
+			logger.error("Invalid LogEvent Type or Id: " + logEventVO.getEventTypeId() + "\n JSON request: \n" +  body, e);
 			return this.createErrorResponse(response, HttpStatus.NOT_ACCEPTABLE.value());
 		}			
 		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
