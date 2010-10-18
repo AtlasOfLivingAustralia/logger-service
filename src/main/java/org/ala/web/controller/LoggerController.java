@@ -37,6 +37,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.ala.client.model.LogEventType;
 import org.ala.client.model.LogEventVO;
 
 /**
@@ -155,6 +156,7 @@ public class LoggerController {
 	@RequestMapping(method=RequestMethod.POST, value="/logger")
 	public ModelAndView addLogEvent(@RequestBody String body, HttpServletRequest request, HttpServletResponse response){
 		LogEvent logEvent = null;
+		LogEventVO logEventVO = null;
 		
 		//check user
 		if(!checkRemoteAddress(request)){
@@ -166,14 +168,20 @@ public class LoggerController {
 				
 		//read the existing value
 		try {
-			LogEventVO logEventVO = mapper.readValue(body, LogEventVO.class);
+			logEventVO = mapper.readValue(body, LogEventVO.class);		
 			if(logEventVO != null){
-				logEvent = new LogEvent(logEventVO.getEventTypeId(), logEventVO.getUserEmail(), 
+				// validate logEventType
+				LogEventType type = LogEventType.getLogEventType(logEventVO.getEventTypeId());
+				if(type == null){
+					throw new NoSuchFieldException();
+				}				
+				logEvent = new LogEvent(type.getId(), logEventVO.getUserEmail(), 
 						logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
 				logEvent = logEventDao.save(logEvent);
 			}
 			
 		} catch (Exception e) {
+			logger.error("Invalid LogEvent Type or Id: " + logEventVO.getEventTypeId(), e);
 			return this.createErrorResponse(response, HttpStatus.NOT_ACCEPTABLE.value());
 		}			
 		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
