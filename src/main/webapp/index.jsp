@@ -24,16 +24,25 @@ LogEventDao logEventDao = (LogEventDao) applicationContext.getBean(LogEventDao.c
 		<hr/>
 		<h1> Request Information </h1>
 		<font size="4">
-			JSP Request Method: <%= request.getMethod() %><br>
-			Request URI: <%= request.getRequestURI() %><br>
-			Request Protocol: <%= request.getProtocol() %><br>
-			Servlet path: <%= request.getServletPath() %><br>
-			Path info: <%= request.getPathInfo() %><br>
-			Server name: <%= request.getServerName() %><br>
-			Server port: <%= request.getServerPort() %><br>
-			Remote user: <%= request.getRemoteUser() %><br>
-			Remote address: <%= request.getRemoteAddr() %><br>
-			Remote host: <%= request.getRemoteHost() %><br>
+			JSP Request Method: <%= request.getMethod() %><br/>
+			Request URI: <%= request.getRequestURI() %><br/>
+			Request Protocol: <%= request.getProtocol() %><br/>
+			Servlet path: <%= request.getServletPath() %><br/>
+			Path info: <%= request.getPathInfo() %><br/>
+			Server name: <%= request.getServerName() %><br/>
+			Server port: <%= request.getServerPort() %><br/>
+			Remote user: <%= request.getRemoteUser() %><br/>
+			Remote address: <%= request.getRemoteAddr() %><br/>
+			Remote host: <%= request.getRemoteHost() %><br/>
+			X-Forwarded-For: <%= request.getHeader("X-Forwarded-For") %><br/>
+			<hr/>
+			<%
+			java.util.Enumeration headerNames = request.getHeaderNames();
+			while(headerNames.hasMoreElements()) {
+			      String headerName = (String)headerNames.nextElement();
+			      out.println(headerName + " : " + request.getHeader(headerName) + ".<br/>");
+			}
+			%>
 		</font>
 		<hr />
 		<h1> Record Count </h1>	

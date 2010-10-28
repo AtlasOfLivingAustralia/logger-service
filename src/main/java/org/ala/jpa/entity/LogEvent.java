@@ -56,6 +56,9 @@ public class LogEvent extends PersistentEntity implements Serializable {
 	@Column(name="user_ip")
 	private String userIp;
 
+	@Column(name="source")
+	private String source;
+	
 	@Column(name="log_event_type_id")
 	private int logEventTypeId;	
 	
@@ -63,8 +66,8 @@ public class LogEvent extends PersistentEntity implements Serializable {
     @JoinColumn(name="log_event_id", nullable=false)
 	private Set<LogDetail> logDetails;
 
-    public LogEvent(int logEventTypeId, String userEmail, String userIp, String comment, Set<LogDetail> logDetails) {
-//    	this.userId = userId;
+    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, Set<LogDetail> logDetails) {
+    	this.source = source;
     	this.userEmail = userEmail;
     	this.userIp = userIp;
     	this.comment = comment;
@@ -76,8 +79,8 @@ public class LogEvent extends PersistentEntity implements Serializable {
     	this.month = (today.get(Calendar.YEAR) + "" + (mth > 9?""+mth: "0"+mth));    	
     }
     
-    public LogEvent(int logEventTypeId, String userEmail, String userIp, String comment, Map<String, Integer> recordCounts) {
-    	this(logEventTypeId, userEmail,	userIp,	comment, recordCountsToLogDetails(logEventTypeId,recordCounts));
+    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, Map<String, Integer> recordCounts) {
+    	this(source, logEventTypeId, userEmail,	userIp,	comment, recordCountsToLogDetails(logEventTypeId,recordCounts));
     }    
 
     public LogEvent() {
@@ -159,6 +162,14 @@ public class LogEvent extends PersistentEntity implements Serializable {
 
 	public void setLogEventTypeId(int logEventTypeId) {
 		this.logEventTypeId = logEventTypeId;
+	}
+	
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
 	}
 	
 /*

@@ -17,6 +17,7 @@ package org.ala.web.controller;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -28,6 +29,7 @@ import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ListFactoryBean;
+import org.springframework.beans.factory.config.MapFactoryBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -50,10 +52,11 @@ import org.ala.client.model.LogEventVO;
 public class LoggerController {
 	@Autowired
     private LogEventDao logEventDao;
-	
-	private List<String> remoteAddress;
+		
+	private Map remoteSourceAddress;
 	
 	private static final String JSON_VIEW_NAME = "jsonView";
+	private static final String X_FORWARDED_FOR = "X-Forwarded-For";
 	
 	protected static Logger logger = Logger.getLogger(LoggerController.class);
 	
@@ -174,8 +177,13 @@ public class LoggerController {
 				LogEventType type = LogEventType.getLogEventType(logEventVO.getEventTypeId());
 				if(type == null){
 					throw new NoSuchFieldException();
-				}				
-				logEvent = new LogEvent(type.getId(), logEventVO.getUserEmail(), 
+				}
+				String realIp = request.getHeader(X_FORWARDED_FOR);
+				if(realIp == null || "".equals(realIp)){
+					realIp = request.getRemoteAddr();
+				}
+								
+				logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type.getId(), logEventVO.getUserEmail(), 
 						logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
 				logEvent = logEventDao.save(logEvent);
 			}
@@ -187,20 +195,20 @@ public class LoggerController {
 		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
 	}
 			
-	public List<String> getRemoteAddress() {
-		return remoteAddress;
-	}
 
+	
 	/**
-	 * inject a list of remote user IP for security.
+	 * inject a map of remote user IP for security.
 	 * @param remoteAddress
 	 */
 	@Autowired
-	public void setRemoteAddress(ListFactoryBean remoteAddress) {
-		if(this.remoteAddress == null) {
+	public void setRemoteSourceAddress(MapFactoryBean remoteSourceAddress) {
+		if(this.remoteSourceAddress == null) {
 			try{
-				this.remoteAddress = (List<String>)remoteAddress.getObject();
-			}catch(Exception e) {
+				this.remoteSourceAddress = (Map)remoteSourceAddress.getObject();
+			}
+			catch(Exception e) {
+				logger.error(e);
 				e.printStackTrace();
 			}
 		}		
@@ -213,9 +221,14 @@ public class LoggerController {
 	 * @return
 	 */
 	private boolean checkRemoteAddress(HttpServletRequest request){
-		if(this.remoteAddress != null){
-			logger.debug("***** request.getRemoteAddr(): " + request.getRemoteAddr() + " request.getRemoteHost(): " + request.getRemoteHost());
-			if(this.remoteAddress.contains(request.getRemoteAddr()) || this.remoteAddress.contains(request.getRemoteHost())){
+		String realIp = request.getHeader(X_FORWARDED_FOR);
+		if(realIp == null || "".equals(realIp)){
+			realIp = request.getRemoteAddr();
+		}
+		
+		if(remoteSourceAddress != null && realIp != null){
+			logger.debug("***** request.getRemoteAddr(): " + request.getRemoteAddr() + " request.getRemoteHost(): " + request.getRemoteHost() + " , realIp: " +  request.getHeader(X_FORWARDED_FOR));
+			if(remoteSourceAddress.containsKey(realIp.trim())){
 				return true;
 			}
 		}
@@ -227,4 +240,37 @@ public class LoggerController {
         ModelMap model = new ModelMap();
         return new ModelAndView(JSON_VIEW_NAME, model);		
 	}
+	
+	/**
+	 * inject a list of remote user IP for security.
+	 * 
+	 * 	<bean id="remoteAddress" class="org.springframework.beans.factory.config.ListFactoryBean">
+	 *  <property name="sourceList">
+	 *		<list>
+	 *		<value>bie.ala.org.au</value>
+	 *			<value>152.83.198.112</value>
+	 *		<value>150.229.66.87</value>
+	 *			<value>127.0.0.1</value>
+	 *			<value>152.83.198.139</value>
+	 *		</list>
+	 *	</property>
+	 *	</bean>
+	 */
+	/*
+	private List<String> remoteAddress;
+	@Autowired
+	public void setRemoteAddress(ListFactoryBean remoteAddress) {
+		if(this.remoteAddress == null) {
+			try{
+				this.remoteAddress = (List<String>)remoteAddress.getObject();
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}		
+	}
+
+	public List<String> getRemoteAddress() {
+		return remoteAddress;
+	}
+	*/	
 }
