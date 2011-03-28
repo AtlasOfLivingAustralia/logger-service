@@ -14,21 +14,24 @@
  ***************************************************************************/
 package org.ala.web.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.List;
+import java.util.Date;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.ala.client.model.LogEventType;
+import org.ala.client.model.LogEventVO;
 import org.ala.jpa.dao.LogEventDao;
 import org.ala.jpa.entity.LogEvent;
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.ListFactoryBean;
 import org.springframework.beans.factory.config.MapFactoryBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -37,16 +40,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.ala.client.model.LogEventType;
-import org.ala.client.model.LogEventVO;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * Main Controller for ALA-LOGGER
  * 
  * @author waiman.mok@csiro.au
- *
  */
 @Controller
 public class LoggerController {
@@ -194,9 +194,59 @@ public class LoggerController {
 		}			
 		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
 	}
-			
 
-	
+    @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/{eventType}/counts.json", "/{entityUid}/{eventType}/counts"})
+    public ModelAndView getLogEventCounts(
+            @PathVariable("entityUid") String entityUid,
+            @PathVariable("eventType") Integer eventType){
+        
+        return createEventSummary(entityUid, eventType);
+    }
+
+    /**
+     * Create a summary for downloads
+     * 
+     * @param entityUid
+     * @return
+     */
+    @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/downloads/counts.json", "/{entityUid}/downloads/counts"})
+    public ModelAndView getLogEventCounts(
+            @PathVariable("entityUid") String entityUid){
+        return createEventSummary(entityUid, 1002);
+    }
+    
+    /**
+     * Create a summary for the supplied event type and entity UID.
+     * 
+     * @param entityUid
+     * @param eventType
+     * @return
+     */
+    private ModelAndView createEventSummary(String entityUid, Integer eventType) {
+        //all
+        Integer all = logEventDao.getLogEventsByEntity(entityUid, eventType);
+        
+        Date now = new Date();
+        
+        Date lastMonth = DateUtils.add(now, Calendar.MONTH, -1);
+        Date threeMonthsAgo = DateUtils.add(now, Calendar.MONTH, -4);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        
+        //last 3 months
+        Integer last3Months = logEventDao.getLogEventsByEntityAndMonthRange(entityUid, eventType, sdf.format(threeMonthsAgo), sdf.format(lastMonth));
+        Date firstOfMonth = DateUtils.setDays(now, 1);
+        
+        //within the last month
+        Integer thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
+        
+        //downloads this month
+        ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "all", all);
+        mav.addObject("last3Months", last3Months);
+        mav.addObject("thisMonth", thisMonth);
+        
+        return mav;
+    }
+    
 	/**
 	 * inject a map of remote user IP for security.
 	 * @param remoteAddress
