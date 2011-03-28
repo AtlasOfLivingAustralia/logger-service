@@ -69,17 +69,17 @@ public interface LogEventDao {
     /**
      * execute SQL statement
      */
-    public Integer getLogEventsByEntity(String entity_uid, int log_event_type_id);
+    public Integer[] getLogEventsByEntity(String entity_uid, int log_event_type_id);
     
     /**
      * execute SQL statement
      */
-    public Integer getLogEventsByEntityAndMonthRange(String entity_uid, int log_event_type_id, String startMonth, String endMonth);
+    public Integer[] getLogEventsByEntityAndMonthRange(String entity_uid, int log_event_type_id, String startMonth, String endMonth);
 
     /**
      * execute SQL statement
      */
-    public Integer getLogEventsByEntityAndDateRange(String entity_uid, int log_event_type_id, java.util.Date startDate, java.util.Date endDate);
+    public Integer[] getLogEventsByEntityAndDateRange(String entity_uid, int log_event_type_id, java.util.Date startDate, java.util.Date endDate);
     
     /**
      * execute SQL statement

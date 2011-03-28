@@ -108,26 +108,27 @@ public class LogEventDaoImpl implements LogEventDao {
     /**
      * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntity(java.lang.String)
      */
-    public Integer getLogEventsByEntity(String entity_uid, int log_event_type_id) {
+    public Integer[] getLogEventsByEntity(String entity_uid, int log_event_type_id) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT SUM(ld.record_count) FROM log_detail ld");
+        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
         sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
         sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
         sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
         
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
-        return ((Number) q.getSingleResult()).intValue();
+        Object[] numbers = (Object[]) q.getResultList().get(0);
+        return new Integer[]{( (Number)numbers[0]).intValue(),( (Number)numbers[1]).intValue()};
     }
 
     /**
      * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntityAndDateRange(java.lang.String, java.util.Date, java.util.Date)
      */
-    public Integer getLogEventsByEntityAndDateRange(String entity_uid, int log_event_type_id,
+    public Integer[] getLogEventsByEntityAndDateRange(String entity_uid, int log_event_type_id,
             Date startDate, Date endDate) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT SUM(ld.record_count) FROM log_detail ld");
+        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
         sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
         sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
         sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
@@ -135,17 +136,18 @@ public class LogEventDaoImpl implements LogEventDao {
         sb.append(" AND le.created <= \"" + sdf.format(endDate) + "\"");
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
-        return ((Number) q.getSingleResult()).intValue();
+        Object[] numbers = (Object[]) q.getResultList().get(0);
+        return new Integer[]{( (Number)numbers[0]).intValue(),( (Number)numbers[1]).intValue()};
     }
 
     /**
      * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntityAndMonthRange(java.lang.String, java.lang.String, java.lang.String)
      */
-    public Integer getLogEventsByEntityAndMonthRange(String entity_uid, int log_event_type_id,
+    public Integer[] getLogEventsByEntityAndMonthRange(String entity_uid, int log_event_type_id,
             String startMonth, String endMonth) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT SUM(ld.record_count) FROM log_detail ld");
+        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
         sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
         sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
         sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
@@ -153,7 +155,8 @@ public class LogEventDaoImpl implements LogEventDao {
         sb.append(" AND le.month <= \"" + endMonth + "\"");
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
-        return ((Number) q.getSingleResult()).intValue();
+        Object[] numbers = (Object[]) q.getResultList().get(0);
+        return new Integer[]{( (Number)numbers[0]).intValue(),( (Number)numbers[1]).intValue()};
     }
 
     /**

@@ -18,6 +18,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -224,7 +225,7 @@ public class LoggerController {
      */
     private ModelAndView createEventSummary(String entityUid, Integer eventType) {
         //all
-        Integer all = logEventDao.getLogEventsByEntity(entityUid, eventType);
+        Integer[] all = logEventDao.getLogEventsByEntity(entityUid, eventType);
         
         Date now = new Date();
         
@@ -233,18 +234,26 @@ public class LoggerController {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         
         //last 3 months
-        Integer last3Months = logEventDao.getLogEventsByEntityAndMonthRange(entityUid, eventType, sdf.format(threeMonthsAgo), sdf.format(lastMonth));
+        Integer[] last3Months = logEventDao.getLogEventsByEntityAndMonthRange(entityUid, eventType, sdf.format(threeMonthsAgo), sdf.format(lastMonth));
+        
         Date firstOfMonth = DateUtils.setDays(now, 1);
         
         //within the last month
-        Integer thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
+        Integer[] thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
         
         //downloads this month
-        ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "all", all);
-        mav.addObject("last3Months", last3Months);
-        mav.addObject("thisMonth", thisMonth);
+        ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "all",createMapForJson(all));
+        mav.addObject("last3Months", createMapForJson(last3Months));
+        mav.addObject("thisMonth", createMapForJson(thisMonth));
         
         return mav;
+    }
+
+    private Map<String, Integer> createMapForJson(Integer[] last3Months) {
+        Map<String, Integer> noDownloadsAndCount = new HashMap<String,Integer>();
+        noDownloadsAndCount.put("numberOfDownloads", last3Months[0]);
+        noDownloadsAndCount.put("numberOfDownloadedRecords", last3Months[1]);
+        return noDownloadsAndCount;
     }
     
 	/**
