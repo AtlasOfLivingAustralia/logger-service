@@ -105,6 +105,20 @@ public class LogEventDaoImpl implements LogEventDao {
 	}
 	
 
+	private Integer[] toIntegerArray(Object[] numbers){
+		int noOfDownloads = 0;
+        int noRecordDownloaded = 0;
+        if(numbers != null && numbers.length > 0){
+	        if(numbers[0] != null){
+	        	noOfDownloads = ((Number)numbers[0]).intValue();
+	        }
+	        if(numbers[1] != null){
+	        	noRecordDownloaded = ((Number)numbers[1]).intValue();
+	        }
+        }
+        return new Integer[]{noOfDownloads, noRecordDownloaded};		
+	}
+	
     /**
      * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntity(java.lang.String)
      */
@@ -118,7 +132,8 @@ public class LogEventDaoImpl implements LogEventDao {
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
         Object[] numbers = (Object[]) q.getResultList().get(0);
-        return new Integer[]{( (Number)numbers[0]).intValue(),( (Number)numbers[1]).intValue()};
+        
+        return toIntegerArray(numbers);
     }
 
     /**
@@ -137,7 +152,8 @@ public class LogEventDaoImpl implements LogEventDao {
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
         Object[] numbers = (Object[]) q.getResultList().get(0);
-        return new Integer[]{( (Number)numbers[0]).intValue(),( (Number)numbers[1]).intValue()};
+        
+        return toIntegerArray(numbers);
     }
 
     /**
@@ -145,7 +161,7 @@ public class LogEventDaoImpl implements LogEventDao {
      */
     public Integer[] getLogEventsByEntityAndMonthRange(String entity_uid, int log_event_type_id,
             String startMonth, String endMonth) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
         sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
@@ -156,7 +172,8 @@ public class LogEventDaoImpl implements LogEventDao {
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
         Object[] numbers = (Object[]) q.getResultList().get(0);
-        return new Integer[]{( (Number)numbers[0]).intValue(),( (Number)numbers[1]).intValue()};
+        
+        return toIntegerArray(numbers);    
     }
 
     /**
