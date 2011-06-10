@@ -183,9 +183,15 @@ public class LoggerController {
 				if(realIp == null || "".equals(realIp)){
 					realIp = request.getRemoteAddr();
 				}
-								
+				
+				if(logEventVO.getMonth() == null || (logEventVO.getMonth() != null && logEventVO.getMonth().length() < 4)){
 				logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type.getId(), logEventVO.getUserEmail(), 
 						logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
+				}
+				else{
+					logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type.getId(), logEventVO.getUserEmail(), 
+							logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getMonth(), logEventVO.getRecordCounts());
+				}
 				logEvent = logEventDao.save(logEvent);
 			}
 			

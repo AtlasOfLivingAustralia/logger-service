@@ -67,6 +67,10 @@ public class LogEvent extends PersistentEntity implements Serializable {
 	private Set<LogDetail> logDetails;
 
     public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, Set<LogDetail> logDetails) {
+    	this(source, logEventTypeId, userEmail,	userIp,	comment, null, logDetails);
+    }
+
+    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, String month, Set<LogDetail> logDetails) {
     	this.source = source;
     	this.userEmail = userEmail;
     	this.userIp = userIp;
@@ -74,14 +78,23 @@ public class LogEvent extends PersistentEntity implements Serializable {
     	this.logDetails = logDetails;
     	this.logEventTypeId = logEventTypeId;
     	
-    	Calendar today = Calendar.getInstance();
-    	int mth = today.get(Calendar.MONTH) + 1;
-    	this.month = (today.get(Calendar.YEAR) + "" + (mth > 9?""+mth: "0"+mth));    	
+    	if(month != null && month.trim().length() > 3 && isInteger(month)) {
+    		this.month = month.trim();
+    	}
+    	else{
+        	Calendar today = Calendar.getInstance();
+        	int mth = today.get(Calendar.MONTH) + 1;
+        	this.month = (today.get(Calendar.YEAR) + "" + (mth > 9?""+mth: "0"+mth));   		
+    	}
     }
     
     public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, Map<String, Integer> recordCounts) {
     	this(source, logEventTypeId, userEmail,	userIp,	comment, recordCountsToLogDetails(logEventTypeId,recordCounts));
-    }    
+    }
+    
+    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, String month, Map<String, Integer> recordCounts) {
+    	this(source, logEventTypeId, userEmail,	userIp,	comment, month, recordCountsToLogDetails(logEventTypeId,recordCounts));
+    } 
 
     public LogEvent() {
     }
@@ -98,6 +111,16 @@ public class LogEvent extends PersistentEntity implements Serializable {
 	    	}
     	}
     	return logDetails;
+    }
+    
+    private boolean isInteger(String str){
+    	try {  
+			Integer.parseInt(str);  
+		    return true;  
+		}  
+		catch( Exception e ) {  
+		      return false;  
+		}  
     }
     
 	public int getId() {
