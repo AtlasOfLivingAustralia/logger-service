@@ -228,7 +228,7 @@ public class LoggerController {
      * @param entityUid
      * @return
      */
-    @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/{eventId}/counts.json", "/{entityUid}/{eventId}/counts"})
+    @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/events/{eventId}/counts.json", "/{entityUid}/events/{eventId}/counts"})
     public ModelAndView getLogEventCounts(
             @PathVariable("entityUid") String entityUid,
             @PathVariable("eventId") int eventId){
