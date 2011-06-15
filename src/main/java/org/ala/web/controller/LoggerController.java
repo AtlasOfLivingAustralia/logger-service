@@ -207,7 +207,7 @@ public class LoggerController {
             @PathVariable("entityUid") String entityUid,
             @PathVariable("eventType") Integer eventType){
         
-        return createEventSummary(entityUid, eventType);
+        return createDownloadSummary(entityUid, eventType);
     }
 
     /**
@@ -219,9 +219,62 @@ public class LoggerController {
     @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/downloads/counts.json", "/{entityUid}/downloads/counts"})
     public ModelAndView getLogEventCounts(
             @PathVariable("entityUid") String entityUid){
-        return createEventSummary(entityUid, 1002);
+        return createDownloadSummary(entityUid, 1002);
     }
-    
+
+    /**
+     * Create a summary for downloads
+     *
+     * @param entityUid
+     * @return
+     */
+    @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/{eventId}/counts.json", "/{entityUid}/{eventId}/counts"})
+    public ModelAndView getLogEventCounts(
+            @PathVariable("entityUid") String entityUid,
+            @PathVariable("eventId") int eventId){
+        return createEventSummary(entityUid, eventId);
+    }
+
+    /**
+     * Create a summary for the supplied event type and entity UID.
+     *
+     * @param entityUid
+     * @param eventType
+     * @return
+     */
+    private ModelAndView createEventSummary(String entityUid, Integer eventType) {
+        //all
+        Integer[] all = logEventDao.getLogEventsByEntity(entityUid, eventType);
+
+        Date now = new Date();
+
+        Date lastMonth = DateUtils.add(now, Calendar.MONTH, -1);
+        Date threeMonthsAgo = DateUtils.add(now, Calendar.MONTH, -4);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+
+        //last 3 months
+        Integer[] last3Months = logEventDao.getLogEventsByEntityAndMonthRange(entityUid, eventType, sdf.format(threeMonthsAgo), sdf.format(lastMonth));
+
+        Date firstOfMonth = DateUtils.setDays(now, 1);
+
+        //within the last month
+        Integer[] thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
+
+        //downloads this month
+        ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "all",createEventMapForJson(all));
+        mav.addObject("last3Months", createEventMapForJson(last3Months));
+        mav.addObject("thisMonth", createEventMapForJson(thisMonth));
+
+        return mav;
+    }
+
+    private Map<String, Integer> createEventMapForJson(Integer[] last3Months) {
+        Map<String, Integer> noDownloadsAndCount = new HashMap<String,Integer>();
+        noDownloadsAndCount.put("numberOfEvents", last3Months[0]);
+        noDownloadsAndCount.put("numberOfEventItems", last3Months[1]);
+        return noDownloadsAndCount;
+    }
+
     /**
      * Create a summary for the supplied event type and entity UID.
      * 
@@ -229,7 +282,7 @@ public class LoggerController {
      * @param eventType
      * @return
      */
-    private ModelAndView createEventSummary(String entityUid, Integer eventType) {
+    private ModelAndView createDownloadSummary(String entityUid, Integer eventType) {
         //all
         Integer[] all = logEventDao.getLogEventsByEntity(entityUid, eventType);
         
@@ -264,7 +317,7 @@ public class LoggerController {
     
 	/**
 	 * inject a map of remote user IP for security.
-	 * @param remoteAddress
+	 * @param remoteSourceAddress
 	 */
 	@Autowired
 	public void setRemoteSourceAddress(MapFactoryBean remoteSourceAddress) {
