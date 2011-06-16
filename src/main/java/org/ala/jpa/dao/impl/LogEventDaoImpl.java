@@ -156,6 +156,21 @@ public class LogEventDaoImpl implements LogEventDao {
         return toIntegerArray(numbers);
     }
 
+    public Integer[] getLogEventsByEntityOnThisMonth(String entity_uid, int log_event_type_id) {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
+        sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
+        sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
+        sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
+        sb.append(" AND le.month LIKE \"" + sdf.format(new Date()) + "%\"");
+        logger.debug(sb.toString());
+        Query q = em.createNativeQuery(sb.toString());
+        Object[] numbers = (Object[]) q.getResultList().get(0);
+        
+        return toIntegerArray(numbers);
+    }
+
     /**
      * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntityAndMonthRange(java.lang.String, java.lang.String, java.lang.String)
      */

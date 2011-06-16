@@ -85,4 +85,6 @@ public interface LogEventDao {
      * execute SQL statement
      */
     public Collection<Object[]> executeNativeQuery(String sql);
+    
+    public Integer[] getLogEventsByEntityOnThisMonth(String entity_uid, int log_event_type_id);
 }
