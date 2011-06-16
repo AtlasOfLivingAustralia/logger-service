@@ -258,7 +258,8 @@ public class LoggerController {
         Date firstOfMonth = DateUtils.setDays(now, 1);
 
         //within the last month
-        Integer[] thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
+        //Integer[] thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
+        Integer[] thisMonth = logEventDao.getLogEventsByEntityOnThisMonth(entityUid, eventType);
 
         //downloads this month
         ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "all",createEventMapForJson(all));
