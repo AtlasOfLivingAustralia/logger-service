@@ -14,12 +14,17 @@
  ***************************************************************************/
 package org.ala.web.controller;
 
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -249,7 +254,7 @@ public class LoggerController {
         Date now = new Date();
 
         Date lastMonth = DateUtils.add(now, Calendar.MONTH, -1);
-        Date threeMonthsAgo = DateUtils.add(now, Calendar.MONTH, -4);
+        Date threeMonthsAgo = DateUtils.add(now, Calendar.MONTH, -3);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
 
         //last 3 months
@@ -261,11 +266,26 @@ public class LoggerController {
         //Integer[] thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
         Integer[] thisMonth = logEventDao.getLogEventsByEntityOnThisMonth(entityUid, eventType);
 
+        //lastYearByMonth
+        Calendar curCal = Calendar.getInstance();
+        curCal.set(Calendar.DAY_OF_MONTH, 1) ;        
+        // increase by 1 for cover whole month value.
+        curCal.add(Calendar.MONTH, 1) ; 
+        
+        Calendar prevCal = Calendar.getInstance();
+        prevCal.set(Calendar.DAY_OF_MONTH, 1) ;
+        prevCal.add(Calendar.DAY_OF_MONTH, -1);
+        if(prevCal.get(Calendar.MONTH) != prevCal.DECEMBER){
+        	 prevCal.add(Calendar.YEAR, -1);
+        }
+        
+        Collection<Object[]> thisYear = logEventDao.getLogEventsCount(eventType, entityUid, sdf.format(prevCal.getTime()), sdf.format(curCal.getTime()));
+        
         //downloads this month
         ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "all",createEventMapForJson(all));
         mav.addObject("last3Months", createEventMapForJson(last3Months));
         mav.addObject("thisMonth", createEventMapForJson(thisMonth));
-
+        mav.addObject("lastYearByMonth", createMonthlyMapForJson(thisYear, curCal.get(Calendar.MONTH)));
         return mav;
     }
 
@@ -276,6 +296,46 @@ public class LoggerController {
         return noDownloadsAndCount;
     }
 
+    private Map<String, Integer> createMonthlyMapForJson(Collection<Object[]> l, int startMonth) {
+        Map<String, Integer> noDownloadsAndCount = new LinkedHashMap<String,Integer>();
+        DateFormatSymbols dfs = new DateFormatSymbols();
+        int month = startMonth + 1;
+        for(int mth = 1; mth <= 12; mth++){
+        	if(month > 12){
+        		month = 1;
+        	}
+        	Object[] value = getMonthValue(l, month);
+        	if(value != null){        		
+        		noDownloadsAndCount.put(dfs.getMonths()[month-1], Integer.valueOf(value[1].toString()));
+        	}
+        	else{
+        		noDownloadsAndCount.put(dfs.getMonths()[month-1], 0);
+        	}
+        	month++;
+        }
+        return noDownloadsAndCount;
+    }
+    
+    private Object[] getMonthValue(Collection<Object[]> l, int mth) {
+    	Object[] value = null;
+    	Iterator<Object[]> itr = l.iterator();
+    	while(itr.hasNext()){
+    		Object[] o = itr.next();
+    		if(o[0] != null && o[0].toString().length() > 5){
+    			int month = Integer.valueOf(o[0].toString().substring(4, 6));
+    			if(mth == month){
+    				value = o;
+    				if(value[1] == null || value[1].toString().length() == 0){
+    					value[1] = 0;
+    				}
+    				break;
+    			}
+    		}
+    	}
+        return value;
+    }
+    
+    
     /**
      * Create a summary for the supplied event type and entity UID.
      * 
@@ -290,7 +350,7 @@ public class LoggerController {
         Date now = new Date();
         
         Date lastMonth = DateUtils.add(now, Calendar.MONTH, -1);
-        Date threeMonthsAgo = DateUtils.add(now, Calendar.MONTH, -4);
+        Date threeMonthsAgo = DateUtils.add(now, Calendar.MONTH, -3);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
         
         //last 3 months
@@ -301,12 +361,27 @@ public class LoggerController {
         //within the last month
 //        Integer[] thisMonth = logEventDao.getLogEventsByEntityAndDateRange(entityUid, eventType, firstOfMonth, now);
         Integer[] thisMonth = logEventDao.getLogEventsByEntityOnThisMonth(entityUid, eventType);
+
+        //lastYearByMonth
+        Calendar curCal = Calendar.getInstance();
+        curCal.set(Calendar.DAY_OF_MONTH, 1) ;        
+        // increase by 1 for cover whole month value.
+        curCal.add(Calendar.MONTH, 1) ; 
+        
+        Calendar prevCal = Calendar.getInstance();
+        prevCal.set(Calendar.DAY_OF_MONTH, 1) ;
+        prevCal.add(Calendar.DAY_OF_MONTH, -1);
+        if(prevCal.get(Calendar.MONTH) != prevCal.DECEMBER){
+        	 prevCal.add(Calendar.YEAR, -1);
+        }
+        
+        Collection<Object[]> thisYear = logEventDao.getLogEventItemsCount(eventType, entityUid, sdf.format(prevCal.getTime()), sdf.format(curCal.getTime()));
         
         //downloads this month
         ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "all",createMapForJson(all));
         mav.addObject("last3Months", createMapForJson(last3Months));
         mav.addObject("thisMonth", createMapForJson(thisMonth));
-        
+        mav.addObject("lastYearByMonth", createMonthlyMapForJson(thisYear, curCal.get(Calendar.MONTH)));
         return mav;
     }
 

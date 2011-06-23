@@ -93,8 +93,8 @@ public class LogEventDaoImpl implements LogEventDao {
 		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
 		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
 		sb.append(" AND le.month LIKE \"" + year + "%\"");		
-		sb.append(" GROUP BY ld.entity_uid, le.month");
-		sb.append(" ORDER BY le.month");
+		sb.append(" GROUP BY ld.entity_uid, substring(le.month, 1, 6)");
+		sb.append(" ORDER BY substring(le.month, 1, 6)");
 		
 		logger.debug(sb.toString());
 		Query q = em.createNativeQuery(sb.toString());
@@ -103,7 +103,62 @@ public class LogEventDaoImpl implements LogEventDao {
 		
 		return q.getResultList();
 	}
+
+	private String increaseOneMonth(String date){
+		String toString = date;
+		if(date != null && date.length() > 5){
+			int toYr = Integer.valueOf(date.substring(0, 4));
+			int toMonth = Integer.valueOf(date.substring(4, 6)) + 1;
+			if(toMonth > 12){
+				toMonth = 1;
+				toYr = toYr + 1;
+			}
+			toString = toYr + "" + (toMonth > 9?""+toMonth: "0"+toMonth);
+		}
+		return toString;
+	}
 	
+	@SuppressWarnings("unchecked")
+	public Collection<Object[]> getLogEventsCount(int log_event_type_id, String entity_uid, String from, String to) {
+		//increase one month to cover whole month range.
+		String toString = increaseOneMonth(to);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT substring(le.month,1, 6), COUNT(le.id) FROM log_detail ld");
+		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
+		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
+		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
+        sb.append(" AND le.month >= \"" + from + "\"");
+        sb.append(" AND le.month < \"" + toString + "\"");	
+		sb.append(" GROUP BY ld.entity_uid, substring(le.month, 1, 6)");
+		sb.append(" ORDER BY substring(le.month, 1, 6)");
+		
+		logger.debug(sb.toString());
+		Query q = em.createNativeQuery(sb.toString());
+		
+		return q.getResultList();
+	}
+
+	@SuppressWarnings("unchecked")
+	public Collection<Object[]> getLogEventItemsCount(int log_event_type_id, String entity_uid, String from, String to) {
+		//increase one month to cover whole month range.
+		String toString = increaseOneMonth(to);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("SELECT substring(le.month,1, 6), SUM(ld.record_count) FROM log_detail ld");
+		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
+		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
+		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
+        sb.append(" AND le.month >= \"" + from + "\"");
+        sb.append(" AND le.month < \"" + toString + "\"");	
+		sb.append(" GROUP BY ld.entity_uid, substring(le.month, 1, 6)");
+		sb.append(" ORDER BY substring(le.month, 1, 6)");
+		
+		logger.debug(sb.toString());
+		Query q = em.createNativeQuery(sb.toString());
+		
+		return q.getResultList();
+	}
 
 	private Integer[] toIntegerArray(Object[] numbers){
 		int noOfDownloads = 0;
@@ -176,14 +231,16 @@ public class LogEventDaoImpl implements LogEventDao {
      */
     public Integer[] getLogEventsByEntityAndMonthRange(String entity_uid, int log_event_type_id,
             String startMonth, String endMonth) {
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        StringBuilder sb = new StringBuilder();
+    	//increase one month to cover whole month range.
+		String toString = increaseOneMonth(endMonth);
+		
+		StringBuilder sb = new StringBuilder();
         sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
         sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
         sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
         sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
         sb.append(" AND le.month >= \"" + startMonth + "\"");
-        sb.append(" AND le.month <= \"" + endMonth + "\"");
+        sb.append(" AND le.month < \"" + toString + "\"");
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
         Object[] numbers = (Object[]) q.getResultList().get(0);
