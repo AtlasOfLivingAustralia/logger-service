@@ -88,7 +88,7 @@ public class LogEventDaoImpl implements LogEventDao {
 	@SuppressWarnings("unchecked")
 	public Collection<Object[]> getLogEventsCount(int log_event_type_id, String entity_uid, String year) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT le.month, SUM(ld.record_count) FROM log_detail ld");
+		sb.append("SELECT substring(le.month,1, 6), SUM(ld.record_count) FROM log_detail ld");
 		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
 		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
 		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
@@ -119,37 +119,16 @@ public class LogEventDaoImpl implements LogEventDao {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Collection<Object[]> getLogEventsCount(int log_event_type_id, String entity_uid, String from, String to) {
+	public Collection<Object[]> getEventsDownloadsCount(int log_event_type_id, String entity_uid, String dateFrom, String dateTo) {
 		//increase one month to cover whole month range.
-		String toString = increaseOneMonth(to);
+		String toString = increaseOneMonth(dateTo);
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT substring(le.month,1, 6), COUNT(le.id) FROM log_detail ld");
+		sb.append("SELECT substring(le.month,1, 6), COUNT(le.id), SUM(ld.record_count) FROM log_detail ld");
 		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
 		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
 		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-        sb.append(" AND le.month >= \"" + from + "\"");
-        sb.append(" AND le.month < \"" + toString + "\"");	
-		sb.append(" GROUP BY ld.entity_uid, substring(le.month, 1, 6)");
-		sb.append(" ORDER BY substring(le.month, 1, 6)");
-		
-		logger.debug(sb.toString());
-		Query q = em.createNativeQuery(sb.toString());
-		
-		return q.getResultList();
-	}
-
-	@SuppressWarnings("unchecked")
-	public Collection<Object[]> getLogEventItemsCount(int log_event_type_id, String entity_uid, String from, String to) {
-		//increase one month to cover whole month range.
-		String toString = increaseOneMonth(to);
-		
-		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT substring(le.month,1, 6), SUM(ld.record_count) FROM log_detail ld");
-		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
-		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
-		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-        sb.append(" AND le.month >= \"" + from + "\"");
+        sb.append(" AND le.month >= \"" + dateFrom + "\"");
         sb.append(" AND le.month < \"" + toString + "\"");	
 		sb.append(" GROUP BY ld.entity_uid, substring(le.month, 1, 6)");
 		sb.append(" ORDER BY substring(le.month, 1, 6)");
@@ -189,63 +168,6 @@ public class LogEventDaoImpl implements LogEventDao {
         Object[] numbers = (Object[]) q.getResultList().get(0);
         
         return toIntegerArray(numbers);
-    }
-
-    /**
-     * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntityAndDateRange(java.lang.String, java.util.Date, java.util.Date)
-     */
-    public Integer[] getLogEventsByEntityAndDateRange(String entity_uid, int log_event_type_id,
-            Date startDate, Date endDate) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
-        sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
-        sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
-        sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-        sb.append(" AND le.created >= \"" + sdf.format(startDate) + "\"");
-        sb.append(" AND le.created <= \"" + sdf.format(endDate) + "\"");
-        logger.debug(sb.toString());
-        Query q = em.createNativeQuery(sb.toString());
-        Object[] numbers = (Object[]) q.getResultList().get(0);
-        
-        return toIntegerArray(numbers);
-    }
-
-    public Integer[] getLogEventsByEntityOnThisMonth(String entity_uid, int log_event_type_id) {
-    	SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
-        sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
-        sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
-        sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-        sb.append(" AND le.month LIKE \"" + sdf.format(new Date()) + "%\"");
-        logger.debug(sb.toString());
-        Query q = em.createNativeQuery(sb.toString());
-        Object[] numbers = (Object[]) q.getResultList().get(0);
-        
-        return toIntegerArray(numbers);
-    }
-
-    /**
-     * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntityAndMonthRange(java.lang.String, java.lang.String, java.lang.String)
-     */
-    public Integer[] getLogEventsByEntityAndMonthRange(String entity_uid, int log_event_type_id,
-            String startMonth, String endMonth) {
-    	//increase one month to cover whole month range.
-		String toString = increaseOneMonth(endMonth);
-		
-		StringBuilder sb = new StringBuilder();
-        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
-        sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
-        sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
-        sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-        sb.append(" AND le.month >= \"" + startMonth + "\"");
-        sb.append(" AND le.month < \"" + toString + "\"");
-        logger.debug(sb.toString());
-        Query q = em.createNativeQuery(sb.toString());
-        Object[] numbers = (Object[]) q.getResultList().get(0);
-        
-        return toIntegerArray(numbers);    
     }
 
     /**
