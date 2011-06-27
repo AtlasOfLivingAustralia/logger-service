@@ -206,7 +206,7 @@ public class LoggerController {
 		}			
 		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
 	}
-
+/*
     @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/{eventType}/counts.json", "/{entityUid}/{eventType}/counts"})
     public ModelAndView getLogEventCounts(
             @PathVariable("entityUid") String entityUid,
@@ -216,21 +216,15 @@ public class LoggerController {
         return createSummary(entityUid, eventType, SummaryType.DOWNLOAD);
     }
 
-    /**
-     * Create a summary for downloads
-     * 
-     * @param entityUid
-     * @return
-     */
     @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/downloads/counts.json", "/{entityUid}/downloads/counts"})
     public ModelAndView getLogEventCounts(
             @PathVariable("entityUid") String entityUid){
         //return createDownloadSummary(entityUid, 1002);
         return createSummary(entityUid, 1002, SummaryType.DOWNLOAD);
     }
-
+*/
     /**
-     * Create a summary for downloads
+     * Create a summary for event downloads
      *
      * @param entityUid
      * @return
@@ -268,7 +262,7 @@ public class LoggerController {
         mav = new ModelAndView(JSON_VIEW_NAME, "all",createMapForJson(all, summary));
         mav.addObject("last3Months", createMapForJson(thisYear, new int[]{(curCal.get(Calendar.MONTH) + 1), (curCal.get(Calendar.MONTH)), (curCal.get(Calendar.MONTH) - 1)}, summary));
         mav.addObject("thisMonth", createMapForJson(thisYear, new int[]{(curCal.get(Calendar.MONTH) + 1)}, summary));
-        mav.addObject("lastYearByMonth", createMonthlyMapForJson(thisYear, curCal.get(Calendar.MONTH) + 1, summary));
+        mav.addObject("lastYearByMonth", createMonthlyMapForJson(thisYear, curCal.get(Calendar.MONTH) + 1));
 
         return mav;
     }
@@ -304,30 +298,30 @@ public class LoggerController {
         }
         return noDownloadsAndCount;
     }
-
-    private Map<String, Integer> createMonthlyMapForJson(Collection<Object[]> l, int startMonth, SummaryType type) {
-        Map<String, Integer> noDownloadsAndCount = new LinkedHashMap<String,Integer>();
+ 
+    private Map<String, Map<String, Integer>> createMonthlyMapForJson(Collection<Object[]> l, int startMonth) {        
+        Map<String, Map<String, Integer>> monthlyCount = new LinkedHashMap<String, Map<String, Integer>>();     
+        
         DateFormatSymbols dfs = new DateFormatSymbols();
         int month = startMonth + 1;
         for(int mth = 1; mth <= 12; mth++){
+        	Map<String, Integer> noDownloadsAndCount = new LinkedHashMap<String,Integer>();
         	if(month > 12){
         		month = 1;
         	}
         	Object[] value = getMonthValue(l, month);
         	if(value != null){
-        		if(type == SummaryType.EVENT){
-        			noDownloadsAndCount.put(dfs.getMonths()[month-1], Integer.valueOf(value[SummaryType.EVENT.ordinal() + 1].toString()));
-        		}
-        		else{
-        			noDownloadsAndCount.put(dfs.getMonths()[month-1], Integer.valueOf(value[SummaryType.DOWNLOAD.ordinal() + 1].toString()));
-        		}
+        		noDownloadsAndCount.put("numberOfEvents", Integer.valueOf(value[SummaryType.EVENT.ordinal() + 1].toString()));
+        		noDownloadsAndCount.put("numberOfEventItems", Integer.valueOf(value[SummaryType.DOWNLOAD.ordinal() + 1].toString()));
         	}
         	else{
-        		noDownloadsAndCount.put(dfs.getMonths()[month-1], 0);
+        		noDownloadsAndCount.put("numberOfEvents", 0);
+        		noDownloadsAndCount.put("numberOfEventItems", 0);
         	}
+        	monthlyCount.put(dfs.getMonths()[month-1], noDownloadsAndCount);
         	month++;
         }
-        return noDownloadsAndCount;
+        return monthlyCount;
     }
     
     private Object[] getMonthValue(Collection<Object[]> l, int mth) {
