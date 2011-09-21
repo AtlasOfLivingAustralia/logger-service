@@ -28,7 +28,9 @@
 				<entry key="150.229.66.89" value="spatial.ala.org.au" />
 				<entry key="150.229.66.93" value="ala-bie2.vm.csiro.au" />
 				<entry key="150.229.66.91" value="ala-biocache2.vm.csiro.au" />
-				<entry key="127.0.0.1" value="localhost" />				
+				<entry key="127.0.0.1" value="localhost" />
+				<entry key="152.83.195.75" value="waimac.ala.org.au" />
+				<entry key="150.229.2.172" value="ala-macropus.it.csiro.au" />			
 			</map>
 		</property>
    	</bean>
