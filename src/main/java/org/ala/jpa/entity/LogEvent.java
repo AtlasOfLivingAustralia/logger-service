@@ -61,22 +61,32 @@ public class LogEvent extends PersistentEntity implements Serializable {
 	
 	@Column(name="log_event_type_id")
 	private int logEventTypeId;	
+
+	@Column(name="log_reason_type_id")
+	private Integer logReasonTypeId;	
 	
 	@OneToMany(fetch=FetchType.EAGER, cascade=CascadeType.ALL)
     @JoinColumn(name="log_event_id", nullable=false)
 	private Set<LogDetail> logDetails;
 
-    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, Set<LogDetail> logDetails) {
-    	this(source, logEventTypeId, userEmail,	userIp,	comment, null, logDetails);
+    public LogEvent(String source, org.ala.client.model.LogEventType logEventType, org.ala.client.model.LogReasonType logReasonType,
+    		String userEmail, String userIp, String comment, Set<LogDetail> logDetails) {
+    	this(source, logEventType, logReasonType, userEmail,	userIp,	comment, null, logDetails);
     }
-
-    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, String month, Set<LogDetail> logDetails) {
+    
+    public LogEvent(String source, org.ala.client.model.LogEventType logEventType, org.ala.client.model.LogReasonType logReasonType,
+    		String userEmail, String userIp, String comment, String month, Set<LogDetail> logDetails) {
     	this.source = source;
     	this.userEmail = userEmail;
     	this.userIp = userIp;
     	this.comment = comment;
     	this.logDetails = logDetails;
-    	this.logEventTypeId = logEventTypeId;
+    	if(logEventType != null){
+    		this.logEventTypeId = logEventType.getId();
+    	}
+    	if(logReasonType != null){
+    		this.logReasonTypeId = logReasonType.getId();
+    	}
     	
     	if(month != null && month.trim().length() > 3 && isInteger(month)) {
     		this.month = month.trim();
@@ -88,12 +98,14 @@ public class LogEvent extends PersistentEntity implements Serializable {
     	}
     }
     
-    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, Map<String, Integer> recordCounts) {
-    	this(source, logEventTypeId, userEmail,	userIp,	comment, recordCountsToLogDetails(logEventTypeId,recordCounts));
+    public LogEvent(String source, org.ala.client.model.LogEventType logEventType, org.ala.client.model.LogReasonType logReasonType,
+    		String userEmail, String userIp, String comment, Map<String, Integer> recordCounts) {
+    	this(source, logEventType, logReasonType, userEmail,	userIp,	comment, recordCountsToLogDetails(logEventType.getId(), recordCounts));
     }
     
-    public LogEvent(String source, int logEventTypeId, String userEmail, String userIp, String comment, String month, Map<String, Integer> recordCounts) {
-    	this(source, logEventTypeId, userEmail,	userIp,	comment, month, recordCountsToLogDetails(logEventTypeId,recordCounts));
+    public LogEvent(String source, org.ala.client.model.LogEventType logEventType, org.ala.client.model.LogReasonType logReasonType,
+    		String userEmail, String userIp, String comment, String month, Map<String, Integer> recordCounts) {
+    	this(source, logEventType, logReasonType, userEmail,	userIp,	comment, month, recordCountsToLogDetails(logEventType.getId(), recordCounts));
     } 
 
     public LogEvent() {
@@ -182,9 +194,13 @@ public class LogEvent extends PersistentEntity implements Serializable {
 	public int getLogEventTypeId() {
 		return logEventTypeId;
 	}
+	
+	public org.ala.client.model.LogEventType getLogEventType() {
+		return org.ala.client.model.LogEventType.getLogEventType(logEventTypeId);
+	}
 
-	public void setLogEventTypeId(int logEventTypeId) {
-		this.logEventTypeId = logEventTypeId;
+	public void setLogEventTypeId(org.ala.client.model.LogEventType logEventType) {
+		this.logEventTypeId = logEventType.getId();
 	}
 	
 	public String getSource() {
@@ -193,6 +209,18 @@ public class LogEvent extends PersistentEntity implements Serializable {
 
 	public void setSource(String source) {
 		this.source = source;
+	}
+
+	public int getLogReasonTypeId() {
+		int i = -1;
+		if(logReasonTypeId != null){
+			i = logReasonTypeId;
+		}
+		return i;
+	}
+
+	public void setLogReasonTypeId(org.ala.client.model.LogReasonType logReasonType) {
+		this.logReasonTypeId = logReasonType.getId();
 	}
 	
 /*

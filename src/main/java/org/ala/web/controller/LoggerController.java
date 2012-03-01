@@ -18,6 +18,7 @@ import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -28,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.ala.client.model.LogEventType;
 import org.ala.client.model.LogEventVO;
+import org.ala.jpa.entity.LogReasonType;
 import org.ala.jpa.dao.LogEventDao;
 import org.ala.jpa.entity.LogEvent;
 import org.apache.log4j.Logger;
@@ -179,24 +181,33 @@ public class LoggerController {
 		try {
 			logEventVO = mapper.readValue(body, LogEventVO.class);		
 			if(logEventVO != null){
-				// validate logEventType
+				// validate logEventType & logReasonType
 				LogEventType type = LogEventType.getLogEventType(logEventVO.getEventTypeId());
 				if(type == null){
-					throw new NoSuchFieldException();
+					throw new NoSuchFieldException("Invalid LogEventTypeId: " + logEventVO.getEventTypeId());
 				}
+				// optional parameter
+				org.ala.client.model.LogReasonType rtype = org.ala.client.model.LogReasonType.getLogReasonType(logEventVO.getReasonTypeId());
+//				if(rtype == null){
+//					rtype = org.ala.client.model.LogReasonType.DOWNLOAD_REASON_OTHER;
+//				}
+				
 				String realIp = request.getHeader(X_FORWARDED_FOR);
 				if(realIp == null || "".equals(realIp)){
 					realIp = request.getRemoteAddr();
 				}
 				
+				// populate vo
 				if(logEventVO.getMonth() == null || (logEventVO.getMonth() != null && logEventVO.getMonth().length() < 4)){
-				logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type.getId(), logEventVO.getUserEmail(), 
+				logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type, rtype, logEventVO.getUserEmail(), 
 						logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
 				}
 				else{
-					logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type.getId(), logEventVO.getUserEmail(), 
+					logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type, rtype, logEventVO.getUserEmail(), 
 							logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getMonth(), logEventVO.getRecordCounts());
 				}
+				
+				// save vo
 				logEvent = logEventDao.save(logEvent);
 			}
 			
@@ -206,6 +217,8 @@ public class LoggerController {
 		}			
 		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
 	}
+	
+	
 /*
     @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/{eventType}/counts.json", "/{entityUid}/{eventType}/counts"})
     public ModelAndView getLogEventCounts(
@@ -420,5 +433,32 @@ public class LoggerController {
 	public List<String> getRemoteAddress() {
 		return remoteAddress;
 	}
-	*/	
+	*/
+	
+	@RequestMapping(method=RequestMethod.GET, value="/logger/reasons")
+	public ModelAndView getLogReasons(HttpServletRequest request, HttpServletResponse response) {
+		Collection<LogReasonType> logReason = null;
+		//check user
+		if(!checkRemoteAddress(request)){
+			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());			
+		}
+				
+		try {			
+			logReason = logEventDao.findLogReasons();
+		} 
+		catch (Exception e) {
+			return this.createErrorResponse(response, HttpStatus.NOT_FOUND.value());
+		} 
+		return new ModelAndView(JSON_VIEW_NAME, "", logReason);
+	}
+
+	@RequestMapping(method=RequestMethod.GET, value="/logger/loadLogReasonType")
+	public void loadLogReasonType(HttpServletRequest request, HttpServletResponse response) {
+		logEventDao.updateAllLogReasonTypes(EnumSet.allOf(org.ala.client.model.LogReasonType.class));
+	}
+	
+	@RequestMapping(method=RequestMethod.GET, value="/logger/loadLogEventType")
+	public void loadLogEventType(HttpServletRequest request, HttpServletResponse response) {
+		logEventDao.updateAllLogEventTypes(EnumSet.allOf(org.ala.client.model.LogEventType.class));
+	}	
 }
