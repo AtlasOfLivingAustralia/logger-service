@@ -20,7 +20,9 @@ import java.util.EnumSet;
 
 import org.ala.jpa.entity.LogDetail;
 import org.ala.jpa.entity.LogEvent;
+import org.ala.jpa.entity.LogEventType;
 import org.ala.jpa.entity.LogReasonType;
+import org.ala.jpa.entity.LogSourceType;
 
 public interface LogEventDao {
 
@@ -79,7 +81,10 @@ public interface LogEventDao {
     public Collection<Object[]> getEventsDownloadsCount(int log_event_type_id, String entity_uid, String dateFrom, String dateTo);
 
     //==== LogReasonType ========
-    public void updateAllLogReasonTypes(EnumSet<org.ala.client.model.LogReasonType> enums);
-    public void updateAllLogEventTypes(EnumSet<org.ala.client.model.LogEventType> enums);
-    public Collection<LogReasonType> findLogReasons();
+    public Collection<LogReasonType> findLogReasonTypes();
+    public LogReasonType findLogReasonById(int id);
+    public LogSourceType findLogSourceTypeById(int id);
+    public Collection<LogSourceType> findLogSourceTypes();
+    public LogEventType findLogEventTypeById(int id);
+    public Collection<LogEventType> findLogEventTypes();
 }

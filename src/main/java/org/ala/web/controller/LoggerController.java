@@ -18,7 +18,6 @@ import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -27,11 +26,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.ala.client.model.LogEventType;
 import org.ala.client.model.LogEventVO;
-import org.ala.jpa.entity.LogReasonType;
 import org.ala.jpa.dao.LogEventDao;
 import org.ala.jpa.entity.LogEvent;
+import org.ala.jpa.entity.LogEventType;
+import org.ala.jpa.entity.LogReasonType;
+import org.ala.jpa.entity.LogSourceType;
 import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -181,16 +181,27 @@ public class LoggerController {
 		try {
 			logEventVO = mapper.readValue(body, LogEventVO.class);		
 			if(logEventVO != null){
-				// validate logEventType & logReasonType
-				LogEventType type = LogEventType.getLogEventType(logEventVO.getEventTypeId());
+				// validate logEventType & LogReasonType & LogSourceType
+				// mysql doesn't support field check constraint 
+				// eg: "alter table log_event add CHECK ( log_reason_type_id IN (select id from log_reason_type UNION select NULL));"
+				LogEventType type = logEventDao.findLogEventTypeById(logEventVO.getEventTypeId());
 				if(type == null){
-					throw new NoSuchFieldException("Invalid LogEventTypeId: " + logEventVO.getEventTypeId());
+					throw new NoSuchFieldException();
+				}				
+				LogReasonType rtype = null;
+				if(logEventVO.getReasonTypeId() != null){
+					rtype = logEventDao.findLogReasonById(logEventVO.getReasonTypeId());
+					if(rtype == null){
+						throw new NoSuchFieldException();
+					}
 				}
-				// optional parameter
-				org.ala.client.model.LogReasonType rtype = org.ala.client.model.LogReasonType.getLogReasonType(logEventVO.getReasonTypeId());
-//				if(rtype == null){
-//					rtype = org.ala.client.model.LogReasonType.DOWNLOAD_REASON_OTHER;
-//				}
+				LogSourceType stype = null;
+				if(logEventVO.getSourceTypeId() != null){
+					stype = logEventDao.findLogSourceTypeById(logEventVO.getSourceTypeId());
+					if(stype == null){
+						throw new NoSuchFieldException();
+					}
+				}
 				
 				String realIp = request.getHeader(X_FORWARDED_FOR);
 				if(realIp == null || "".equals(realIp)){
@@ -199,26 +210,22 @@ public class LoggerController {
 				
 				// populate vo
 				if(logEventVO.getMonth() == null || (logEventVO.getMonth() != null && logEventVO.getMonth().length() < 4)){
-				logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type, rtype, logEventVO.getUserEmail(), 
-						logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
+				logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type.getId(), rtype==null?null:rtype.getId(), stype==null?null:stype.getId(), 
+						logEventVO.getUserEmail(), logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
 				}
 				else{
-					logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type, rtype, logEventVO.getUserEmail(), 
-							logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getMonth(), logEventVO.getRecordCounts());
+					logEvent = new LogEvent((String)remoteSourceAddress.get(realIp.trim()), type.getId(), rtype==null?null:rtype.getId(), stype==null?null:stype.getId(),
+						logEventVO.getUserEmail(), logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getMonth(), logEventVO.getRecordCounts());
 				}
-				
-				// save vo
 				logEvent = logEventDao.save(logEvent);
 			}
 			
 		} catch (Exception e) {
-			logger.error("Invalid LogEvent Type or Id: " + logEventVO.getEventTypeId() + "\n JSON request: \n" +  body, e);
+			logger.error("Invalid LogEventType or LogReasonType or Id, \n JSON request: \n" +  body, e);
 			return this.createErrorResponse(response, HttpStatus.NOT_ACCEPTABLE.value());
 		}			
 		return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);		
 	}
-	
-	
 /*
     @RequestMapping(method=RequestMethod.GET, value={"/{entityUid}/{eventType}/counts.json", "/{entityUid}/{eventType}/counts"})
     public ModelAndView getLogEventCounts(
@@ -433,32 +440,56 @@ public class LoggerController {
 	public List<String> getRemoteAddress() {
 		return remoteAddress;
 	}
-	*/
+	*/	
 	
 	@RequestMapping(method=RequestMethod.GET, value="/logger/reasons")
 	public ModelAndView getLogReasons(HttpServletRequest request, HttpServletResponse response) {
-		Collection<LogReasonType> logReason = null;
+		Collection<LogReasonType> types = null;
 		//check user
 		if(!checkRemoteAddress(request)){
 			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());			
 		}
 				
 		try {			
-			logReason = logEventDao.findLogReasons();
+			types = logEventDao.findLogReasonTypes();
 		} 
 		catch (Exception e) {
 			return this.createErrorResponse(response, HttpStatus.NOT_FOUND.value());
 		} 
-		return new ModelAndView(JSON_VIEW_NAME, "", logReason);
+		return new ModelAndView(JSON_VIEW_NAME, "", types);
 	}
 
-	@RequestMapping(method=RequestMethod.GET, value="/logger/loadLogReasonType")
-	public void loadLogReasonType(HttpServletRequest request, HttpServletResponse response) {
-		logEventDao.updateAllLogReasonTypes(EnumSet.allOf(org.ala.client.model.LogReasonType.class));
+	@RequestMapping(method=RequestMethod.GET, value="/logger/sources")
+	public ModelAndView loadLogReasonType(HttpServletRequest request, HttpServletResponse response) {
+		Collection<LogSourceType> types = null;
+		//check user
+		if(!checkRemoteAddress(request)){
+			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());			
+		}
+				
+		try {			
+			types = logEventDao.findLogSourceTypes();
+		} 
+		catch (Exception e) {
+			return this.createErrorResponse(response, HttpStatus.NOT_FOUND.value());
+		} 
+		return new ModelAndView(JSON_VIEW_NAME, "", types);
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/logger/loadLogEventType")
-	public void loadLogEventType(HttpServletRequest request, HttpServletResponse response) {
-		logEventDao.updateAllLogEventTypes(EnumSet.allOf(org.ala.client.model.LogEventType.class));
-	}	
+	@RequestMapping(method=RequestMethod.GET, value="/logger/events")
+	public ModelAndView loadLogEventType(HttpServletRequest request, HttpServletResponse response) {
+		Collection<LogEventType> types = null;
+		//check user
+		if(!checkRemoteAddress(request)){
+			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());			
+		}
+				
+		try {			
+			types = logEventDao.findLogEventTypes();
+		} 
+		catch (Exception e) {
+			return this.createErrorResponse(response, HttpStatus.NOT_FOUND.value());
+		} 
+		return new ModelAndView(JSON_VIEW_NAME, "", types);
+	}		
 }

@@ -30,6 +30,7 @@ import org.ala.jpa.entity.LogDetail;
 import org.ala.jpa.entity.LogEvent;
 import org.ala.jpa.entity.LogEventType;
 import org.ala.jpa.entity.LogReasonType;
+import org.ala.jpa.entity.LogSourceType;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
@@ -206,31 +207,26 @@ public class LogEventDaoImpl implements LogEventDao {
 	}
 
 	@SuppressWarnings("unchecked")
-	public Collection<LogReasonType> findLogReasons() {
+	public Collection<LogReasonType> findLogReasonTypes() {
 		return em.createQuery("select p from LogReasonType p order by p.id").getResultList();
 	}
 	
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void updateAllLogReasonTypes(EnumSet<org.ala.client.model.LogReasonType> enums) {
-		for (org.ala.client.model.LogReasonType lt : enums) {
-			logger.debug("***** update LogReasonType: " + lt.getName());
-			LogReasonType logReasonType = findLogReasonById(lt.getId());
-			if(logReasonType != null){
-				em.remove(logReasonType);
-			}
-			em.merge(new LogReasonType(lt.getId(), lt.getKey(), lt.getName()));
-		}
-	}	
+	public LogEventType findLogEventTypeById(int id) {
+		return em.find(LogEventType.class, id);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Collection<LogEventType> findLogEventTypes() {
+		return em.createQuery("select p from LogEventType p order by p.id").getResultList();
+	}
+
+	public LogSourceType findLogSourceTypeById(int id) {
+		return em.find(LogSourceType.class, id);
+	}
+
+	@SuppressWarnings("unchecked")
+	public Collection<LogSourceType> findLogSourceTypes() {
+		return em.createQuery("select p from LogSourceType p order by p.id").getResultList();
+	}
 	
-	@Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
-	public void updateAllLogEventTypes(EnumSet<org.ala.client.model.LogEventType> enums) {
-		for (org.ala.client.model.LogEventType lt : enums) {
-			logger.debug("***** update LogEventType: " + lt.getName());
-			LogReasonType logReasonType = findLogReasonById(lt.getId());
-			if(logReasonType != null){
-				em.remove(logReasonType);
-			}
-			em.merge(new LogEventType(lt.getId(), lt.getName()));
-		}
-	}		
 }
