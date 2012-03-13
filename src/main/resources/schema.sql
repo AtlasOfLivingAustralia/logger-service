@@ -73,6 +73,14 @@ CREATE  TABLE IF NOT EXISTS `logger`.`log_reason_type` (
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
+DROP TABLE IF EXISTS `logger`.`log_source_type` ;
+
+CREATE  TABLE IF NOT EXISTS `logger`.log_source_type (
+  `id` INT(11) NOT NULL ,
+  `name` VARCHAR(255) NULL DEFAULT NULL ,
+  PRIMARY KEY (`id`) )
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
