@@ -445,10 +445,6 @@ public class LoggerController {
 	@RequestMapping(method=RequestMethod.GET, value="/logger/reasons")
 	public ModelAndView getLogReasons(HttpServletRequest request, HttpServletResponse response) {
 		Collection<LogReasonType> types = null;
-		//check user
-		if(!checkRemoteAddress(request)){
-			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());			
-		}
 				
 		try {			
 			types = logEventDao.findLogReasonTypes();
@@ -462,10 +458,6 @@ public class LoggerController {
 	@RequestMapping(method=RequestMethod.GET, value="/logger/sources")
 	public ModelAndView loadLogReasonType(HttpServletRequest request, HttpServletResponse response) {
 		Collection<LogSourceType> types = null;
-		//check user
-		if(!checkRemoteAddress(request)){
-			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());			
-		}
 				
 		try {			
 			types = logEventDao.findLogSourceTypes();
@@ -479,10 +471,6 @@ public class LoggerController {
 	@RequestMapping(method=RequestMethod.GET, value="/logger/events")
 	public ModelAndView loadLogEventType(HttpServletRequest request, HttpServletResponse response) {
 		Collection<LogEventType> types = null;
-		//check user
-		if(!checkRemoteAddress(request)){
-			return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());			
-		}
 				
 		try {			
 			types = logEventDao.findLogEventTypes();
