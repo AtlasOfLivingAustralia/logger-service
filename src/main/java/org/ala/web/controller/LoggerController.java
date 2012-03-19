@@ -16,6 +16,7 @@ package org.ala.web.controller;
 
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
@@ -45,6 +46,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 enum SummaryType {
@@ -442,42 +444,42 @@ public class LoggerController {
 	}
 	*/	
 	
-	@RequestMapping(method=RequestMethod.GET, value="/logger/reasons")
-	public ModelAndView getLogReasons(HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping(method=RequestMethod.GET, value="/logger/reasons", headers = "Accept=application/json")
+	public @ResponseBody Collection<LogReasonType> getLogReasons(HttpServletRequest request, HttpServletResponse response) {
 		Collection<LogReasonType> types = null;
 				
 		try {			
 			types = logEventDao.findLogReasonTypes();
 		} 
 		catch (Exception e) {
-			return this.createErrorResponse(response, HttpStatus.NOT_FOUND.value());
+			return new ArrayList<LogReasonType>();
 		} 
-		return new ModelAndView(JSON_VIEW_NAME, "", types);
+		return types;
 	}
 
-	@RequestMapping(method=RequestMethod.GET, value="/logger/sources")
-	public ModelAndView loadLogReasonType(HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping(method=RequestMethod.GET, value="/logger/sources", headers = "Accept=application/json")
+	public @ResponseBody Collection<LogSourceType> loadLogReasonType(HttpServletRequest request, HttpServletResponse response) {
 		Collection<LogSourceType> types = null;
 				
 		try {			
 			types = logEventDao.findLogSourceTypes();
 		} 
 		catch (Exception e) {
-			return this.createErrorResponse(response, HttpStatus.NOT_FOUND.value());
+			return new ArrayList<LogSourceType>();
 		} 
-		return new ModelAndView(JSON_VIEW_NAME, "", types);
+		return types;
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/logger/events")
-	public ModelAndView loadLogEventType(HttpServletRequest request, HttpServletResponse response) {
+	@RequestMapping(method=RequestMethod.GET, value="/logger/events", headers = "Accept=application/json")
+	public @ResponseBody Collection<LogEventType> loadLogEventType(HttpServletRequest request, HttpServletResponse response) {
 		Collection<LogEventType> types = null;
 				
 		try {			
 			types = logEventDao.findLogEventTypes();
 		} 
 		catch (Exception e) {
-			return this.createErrorResponse(response, HttpStatus.NOT_FOUND.value());
+			return new ArrayList<LogEventType>();
 		} 
-		return new ModelAndView(JSON_VIEW_NAME, "", types);
+		return types;
 	}		
 }

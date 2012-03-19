@@ -14,7 +14,7 @@
 	</description>
     
 	<properties>
-		<spring.version>3.0.0.RELEASE</spring.version>
+		<spring.version>3.1.0.RELEASE</spring.version>
 	</properties>	
 		
     <organization>
@@ -181,12 +181,12 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-core-asl</artifactId>
-			<version>1.4.1</version>
+			<version>1.8.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-mapper-asl</artifactId>
-			<version>1.4.1</version>
+			<version>1.8.5</version>
 		</dependency>        
 	</dependencies>
 		
