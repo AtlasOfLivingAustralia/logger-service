@@ -79,6 +79,10 @@ public interface LogEventDao {
     public Collection<Object[]> executeNativeQuery(String sql);
         
     public Collection<Object[]> getEventsDownloadsCount(int log_event_type_id, String entity_uid, String dateFrom, String dateTo);
+    
+    public Collection<Object[]> getEventsReasonBreakdown(int log_event_type_id, String entity_uid, String dateFrom, String dateTo);
+    
+    public Collection<Object[]> getEventsEmailBreakdown(int log_event_type_id, String entity_uid, String dateFrom, String dateTo);
 
     //==== LogReasonType ========
     public Collection<LogReasonType> findLogReasonTypes();

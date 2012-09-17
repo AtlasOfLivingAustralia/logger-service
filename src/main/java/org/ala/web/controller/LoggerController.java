@@ -14,6 +14,8 @@
  ***************************************************************************/
 package org.ala.web.controller;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -69,6 +71,8 @@ public class LoggerController {
 	private static final String X_FORWARDED_FOR = "X-Forwarded-For";
 	
 	protected static Logger logger = Logger.getLogger(LoggerController.class);
+	
+	protected static String[] EMAIL_CATEGORIES = {"edu", "gov", "other", "unspecified"};
 	
 	/**
 	 * 
@@ -482,4 +486,196 @@ public class LoggerController {
 		} 
 		return types;
 	}		
+	
+    /**
+     * Create a summary for event downloads with breakdown by reason for
+     * download
+     * 
+     * @param entityUid
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/reasonBreakdown")
+    public ModelAndView getReasonBreakdown(@RequestParam(value = "entityUid", required = false) String entityUid, @RequestParam(value = "eventId", required = true, defaultValue = "-1") int eventId) {
+
+        Collection<LogReasonType> logReasonTypes = logEventDao.findLogReasonTypes();
+        Map<Integer, String> logReasonTypesMap = new HashMap<Integer, String>();
+        for (LogReasonType reasonType : logReasonTypes) {
+            logReasonTypesMap.put(reasonType.getId(), reasonType.getName());
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+
+        Calendar fromCal = Calendar.getInstance();
+        Calendar toCal = Calendar.getInstance();
+        
+        //search for events up to the beginning of the next month
+        toCal.set(Calendar.DAY_OF_MONTH, 1);
+        toCal.add(Calendar.MONTH, 1);
+        fromCal.set(Calendar.DAY_OF_MONTH, 1);
+        fromCal.add(Calendar.MONTH, 1);
+        
+        // this month
+        fromCal.add(Calendar.MONTH, -1);
+        Collection<Object[]> thisMonthRawData = logEventDao.getEventsReasonBreakdown(eventId, entityUid, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
+        Map<String, Object> thisMonthReasonBreakdown = buildReasonBreakdownMap(thisMonthRawData, logReasonTypesMap);
+
+        // last 3 months
+        fromCal.add(Calendar.MONTH, -2);
+        Collection<Object[]> last3MonthsRawData = logEventDao.getEventsReasonBreakdown(eventId, entityUid, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
+        Map<String, Object> last3MonthsReasonBreakdown = buildReasonBreakdownMap(last3MonthsRawData, logReasonTypesMap);
+
+        // last year
+        fromCal = Calendar.getInstance();
+        fromCal.set(Calendar.DAY_OF_MONTH, 1);
+        fromCal.add(Calendar.MONTH, 1);
+        fromCal.add(Calendar.YEAR, -1);
+        Collection<Object[]> lastYearRawData = logEventDao.getEventsReasonBreakdown(eventId, entityUid, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
+        Map<String, Object> lastYearReasonBreakdown = buildReasonBreakdownMap(lastYearRawData, logReasonTypesMap);        
+                
+        ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "thisMonth", thisMonthReasonBreakdown);
+        mav.addObject("last3Months", last3MonthsReasonBreakdown);
+        mav.addObject("lastYear", lastYearReasonBreakdown);
+        
+        return mav;
+    }
+
+    private Map<String, Object> buildReasonBreakdownMap(Collection<Object[]> rawData, Map<Integer, String> logReasonTypesMap) {
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        
+        Map<String, Map<String, Object>> reasonBreakdownDetailMap = new HashMap<String, Map<String,Object>>(); 
+
+        BigInteger totalNumberOfEvents = BigInteger.ZERO;
+        BigInteger totalNumberOfEventItems = BigInteger.ZERO;
+
+        for (Object[] dataElement : rawData) {
+            Integer reasonTypeId = (Integer) dataElement[0];
+            BigInteger numberOfEvents = ((BigDecimal) dataElement[1]).toBigIntegerExact();
+            BigInteger numberOfEventItems = ((BigDecimal) dataElement[2]).toBigIntegerExact();
+
+            String reasonName;
+            if (reasonTypeId == -1) {
+                reasonName = "unclassified";
+            } else {
+                reasonName = logReasonTypesMap.get(reasonTypeId);
+            }
+
+            Map<String, Object> reasonNumbersMap = new HashMap<String, Object>();
+            reasonNumbersMap.put("numberOfEvents", numberOfEvents);
+            reasonNumbersMap.put("numberOfEventItems", numberOfEventItems);
+            
+            reasonBreakdownDetailMap.put(reasonName, reasonNumbersMap);
+            
+            totalNumberOfEvents = totalNumberOfEvents.add(numberOfEvents);
+            totalNumberOfEventItems = totalNumberOfEventItems.add(numberOfEventItems);
+        }
+        
+        //need to add in zero values for any reasons for which there are no recorded events in the time period
+        for (String reasonName: logReasonTypesMap.values()) {
+            if (!reasonBreakdownDetailMap.containsKey(reasonName)) {
+                Map<String, Object> reasonNumbersMap = new HashMap<String, Object>();
+                reasonNumbersMap.put("numberOfEvents", 0);
+                reasonNumbersMap.put("numberOfEventItems", 0);
+                reasonBreakdownDetailMap.put(reasonName, reasonNumbersMap);
+            }
+        }
+        
+        retMap.put("numberOfEvents", totalNumberOfEvents);
+        retMap.put("numberOfEventItems", totalNumberOfEventItems);
+        retMap.put("reasonBreakdown", reasonBreakdownDetailMap);
+
+        return retMap;
+    }
+    
+    
+    /**
+     * Create a summary for event downloads with breakdown by reason for
+     * download
+     * 
+     * @param entityUid
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET, value = "/emailBreakdown")
+    public ModelAndView getEmailBreakdown(@RequestParam(value = "entityUid", required = false) String entityUid, @RequestParam(value = "eventId", required = true) int eventId) {
+        
+        Collection<LogReasonType> logReasonTypes = logEventDao.findLogReasonTypes();
+        Map<Integer, String> logReasonTypesMap = new HashMap<Integer, String>();
+        for (LogReasonType reasonType : logReasonTypes) {
+            logReasonTypesMap.put(reasonType.getId(), reasonType.getName());
+        }
+
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+
+        Calendar fromCal = Calendar.getInstance();
+        Calendar toCal = Calendar.getInstance();
+        
+        //search for events up to the beginning of the next month
+        toCal.set(Calendar.DAY_OF_MONTH, 1);
+        toCal.add(Calendar.MONTH, 1);
+        fromCal.set(Calendar.DAY_OF_MONTH, 1);
+        fromCal.add(Calendar.MONTH, 1);
+        
+        // this month
+        fromCal.add(Calendar.MONTH, -1);
+        Collection<Object[]> thisMonthRawData = logEventDao.getEventsEmailBreakdown(eventId, entityUid, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
+        Map<String, Object> thisMonthEmailBreakdown = buildEmailBreakdownMap(thisMonthRawData);
+
+        // last 3 months
+        fromCal.add(Calendar.MONTH, -2);
+        Collection<Object[]> last3MonthsRawData = logEventDao.getEventsEmailBreakdown(eventId, entityUid, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
+        Map<String, Object> last3MonthsEmailBreakdown = buildEmailBreakdownMap(last3MonthsRawData);
+
+        // last year
+        fromCal = Calendar.getInstance();
+        fromCal.set(Calendar.DAY_OF_MONTH, 1);
+        fromCal.add(Calendar.MONTH, 1);
+        fromCal.add(Calendar.YEAR, -1);
+        Collection<Object[]> lastYearRawData = logEventDao.getEventsEmailBreakdown(eventId, entityUid, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
+        Map<String, Object> lastYearEmailBreakdown = buildEmailBreakdownMap(lastYearRawData);        
+                
+        ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "thisMonth", thisMonthEmailBreakdown);
+        mav.addObject("last3Months", last3MonthsEmailBreakdown);
+        mav.addObject("lastYear", lastYearEmailBreakdown);
+        
+        return mav;
+    }
+
+    private Map<String, Object> buildEmailBreakdownMap(Collection<Object[]> rawData) {
+        Map<String, Object> retMap = new HashMap<String, Object>();
+        
+        Map<String, Map<String, Object>> emailBreakdownDetailMap = new HashMap<String, Map<String,Object>>(); 
+
+        BigInteger totalNumberOfEvents = BigInteger.ZERO;
+        BigInteger totalNumberOfEventItems = BigInteger.ZERO;
+
+        for (Object[] dataElement : rawData) {
+            String email = (String) dataElement[0];
+            BigInteger numberOfEvents = ((BigDecimal) dataElement[1]).toBigIntegerExact();
+            BigInteger numberOfEventItems = ((BigDecimal) dataElement[2]).toBigIntegerExact();
+            
+            Map<String, Object> categoryNumbersMap = new HashMap<String, Object>();
+            categoryNumbersMap.put("numberOfEvents", numberOfEvents);
+            categoryNumbersMap.put("numberOfEventItems", numberOfEventItems);
+            
+            emailBreakdownDetailMap.put(email, categoryNumbersMap);
+            
+            totalNumberOfEvents = totalNumberOfEvents.add(numberOfEvents);
+            totalNumberOfEventItems = totalNumberOfEventItems.add(numberOfEventItems);
+        }
+        
+        //need to add in zero values for any email categories for which there are no recorded events in the time period
+        for (String reasonName: EMAIL_CATEGORIES) {
+            if (!emailBreakdownDetailMap.containsKey(reasonName)) {
+                Map<String, Object> categoryNumbersMap = new HashMap<String, Object>();
+                categoryNumbersMap.put("numberOfEvents", 0);
+                categoryNumbersMap.put("numberOfEventItems", 0);
+                emailBreakdownDetailMap.put(reasonName, categoryNumbersMap);
+            }
+        }
+        
+        retMap.put("numberOfEvents", totalNumberOfEvents);
+        retMap.put("numberOfEventItems", totalNumberOfEventItems);
+        retMap.put("emailBreakdown", emailBreakdownDetailMap);
+
+        return retMap;
+    }
 }

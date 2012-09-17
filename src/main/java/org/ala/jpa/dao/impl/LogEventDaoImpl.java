@@ -16,10 +16,7 @@
 package org.ala.jpa.dao.impl;
 
 
-import java.text.SimpleDateFormat;
 import java.util.Collection;
-import java.util.Date;
-import java.util.EnumSet;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -92,18 +89,16 @@ public class LogEventDaoImpl implements LogEventDao {
 	@SuppressWarnings("unchecked")
 	public Collection<Object[]> getLogEventsCount(int log_event_type_id, String entity_uid, String year) {
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT substring(le.month,1, 6), SUM(ld.record_count) FROM log_detail ld");
-		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
-		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
-		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-		sb.append(" AND le.month LIKE \"" + year + "%\"");		
-		sb.append(" GROUP BY ld.entity_uid, substring(le.month, 1, 6)");
-		sb.append(" ORDER BY substring(le.month, 1, 6)");
+		
+		sb.append("SELECT month, SUM(record_count) FROM event_summary_breakdown_reason_entity");
+		sb.append(" WHERE log_event_type_id = ? AND month like ? AND entity_uid = ?");
+		sb.append(" GROUP BY month");
 		
 		logger.debug(sb.toString());
 		Query q = em.createNativeQuery(sb.toString());
-//		q.setParameter(1, log_event_type_id);
-//		q.setParameter(2, entity_uid);
+		q.setParameter(1, log_event_type_id);
+		q.setParameter(2, year + "%");
+		q.setParameter(3, entity_uid);
 		
 		return q.getResultList();
 	}
@@ -125,20 +120,19 @@ public class LogEventDaoImpl implements LogEventDao {
 	@SuppressWarnings("unchecked")
 	public Collection<Object[]> getEventsDownloadsCount(int log_event_type_id, String entity_uid, String dateFrom, String dateTo) {
 		//increase one month to cover whole month range.
-		String toString = increaseOneMonth(dateTo);
+		String dateToModified = increaseOneMonth(dateTo);
 		
 		StringBuilder sb = new StringBuilder();
-		sb.append("SELECT substring(le.month,1, 6), COUNT(le.id), SUM(ld.record_count) FROM log_detail ld");
-		sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
-		sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
-		sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
-        sb.append(" AND le.month >= \"" + dateFrom + "\"");
-        sb.append(" AND le.month < \"" + toString + "\"");	
-		sb.append(" GROUP BY ld.entity_uid, substring(le.month, 1, 6)");
-		sb.append(" ORDER BY substring(le.month, 1, 6)");
+		sb.append("SELECT month, SUM(number_of_events), SUM(record_count) FROM event_summary_breakdown_reason_entity");
+		sb.append(" WHERE log_event_type_id = ? AND entity_uid = ? AND month >= ? AND month < ?");
+		sb.append(" GROUP BY month");
 		
 		logger.debug(sb.toString());
 		Query q = em.createNativeQuery(sb.toString());
+	    q.setParameter(1, log_event_type_id);
+	    q.setParameter(2, entity_uid);
+	    q.setParameter(3, dateFrom);
+	    q.setParameter(4, dateToModified);
 		
 		return q.getResultList();
 	}
@@ -162,13 +156,14 @@ public class LogEventDaoImpl implements LogEventDao {
      */
     public Integer[] getLogEventsByEntity(String entity_uid, int log_event_type_id) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT COUNT(le.id) as noOfDownloads, SUM(ld.record_count) as noRecordDownloaded FROM log_detail ld");
-        sb.append(" INNER JOIN log_event le ON le.id=ld.log_event_id");
-        sb.append(" WHERE le.log_event_type_id = " +  log_event_type_id);
-        sb.append(" AND ld.entity_uid = \"" + entity_uid + "\"");
+        sb.append("SELECT SUM(number_of_events) as noOfDownloads, SUM(record_count) as noRecordDownloaded from event_summary_breakdown_reason_entity");
+        sb.append(" WHERE log_event_type_id = ? and entity_uid = ?");
         
         logger.debug(sb.toString());
         Query q = em.createNativeQuery(sb.toString());
+        q.setParameter(1, log_event_type_id);
+        q.setParameter(2, entity_uid);
+        
         Object[] numbers = (Object[]) q.getResultList().get(0);
         
         return toIntegerArray(numbers);
@@ -228,5 +223,73 @@ public class LogEventDaoImpl implements LogEventDao {
 	public Collection<LogSourceType> findLogSourceTypes() {
 		return em.createQuery("select p from LogSourceType p order by p.id").getResultList();
 	}
+	
+    @SuppressWarnings("unchecked")
+    public Collection<Object[]> getEventsReasonBreakdown(int log_event_type_id, String entity_uid, String dateFrom, String dateTo) {
+        System.out.println(dateFrom);
+        System.out.println(dateTo);
+
+        StringBuilder sb = new StringBuilder();
+        Query q;
+        
+        // Filter by entityUid if one was supplied
+        if (entity_uid != null) {
+            sb.append("SELECT log_reason_type_id, SUM(number_of_events), SUM(record_count) FROM event_summary_breakdown_reason_entity");
+            sb.append(" WHERE log_event_type_id = ? and entity_uid = ? and month >= ? AND month < ?");
+            sb.append(" GROUP BY log_reason_type_id");
+            
+            q = em.createNativeQuery(sb.toString());
+            q.setParameter(1, log_event_type_id);
+            q.setParameter(2, entity_uid);
+            q.setParameter(3, dateFrom);
+            q.setParameter(4, dateTo);            
+        } else {
+            sb.append("SELECT log_reason_type_id, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_reason");
+            sb.append(" WHERE log_event_type_id = ? and month >= ? AND month < ?");
+            sb.append(" GROUP BY log_reason_type_id");
+            
+            q = em.createNativeQuery(sb.toString());
+            q.setParameter(1, log_event_type_id);
+            q.setParameter(2, dateFrom);
+            q.setParameter(3, dateTo);   
+        }
+
+
+        return q.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<Object[]> getEventsEmailBreakdown(int log_event_type_id, String entity_uid, String dateFrom, String dateTo) {
+        System.out.println(dateFrom);
+        System.out.println(dateTo);
+        
+        StringBuilder sb = new StringBuilder();
+        Query q;
+        
+        // Filter by entityUid if one was supplied
+        if (entity_uid != null) {
+            sb.append("SELECT user_email_category, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_email_entity");
+            sb.append(" WHERE log_event_type_id = ? and entity_uid = ? and month >= ? AND month < ?");
+            sb.append(" GROUP BY user_email_category;");
+            
+            q = em.createNativeQuery(sb.toString());
+            q.setParameter(1, log_event_type_id);
+            q.setParameter(2, entity_uid);
+            q.setParameter(3, dateFrom);
+            q.setParameter(4, dateTo);            
+        } else {
+            sb.append("SELECT user_email_category, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_email_entity");
+            sb.append(" WHERE log_event_type_id = ? and month >= ? AND month < ?");
+            sb.append(" GROUP BY user_email_category;");
+            
+            q = em.createNativeQuery(sb.toString());
+            q.setParameter(1, log_event_type_id);
+            q.setParameter(2, dateFrom);
+            q.setParameter(3, dateTo);   
+        }
+
+
+        return q.getResultList();
+    }
 	
 }
