@@ -85,7 +85,7 @@ public interface LogEventDao {
      * @param dateFrom the start date - a month in yyyyMM format
      * @param dateTo the end date - a month in yyyyMM format
      * @return the number of log events and total number of the records involved in these events for the supplied event type and uid, between the
-     * starting month inclusive and the ending month inclusive
+     * starting month inclusive and the ending month EXCLUSIVE
      */
     public Collection<Object[]> getEventsDownloadsCount(int log_event_type_id, String entity_uid, String dateFrom, String dateTo);
     
@@ -114,7 +114,9 @@ public interface LogEventDao {
      * starting month inclusive and the ending month EXCLUSIVE, grouped into the email categories described above.
      */
     public Collection<Object[]> getEventsEmailBreakdown(int log_event_type_id, String entity_uid, String dateFrom, String dateTo);
-
+    
+    public Collection<Object[]> getTotalsByEventType();
+ 
     //==== LogReasonType ========
     public Collection<LogReasonType> findLogReasonTypes();
     public LogReasonType findLogReasonById(int id);
