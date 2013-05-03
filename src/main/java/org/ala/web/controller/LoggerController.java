@@ -62,6 +62,7 @@ enum SummaryType {
  */
 @Controller
 public class LoggerController {
+
     @Autowired
     private LogEventDao logEventDao;
 
@@ -114,7 +115,6 @@ public class LoggerController {
      * @param get
      * @param q
      * @param eventTypeId
-     * @param monthly
      * @param request
      * @param response
      * @return
@@ -414,7 +414,6 @@ public class LoggerController {
      * 
      * public List<String> getRemoteAddress() { return remoteAddress; }
      */
-
     @RequestMapping(method = RequestMethod.GET, value = "/logger/reasons", headers = "Accept=application/json")
     public @ResponseBody
     Collection<LogReasonType> getLogReasons(HttpServletRequest request, HttpServletResponse response) {
@@ -431,27 +430,21 @@ public class LoggerController {
     @RequestMapping(method = RequestMethod.GET, value = "/logger/sources", headers = "Accept=application/json")
     public @ResponseBody
     Collection<LogSourceType> loadLogReasonType(HttpServletRequest request, HttpServletResponse response) {
-        Collection<LogSourceType> types = null;
-
         try {
-            types = logEventDao.findLogSourceTypes();
+            return logEventDao.findLogSourceTypes();
         } catch (Exception e) {
             return new ArrayList<LogSourceType>();
         }
-        return types;
     }
 
     @RequestMapping(method = RequestMethod.GET, value = "/logger/events", headers = "Accept=application/json")
     public @ResponseBody
     Collection<LogEventType> loadLogEventType(HttpServletRequest request, HttpServletResponse response) {
-        Collection<LogEventType> types = null;
-
         try {
-            types = logEventDao.findLogEventTypes();
+            return logEventDao.findLogEventTypes();
         } catch (Exception e) {
             return new ArrayList<LogEventType>();
         }
-        return types;
     }
 
     /**
@@ -509,6 +502,52 @@ public class LoggerController {
         mav.addObject("all", allTimeReasonBreakdown);
 
         return mav;
+    }
+
+    /**
+     * Create a summary for event downloads with breakdown by reason for download
+     *
+     * @param entityUid
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET, value = { "/reasonBreakdownMonthly" })
+    public ModelAndView getReasonBreakdownByMonth(@RequestParam(value = "entityUid", required = false) String entityUid,
+                                                  @RequestParam(value = "eventId", required = true) int eventId,
+                                                  @RequestParam(value = "reasonId", required = false) Integer reasonId
+    ) {
+
+        Collection<LogReasonType> logReasonTypes = logEventDao.findLogReasonTypes();
+        Map<Integer, String> logReasonTypesMap = new HashMap<Integer, String>();
+        for (LogReasonType reasonType : logReasonTypes) {
+            logReasonTypesMap.put(reasonType.getId(), reasonType.getName());
+        }
+
+//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
+//
+//        Calendar fromCal = Calendar.getInstance();
+//        Calendar toCal = Calendar.getInstance();
+//
+//        // search for events up to the beginning of the next month
+//        toCal.set(Calendar.DAY_OF_MONTH, 1);
+//        toCal.add(Calendar.MONTH, 1);
+//        fromCal.set(Calendar.DAY_OF_MONTH, 1);
+//        fromCal.add(Calendar.MONTH, 1);
+
+        //Collection<Object[]> temporalBreakdown = logEventDao.getTemporalEventsReasonBreakdown(eventId, entityUid,reasonId, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
+
+        Collection<Object[]> temporalBreakdown = logEventDao.getTemporalEventsReasonBreakdown(eventId, entityUid,reasonId, null, null);
+        Map<String, Map<String,Number>> results  = new HashMap<String, Map<String,Number>> ();
+        for(Object[] result: temporalBreakdown){
+            String monthYear = (String) result[0];
+            Number eventCount = (Number) result[1];
+            Number recordCount = (Number) result[2];
+            Map<String, Number> counts = new HashMap<String,Number>();
+            counts.put("events", eventCount);
+            counts.put("records", recordCount);
+            results.put(monthYear, counts);
+        }
+
+        return new ModelAndView(JSON_VIEW_NAME, "temporalBreakdown", results);
     }
 
     private Map<String, Object> buildReasonBreakdownMap(Collection<Object[]> rawData, Map<Integer, String> logReasonTypesMap) {
@@ -680,8 +719,6 @@ public class LoggerController {
             totalsByTypeMap.put(Integer.toString(logEventTypeId), mapForRow);
         }
 
-        ModelAndView mav = new ModelAndView(JSON_VIEW_NAME, "totals", totalsByTypeMap);
-
-        return mav;
+        return new ModelAndView(JSON_VIEW_NAME, "totals", totalsByTypeMap);
     }
 }

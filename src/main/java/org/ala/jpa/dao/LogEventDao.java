@@ -114,7 +114,20 @@ public interface LogEventDao {
      * starting month inclusive and the ending month EXCLUSIVE, grouped into the email categories described above.
      */
     public Collection<Object[]> getEventsEmailBreakdown(int log_event_type_id, String entity_uid, String dateFrom, String dateTo);
-    
+
+    /**
+     * Returns a breakdown by month for events reason
+     *
+     * @param log_event_type_id
+     * @param entity_uid
+     * @param logReasonType if null, will return all events
+     * @param dateFrom
+     * @param dateTo
+     * @return
+     */
+    public Collection<Object[]> getTemporalEventsReasonBreakdown(int log_event_type_id, String entity_uid, Integer logReasonType, String dateFrom, String dateTo);
+
+
     public Collection<Object[]> getTotalsByEventType();
  
     //==== LogReasonType ========

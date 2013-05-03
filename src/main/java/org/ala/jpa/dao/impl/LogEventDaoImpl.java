@@ -233,7 +233,7 @@ public class LogEventDaoImpl implements LogEventDao {
         }
 
         StringBuilder sb = new StringBuilder();
-        Query q;
+        Query q = null;
 
         // Filter by entityUid if one was supplied
         if (entity_uid != null) {
@@ -253,11 +253,12 @@ public class LogEventDaoImpl implements LogEventDao {
                 q.setParameter(4, dateTo);
             }
         } else {
-            sb.append("SELECT log_reason_type_id, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_reason");
-            sb.append(" WHERE log_event_type_id = ?");
+            sb.append("SELECT log_reason_type_id, SUM(number_of_events), SUM(record_count) FROM event_summary_breakdown_reason_entity");
+            sb.append(" WHERE log_event_type_id = ? ");
             if (dateFrom != null && dateTo != null) {
                 sb.append(" AND month >= ? AND month < ?");
             }
+            sb.append(" AND entity_uid like 'dr%' ");
             sb.append(" GROUP BY log_reason_type_id");
 
             q = em.createNativeQuery(sb.toString());
@@ -267,6 +268,54 @@ public class LogEventDaoImpl implements LogEventDao {
                 q.setParameter(2, dateFrom);
                 q.setParameter(3, dateTo);
             }
+        }
+
+        return q.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<Object[]> getTemporalEventsReasonBreakdown(int log_event_type_id, String entity_uid, Integer logReasonType, String dateFrom, String dateTo) {
+        System.out.println(dateFrom);
+        System.out.println(dateTo);
+
+        if (!((dateFrom != null && dateTo != null) || dateFrom == null && dateTo == null)) {
+            throw new IllegalArgumentException("Must supply both a dateFrom and dateTo string or neither");
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        // Filter by entityUid if one was supplied
+        sb.append("SELECT month, SUM(number_of_events), SUM(record_count) FROM event_summary_breakdown_reason_entity");
+        sb.append(" WHERE log_event_type_id = :log_event_type_id");
+
+        if(logReasonType != null){
+            sb.append(" AND log_reason_type_id = :log_reason_type_id");
+        }
+
+        if(entity_uid != null){
+            sb.append(" AND entity_uid = :entity_uid");
+        }
+
+        if (dateFrom != null && dateTo != null) {
+            sb.append(" AND month >= :dateFrom AND month < :dateTo");
+        }
+
+        sb.append(" GROUP BY month");
+
+        Query q = em.createNativeQuery(sb.toString());
+        q.setParameter("log_event_type_id", log_event_type_id);
+
+        if (entity_uid != null){
+            q.setParameter("entity_uid", entity_uid);
+        }
+
+        if(logReasonType != null){
+            q.setParameter("log_reason_type_id", logReasonType);
+        }
+
+        if (dateFrom != null && dateTo != null) {
+            q.setParameter("dateFrom", dateFrom);
+            q.setParameter("dateTo", dateTo);
         }
 
         return q.getResultList();
@@ -299,8 +348,8 @@ public class LogEventDaoImpl implements LogEventDao {
                 q.setParameter(4, dateTo);
             }
         } else {
-            sb.append("SELECT user_email_category, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_email");
-            sb.append(" WHERE log_event_type_id = ? ");
+            sb.append("SELECT user_email_category, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_email_entity");
+            sb.append(" WHERE log_event_type_id = ? AND entity_uid like 'dr%'");
             if (dateFrom != null && dateTo != null) {
                 sb.append(" AND month >= ? AND month < ?");
             }
@@ -321,13 +370,9 @@ public class LogEventDaoImpl implements LogEventDao {
     @SuppressWarnings("unchecked")
     public Collection<Object[]> getTotalsByEventType() {
         StringBuilder sb = new StringBuilder();
-        Query q;
-        
         sb.append("SELECT log_event_type_id, SUM(number_of_events), SUM(record_count) from event_summary_totals");
         sb.append(" GROUP BY log_event_type_id");
-        q = em.createNativeQuery(sb.toString());
-        
+        Query q = em.createNativeQuery(sb.toString());
         return q.getResultList();
     }
-
 }
