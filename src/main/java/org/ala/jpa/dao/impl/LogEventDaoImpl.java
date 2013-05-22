@@ -253,12 +253,11 @@ public class LogEventDaoImpl implements LogEventDao {
                 q.setParameter(4, dateTo);
             }
         } else {
-            sb.append("SELECT log_reason_type_id, SUM(number_of_events), SUM(record_count) FROM event_summary_breakdown_reason_entity");
-            sb.append(" WHERE log_event_type_id = ? ");
+            sb.append("SELECT log_reason_type_id, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_reason");
+            sb.append(" WHERE log_event_type_id = ?");
             if (dateFrom != null && dateTo != null) {
                 sb.append(" AND month >= ? AND month < ?");
             }
-            sb.append(" AND entity_uid like 'dr%' ");
             sb.append(" GROUP BY log_reason_type_id");
 
             q = em.createNativeQuery(sb.toString());
@@ -348,8 +347,8 @@ public class LogEventDaoImpl implements LogEventDao {
                 q.setParameter(4, dateTo);
             }
         } else {
-            sb.append("SELECT user_email_category, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_email_entity");
-            sb.append(" WHERE log_event_type_id = ? AND entity_uid like 'dr%'");
+            sb.append("SELECT user_email_category, SUM(number_of_events), SUM(record_count) from event_summary_breakdown_email");
+            sb.append(" WHERE log_event_type_id = ? ");
             if (dateFrom != null && dateTo != null) {
                 sb.append(" AND month >= ? AND month < ?");
             }
