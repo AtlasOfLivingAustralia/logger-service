@@ -204,10 +204,10 @@ public class LoggerController {
                 // populate vo
                 if (logEventVO.getMonth() == null || (logEventVO.getMonth() != null && logEventVO.getMonth().length() < 4)) {
                     logEvent = new LogEvent((String) remoteSourceAddress.get(realIp.trim()), type.getId(), rtype == null ? null : rtype.getId(), stype == null ? null : stype.getId(),
-                            logEventVO.getUserEmail(), logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts());
+                            logEventVO.getUserEmail(), logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getRecordCounts(), logEventVO.getSourceUrl());
                 } else {
                     logEvent = new LogEvent((String) remoteSourceAddress.get(realIp.trim()), type.getId(), rtype == null ? null : rtype.getId(), stype == null ? null : stype.getId(),
-                            logEventVO.getUserEmail(), logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getMonth(), logEventVO.getRecordCounts());
+                            logEventVO.getUserEmail(), logEventVO.getUserIP(), logEventVO.getComment(), logEventVO.getMonth(), logEventVO.getRecordCounts(), logEventVO.getSourceUrl());
                 }
                 logEvent = logEventDao.save(logEvent);
             }
