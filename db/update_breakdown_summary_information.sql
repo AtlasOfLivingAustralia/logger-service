@@ -26,7 +26,7 @@ BEGIN
     DECLARE count_total_detail_rows_for_event INT(11) DEFAULT 0;
 
 	-- get corresponding information from log_event table
-	SELECT le.month, le.log_event_type_id, le.log_reason_type_id, le.user_email FROM log_event le
+	SELECT le.month, le.log_event_type_id, IFNULL(le.log_reason_type_id,-1), le.user_email FROM log_event le
         WHERE id = NEW.log_event_id INTO new_month, new_log_event_type_id, new_log_reason_type_id, new_user_email;
 
 	-- determine how many detail rows have been added for the log event
