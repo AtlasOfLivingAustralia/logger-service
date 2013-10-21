@@ -115,8 +115,8 @@ public class LogEventDaoImpl implements LogEventDao {
 
     @SuppressWarnings("unchecked")
     public Collection<Object[]> getEventsDownloadsCount(int log_event_type_id, String entity_uid, String dateFrom, String dateTo) {
-        System.out.println(dateFrom);
-        System.out.println(dateTo);
+        logger.debug(dateFrom);
+        logger.debug(dateTo);
         
         // increase one month to cover whole month range.
         String dateToModified = increaseOneMonth(dateTo);
@@ -225,8 +225,8 @@ public class LogEventDaoImpl implements LogEventDao {
 
     @SuppressWarnings("unchecked")
     public Collection<Object[]> getEventsReasonBreakdown(int log_event_type_id, String entity_uid, String dateFrom, String dateTo) {
-        System.out.println(dateFrom);
-        System.out.println(dateTo);
+        logger.debug(dateFrom);
+        logger.debug(dateTo);
         
         if (!((dateFrom != null && dateTo != null) || dateFrom == null && dateTo == null)) {
             throw new IllegalArgumentException("Must supply both a dateFrom and dateTo string or neither");
@@ -274,8 +274,8 @@ public class LogEventDaoImpl implements LogEventDao {
 
     @SuppressWarnings("unchecked")
     public Collection<Object[]> getTemporalEventsReasonBreakdown(int log_event_type_id, String entity_uid, Integer logReasonType, String dateFrom, String dateTo) {
-        System.out.println(dateFrom);
-        System.out.println(dateTo);
+        logger.debug(dateFrom);
+        logger.debug(dateTo);
 
         if (!((dateFrom != null && dateTo != null) || dateFrom == null && dateTo == null)) {
             throw new IllegalArgumentException("Must supply both a dateFrom and dateTo string or neither");
