@@ -162,7 +162,7 @@ public class LoggerController {
         LogEventVO logEventVO = null;
 
         // check user
-        if (!checkRemoteAddress(request)) {
+       if (!checkRemoteAddress(request)) {
             return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());
         }
 
@@ -273,8 +273,16 @@ public class LoggerController {
 
         mav = new ModelAndView(JSON_VIEW_NAME, "all", createMapForJson(all, summary));
         mav.addObject("lastYear", createTotalsMapForJson(thisYear));
-        mav.addObject("last3Months", createMapForJson(thisYear, new int[] { (toCal.get(Calendar.MONTH)), (toCal.get(Calendar.MONTH) - 1), (toCal.get(Calendar.MONTH) - 2) }, summary));
-        mav.addObject("thisMonth", createMapForJson(thisYear, new int[] { (toCal.get(Calendar.MONTH)) }, summary));
+        
+        //NQ 20131211 - need  to use calendar arithmetic to get the correct months
+        Calendar monCal = Calendar.getInstance();
+        String thisMonth = sdf.format(monCal.getTime());
+        monCal.add(Calendar.MONTH, -1);
+        String lastMonth = sdf.format(monCal.getTime());
+        monCal.add(Calendar.MONTH, -1);
+        String lastLastMonth = sdf.format(monCal.getTime());
+        mav.addObject("last3Months", createMapForJson(thisYear, new String[] { thisMonth, lastMonth, lastLastMonth }, summary));
+        mav.addObject("thisMonth", createMapForJson(thisYear, new String[] { thisMonth }, summary));
 
         return mav;
     }
@@ -312,7 +320,7 @@ public class LoggerController {
         return noDownloadsAndCount;
     }
 
-    private Map<String, Integer> createMapForJson(Collection<Object[]> l, int[] month, SummaryType type) {
+    private Map<String, Integer> createMapForJson(Collection<Object[]> l, String[] month, SummaryType type) {
         Map<String, Integer> noDownloadsAndCount = new HashMap<String, Integer>();
         int events = 0;
         int items = 0;
@@ -328,16 +336,22 @@ public class LoggerController {
         }
         return noDownloadsAndCount;
     }
-
-    private Object[] getMonthValue(Collection<Object[]> l, int mth) {
+    /**
+     * NQ changed this method to work with string value of the year/month thus removing issues with int conversions of months
+     * 
+     * @param l
+     * @param mth
+     * @return
+     */
+    private Object[] getMonthValue(Collection<Object[]> l, String mth) {
         Object[] value = null;
         if (l != null) {
             Iterator<Object[]> itr = l.iterator();
             while (itr.hasNext()) {
                 Object[] o = itr.next();
                 if (o[0] != null && o[0].toString().length() > 5) {
-                    int month = Integer.valueOf(o[0].toString().substring(4, 6));
-                    if (mth == month) {
+                    String month = o[0].toString();
+                    if (mth.equals(month)) {
                         value = o;
                         if (value[1] == null || value[1].toString().length() == 0) {
                             value[1] = 0;
