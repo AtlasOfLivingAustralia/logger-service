@@ -22,7 +22,8 @@
 		</property>
 		<property name="sourceMap">
 			<map>
-				<entry key="150.229.2.191" value="collection.ala.org.au" />
+				<entry key="150.229.2.191" value="collections.ala.org.au" />
+                <entry key="150.229.66.12" value="images.ala.org.au" />
 				<entry key="150.229.66.87" value="biocache.ala.org.au" />
 				<entry key="150.229.66.86" value="bie.ala.org.au" />
 				<entry key="150.229.66.89" value="spatial.ala.org.au" />
@@ -30,7 +31,10 @@
 				<entry key="150.229.66.91" value="ala-biocache2.vm.csiro.au" />
 				<entry key="127.0.0.1" value="localhost" />
 				<entry key="152.83.195.75" value="waimac.ala.org.au" />
-				<entry key="150.229.2.172" value="ala-macropus.it.csiro.au" />			
+				<entry key="150.229.2.172" value="ala-macropus.it.csiro.au" />
+                <entry key="150.229.2.173" value="ala-rufus.it.csiro.au" />
+                <entry key="150.229.66.3" value="ala-starr.it.csiro.au" />
+                <entry key="138.194.85.83" value="ala-mccartney.it.csiro.au" />
 			</map>
 		</property>
    	</bean>
