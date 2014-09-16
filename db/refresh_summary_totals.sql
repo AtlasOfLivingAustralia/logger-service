@@ -1,4 +1,7 @@
 -- This stored procedure is used to populate the "event_summary_totals" table from all existing log information
+
+DROP PROCEDURE IF EXISTS `logger`.`refresh_summary_totals`;
+
 delimiter $$
 
 CREATE DEFINER=`root`@`%` PROCEDURE `refresh_summary_totals`()
@@ -12,22 +15,25 @@ OPEN cur1;
 DELETE FROM event_summary_totals;
 
 the_loop: LOOP
-	FETCH cur1 into current_month;
+  FETCH cur1 into current_month;
 
-	IF done THEN
-		CLOSE cur1;
-		LEAVE the_loop;
+  IF done THEN
+    CLOSE cur1;
+    LEAVE the_loop;
 	END IF;
 
-	-- print progress
-	SELECT current_month;
+  -- print progress
+  SELECT current_month;
 
-    -- Insert into summary totals table
-	INSERT INTO event_summary_totals (month, log_event_type_id, number_of_events, record_count)
-		SELECT le.month, le.log_event_type_id, COUNT(DISTINCT ld.log_event_id), SUM(ld.record_count) FROM log_event le INNER JOIN log_detail ld  ON le.id=ld.log_event_id
-		WHERE
-		le.month = current_month
-		GROUP BY le.month, le.log_event_type_id;
+  -- Insert into summary totals table
+  INSERT INTO event_summary_totals (month, log_event_type_id, number_of_events, record_count)
+    SELECT le.month, le.log_event_type_id, COUNT(DISTINCT ld.log_event_id), SUM(ld.record_count)
+    FROM log_event le
+    INNER JOIN log_detail ld  ON le.id=ld.log_event_id
+    WHERE
+    le.month = current_month AND
+    ld.entity_uid like 'dr%'
+    GROUP BY le.month, le.log_event_type_id;
 
 END LOOP the_loop;
 END$$
