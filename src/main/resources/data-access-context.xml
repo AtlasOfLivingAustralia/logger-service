@@ -15,12 +15,12 @@
     
     <tx:annotation-driven />
 
-	<!-- Configurer that replaces ${...} placeholders with values from properties files -->
-	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-		<property name="location">
-            <value>classpath:logger.properties</value>
-		</property>
-	</bean>
+    <!-- Allows us to use system properties as variables in this configuration file -->
+    <bean id="properties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <value>file:///data/logger/config/logger-config.properties</value>
+        </property>
+    </bean>
 
     <bean id="transactionManager" 
           class="org.springframework.orm.jpa.JpaTransactionManager"
