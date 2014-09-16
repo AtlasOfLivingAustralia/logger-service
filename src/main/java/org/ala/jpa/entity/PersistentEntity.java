@@ -16,39 +16,23 @@
 package org.ala.jpa.entity;
 
 
-import java.io.Serializable;
-import javax.persistence.MappedSuperclass;
-//import javax.persistence.Version;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
+import javax.persistence.MappedSuperclass;
+import java.io.Serializable;
+
 /**
  * Base class for persistent business objects.
  * 
  * @author waiman.mok@csiro.au
- *
  */
 @MappedSuperclass
 public abstract class PersistentEntity implements Serializable {
     private static final long serialVersionUID = 286090534347625650L;
 
-
-    /**
-     * The version number used for optimistic row locking.
-     */
-/*    
-    protected Long version = 1L;
-    @Version
-    public Long getVersion() {
-        return version;
-    }
-    public void setVersion(Long version) {
-        this.version = version;
-    }
-*/
-    
     /**
      * Identity relation.
      */

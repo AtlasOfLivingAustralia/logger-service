@@ -1,16 +1,114 @@
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
+-- MySQL dump 10.11
+--
+-- Host: localhost    Database: logger
+-- ------------------------------------------------------
+-- Server version	5.0.67
 
-CREATE SCHEMA IF NOT EXISTS `logger` DEFAULT CHARACTER SET utf8 ;
-USE `logger` ;
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- -----------------------------------------------------
--- Table `logger`.`log_event`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `logger`.`log_event` ;
+--
+-- Table structure for table `event_summary_breakdown_email`
+--
 
-CREATE  TABLE IF NOT EXISTS `logger`.`log_event` (
+DROP TABLE IF EXISTS `event_summary_breakdown_email`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `event_summary_breakdown_email` (
+  `month` varchar(255) NOT NULL,
+  `log_event_type_id` int(11) NOT NULL,
+  `user_email_category` varchar(255) NOT NULL,
+  `number_of_events` bigint(20) default NULL,
+  `record_count` bigint(20) default NULL,
+  PRIMARY KEY  (`month`,`log_event_type_id`,`user_email_category`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `event_summary_breakdown_email_entity`
+--
+
+DROP TABLE IF EXISTS `event_summary_breakdown_email_entity`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `event_summary_breakdown_email_entity` (
+  `month` varchar(255) NOT NULL,
+  `log_event_type_id` int(11) NOT NULL,
+  `user_email_category` varchar(255) NOT NULL,
+  `entity_uid` varchar(255) NOT NULL,
+  `number_of_events` bigint(20) default NULL,
+  `record_count` bigint(20) default NULL,
+  PRIMARY KEY  (`month`,`log_event_type_id`,`user_email_category`,`entity_uid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `event_summary_breakdown_reason`
+--
+
+DROP TABLE IF EXISTS `event_summary_breakdown_reason`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `event_summary_breakdown_reason` (
+  `month` varchar(255) NOT NULL,
+  `log_event_type_id` int(11) NOT NULL,
+  `log_reason_type_id` int(11) NOT NULL default '-1',
+  `number_of_events` bigint(20) NOT NULL,
+  `record_count` bigint(20) NOT NULL,
+  PRIMARY KEY  (`month`,`log_event_type_id`,`log_reason_type_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `event_summary_breakdown_reason_entity`
+--
+
+DROP TABLE IF EXISTS `event_summary_breakdown_reason_entity`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `event_summary_breakdown_reason_entity` (
+  `month` varchar(255) NOT NULL,
+  `log_event_type_id` int(11) NOT NULL,
+  `log_reason_type_id` int(11) NOT NULL default '-1',
+  `entity_uid` varchar(255) NOT NULL,
+  `number_of_events` bigint(20) NOT NULL,
+  `record_count` bigint(20) NOT NULL,
+  PRIMARY KEY  (`month`,`log_event_type_id`,`log_reason_type_id`,`entity_uid`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `event_summary_totals`
+--
+
+DROP TABLE IF EXISTS `event_summary_totals`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `event_summary_totals` (
+  `month` varchar(255) NOT NULL,
+  `log_event_type_id` int(11) NOT NULL,
+  `number_of_events` bigint(20) default NULL,
+  `record_count` bigint(20) default NULL,
+  PRIMARY KEY  (`month`,`log_event_type_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `log_event`
+--
+
+DROP TABLE IF EXISTS `log_event`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `log_event` (
   `id` int(11) NOT NULL auto_increment,
   `comment` text,
   `created` datetime default NULL,
@@ -25,65 +123,74 @@ CREATE  TABLE IF NOT EXISTS `logger`.`log_event` (
   PRIMARY KEY  (`id`),
   KEY `SUMMARYINDEX1` (`id`,`month`,`log_event_type_id`,`log_reason_type_id`),
   KEY `SUMMARYINDEX2` (`id`,`month`,`log_event_type_id`)
-) ENGINE=MyISAM AUTO_INCREMENT= 7 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=1047000834 DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `log_event_type`
+--
+
+DROP TABLE IF EXISTS `log_event_type`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `log_event_type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `log_reason_type`
+--
+
+DROP TABLE IF EXISTS `log_reason_type`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `log_reason_type` (
+  `id` int(11) NOT NULL,
+  `rkey` varchar(255) default NULL,
+  `name` varchar(255) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `remote_address`
+--
+
+DROP TABLE IF EXISTS `remote_address`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `remote_address` (
+  `ip` varchar(255) NOT NULL,
+  `host_name` varchar(255) NOT NULL,
+  PRIMARY KEY  (`ip`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
 
 
+--
+-- Table structure for table `log_source_type`
+--
 
--- -----------------------------------------------------
--- Table `logger`.`log_detail`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `logger`.`log_detail` ;
+DROP TABLE IF EXISTS `log_source_type`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `log_source_type` (
+  `id` int(11) NOT NULL,
+  `name` varchar(255) default NULL,
+  PRIMARY KEY  (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+SET character_set_client = @saved_cs_client;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-CREATE  TABLE IF NOT EXISTS `logger`.`log_detail` (
-  `id` INT(11) NOT NULL AUTO_INCREMENT ,
-  `entity_type` VARCHAR(255) NULL DEFAULT NULL ,
-  `entity_uid` VARCHAR(255) NULL DEFAULT NULL ,
-  `record_count` INT(11) NULL DEFAULT NULL ,
-  `version` BIGINT(20) NULL DEFAULT NULL ,
-  `log_event_id` INT(11) NOT NULL ,
-  PRIMARY KEY (`id`) ,
-  INDEX `FK761AFDAC9EA6D187` (`log_event_id` ASC) ,
-  KEY `ENTITYUIDINDEX` (`entity_uid`))
-ENGINE = InnoDB
-AUTO_INCREMENT = 11
-DEFAULT CHARACTER SET = latin1;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
-
--- -----------------------------------------------------
--- Table `logger`.`log_event_type`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `logger`.`log_event_type` ;
-
-CREATE  TABLE IF NOT EXISTS `logger`.`log_event_type` (
-  `id` INT(11) NOT NULL ,
-  `name` VARCHAR(255) NULL DEFAULT NULL ,
-  PRIMARY KEY (`id`) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
--- -----------------------------------------------------
--- Table `logger`.`log_reason_type`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `logger`.`log_reason_type` ;
-
-CREATE  TABLE IF NOT EXISTS `logger`.`log_reason_type` (
-  `id` INT(11) NOT NULL ,
-  `rkey` VARCHAR(255) NULL DEFAULT NULL ,
-  `name` VARCHAR(255) NULL DEFAULT NULL ,
-  PRIMARY KEY (`id`) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-DROP TABLE IF EXISTS `logger`.`log_source_type` ;
-
-CREATE  TABLE IF NOT EXISTS `logger`.log_source_type (
-  `id` INT(11) NOT NULL ,
-  `name` VARCHAR(255) NULL DEFAULT NULL ,
-  PRIMARY KEY (`id`) )
-ENGINE = InnoDB
-DEFAULT CHARACTER SET = latin1;
-
-
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+-- Dump completed on 2014-09-11  1:55:03

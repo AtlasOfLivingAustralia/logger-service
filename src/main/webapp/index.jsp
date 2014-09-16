@@ -28,7 +28,7 @@
                 <li><a href="${pageContext.request.contextPath}/service/reasonBreakdown?eventId=1002&entityUid=in4">Downloads breakdown (3 month, 1 year, all)</a></li>
                 <li><a href="${pageContext.request.contextPath}/service/reasonBreakdownMonthly?eventId=1002&entityUid=in4">Downloads breakdown by months (example for Australian Museum)</a></li>
                 <li><a href="${pageContext.request.contextPath}/service/reasonBreakdownCSV?eventId=1002&entityUid=in4">Downloads by reason breakdown in CSV (example for Australian Museum)</a></li>
-                <li><a href="${pageContext.request.contextPath}/service/reasonEmailCSV?eventId=1002&entityUid=in4">Downloads by user category breakdown in CSV (example for Australian Museum)</a></li>
+                <li><a href="${pageContext.request.contextPath}/service/emailBreakdownCSV?eventId=1002&entityUid=in4">Downloads by user category breakdown in CSV (example for Australian Museum)</a></li>
             </ul>
         </div>
 	</body>

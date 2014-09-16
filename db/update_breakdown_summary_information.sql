@@ -50,7 +50,11 @@ FOR EACH ROW
       SET new_user_email_category = 'unspecified';
     ELSEIF new_user_email LIKE '%.edu%' THEN
       SET new_user_email_category = 'edu';
+    ELSEIF new_user_email LIKE '%.ac.%' THEN
+      SET new_user_email_category = 'edu';
     ELSEIF new_user_email LIKE '%.gov%' THEN
+      SET new_user_email_category = 'gov';
+    ELSEIF new_user_email LIKE '%.csiro.au' THEN
       SET new_user_email_category = 'gov';
     ELSE
       SET new_user_email_category = 'other';

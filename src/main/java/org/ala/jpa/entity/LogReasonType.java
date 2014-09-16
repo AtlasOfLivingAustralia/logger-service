@@ -15,8 +15,10 @@
 
 package org.ala.jpa.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
-import javax.persistence.*;
 
 
 /**
@@ -37,8 +39,7 @@ public class LogReasonType extends PersistentEntity implements Serializable {
 	
 	private String name;
 
-    public LogReasonType() {
-    }
+    public LogReasonType() {}
     
     public LogReasonType(int id, String rkey, String name) {
     	this.id = id;

@@ -15,21 +15,14 @@
 
 package org.ala.jpa.entity;
 
-import java.io.Serializable;
 import javax.persistence.*;
-
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.io.Serializable;
+import java.util.*;
 
 /**
  * The persistent class for the log_event database table.
  * 
  * @author waiman.mok@csiro.au
- * 
  */
 @Entity
 @Table(name="log_event")
@@ -245,28 +238,4 @@ public class LogEvent extends PersistentEntity implements Serializable {
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
     }
-    
-/*
-    @Column(name="record_count")
-    private int recordCount;
-    
-    @Column(name="user_id")
-    private String userId;  
-
-    public int getRecordCount() {
-        return this.recordCount;
-    }
-
-    public void setRecordCount(int recordCount) {
-        this.recordCount = recordCount;
-    }
-    
-    public String getUserId() {
-        return this.userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }   
-*/  
 }

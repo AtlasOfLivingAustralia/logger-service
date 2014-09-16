@@ -15,15 +15,16 @@
 
 package org.ala.jpa.entity;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.io.Serializable;
-import javax.persistence.*;
 
 
 /**
  * The persistent class for the log_event_type database table.
  * 
  * @author waiman.mok@csiro.au
- * 
  */
 @Entity
 @Table(name="log_source_type")
@@ -35,8 +36,7 @@ public class LogSourceType extends PersistentEntity implements Serializable {
 
 	private String name;
 
-    public LogSourceType() {
-    }
+    public LogSourceType() {}
     
     public LogSourceType(int id, String name) {
     	this.id = id;

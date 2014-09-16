@@ -12,35 +12,32 @@
  *  implied. See the License for the specific language governing
  *  rights and limitations under the License.
  ***************************************************************************/
-
 package org.ala.jpa.dao.impl;
 
-import java.util.Collection;
-
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
-import javax.persistence.Query;
-
 import org.ala.jpa.dao.LogEventDao;
-import org.ala.jpa.entity.LogDetail;
-import org.ala.jpa.entity.LogEvent;
-import org.ala.jpa.entity.LogEventType;
-import org.ala.jpa.entity.LogReasonType;
-import org.ala.jpa.entity.LogSourceType;
+import org.ala.jpa.entity.*;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * JPA DAO implementation
  * 
  * @author waiman.mok@csiro.au
- * 
  */
 @Repository
 @Transactional(readOnly = true)
 public class LogEventDaoImpl implements LogEventDao {
+
     protected static Logger logger = Logger.getLogger(LogEventDaoImpl.class);
 
     private EntityManager em = null;
@@ -60,6 +57,50 @@ public class LogEventDaoImpl implements LogEventDao {
 
     public LogEvent findLogEventById(int id) {
         return em.find(LogEvent.class, id);
+    }
+
+    @SuppressWarnings("unchecked")
+    public Map<String,String> findRemoteAddresses() {
+        List<RemoteAddress> addresses = em.createQuery("from RemoteAddress").getResultList();
+        Map<String, String> lookup = new HashMap<String,String>();
+        for(RemoteAddress ra : addresses){
+            lookup.put(ra.getIp(), ra.getHostName());
+        }
+        return lookup;
+    }
+
+
+    @SuppressWarnings("unchecked")
+    public Collection<Object[]> getLogEventsByReason(String entityUid, int log_event_type_id) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT month, log_reason_type_id, number_of_events, record_count FROM event_summary_breakdown_reason_entity");
+        sb.append(" WHERE log_event_type_id = ? AND entity_uid = ?");
+        sb.append(" ORDER BY month desc");
+
+        logger.debug(sb.toString());
+        Query q = em.createNativeQuery(sb.toString());
+        q.setParameter(1, log_event_type_id);
+        q.setParameter(2, entityUid);
+
+        return q.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Collection<Object[]> getLogEventsByEmail( String entityUid, int log_event_type_id) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT month, user_email_category, number_of_events, record_count FROM event_summary_breakdown_email_entity");
+        sb.append(" WHERE log_event_type_id = ? AND entity_uid = ?");
+        sb.append(" ORDER BY month desc");
+
+        logger.debug(sb.toString());
+        Query q = em.createNativeQuery(sb.toString());
+        q.setParameter(1, log_event_type_id);
+        q.setParameter(2, entityUid);
+
+        return q.getResultList();
     }
 
     @SuppressWarnings("unchecked")
@@ -151,7 +192,7 @@ public class LogEventDaoImpl implements LogEventDao {
     }
 
     /**
-     * @see org.ala.jpa.dao.LogEventDao#getRecordCountByEntity(java.lang.String)
+     * @see org.ala.jpa.dao.LogEventDao#getLogEventsByEntity(java.lang.String)
      */
     public Integer[] getLogEventsByEntity(String entity_uid, int log_event_type_id) {
         StringBuilder sb = new StringBuilder();
@@ -166,15 +207,6 @@ public class LogEventDaoImpl implements LogEventDao {
         Object[] numbers = (Object[]) q.getResultList().get(0);
 
         return toIntegerArray(numbers);
-    }
-
-    /**
-     * execute SQL statement
-     */
-    @SuppressWarnings("unchecked")
-    public Collection<Object[]> executeNativeQuery(String sql) {
-        Query q = em.createNativeQuery(sql);
-        return q.getResultList();
     }
 
     @Transactional(readOnly = false, propagation = Propagation.REQUIRES_NEW)
@@ -293,6 +325,8 @@ public class LogEventDaoImpl implements LogEventDao {
 
         if(entity_uid != null){
             sb.append(" AND entity_uid = :entity_uid");
+        } else {
+            sb.append(" AND entity_uid like 'dr%'");
         }
 
         if (dateFrom != null && dateTo != null) {

@@ -6,6 +6,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import java.io.Serializable;
 
+/**
+ * Represents a remote address. Used for write access control.
+ */
 @Entity
 @Table(name="remote_address")
 public class RemoteAddress extends PersistentEntity implements Serializable {

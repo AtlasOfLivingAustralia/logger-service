@@ -15,16 +15,14 @@
 
 package org.ala.jpa.entity;
 
-import java.io.Serializable;
 import javax.persistence.*;
+import java.io.Serializable;
 
 /**
  * The persistent class for the log_detail database table.
  * 
  * @author waiman.mok@csiro.au
- *
  */
-
 @Entity
 @Table(name="log_detail")
 public class LogDetail extends PersistentEntity implements Serializable {
@@ -43,8 +41,7 @@ public class LogDetail extends PersistentEntity implements Serializable {
 	@Column(name="record_count")
 	private int recordCount;
 	
-    public LogDetail() {
-    }
+    public LogDetail() {}
     
     public LogDetail(String entityType, String entityUid, int recordCount) {
     	this.entityType = entityType;

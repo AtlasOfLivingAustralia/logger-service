@@ -14,21 +14,7 @@
  ***************************************************************************/
 package org.ala.web.controller;
 
-import java.math.BigDecimal;
-import java.math.BigInteger;
-import java.text.DateFormatSymbols;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import au.com.bytecode.opencsv.CSVWriter;
 import org.ala.client.model.LogEventVO;
 import org.ala.jpa.dao.LogEventDao;
 import org.ala.jpa.entity.LogEvent;
@@ -39,17 +25,20 @@ import org.apache.log4j.Logger;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.MapFactoryBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 enum SummaryType {
     EVENT, DOWNLOAD;
@@ -66,9 +55,8 @@ public class LoggerController {
     @Autowired
     private LogEventDao logEventDao;
 
-    private Map remoteSourceAddress;
-
     private static final String JSON_VIEW_NAME = "jsonView";
+
     private static final String X_FORWARDED_FOR = "X-Forwarded-For";
 
     protected static Logger logger = Logger.getLogger(LoggerController.class);
@@ -162,7 +150,7 @@ public class LoggerController {
         LogEventVO logEventVO = null;
 
         // check user
-       if (!checkRemoteAddress(request)) {
+        if (!checkRemoteAddress(request)) {
             return this.createErrorResponse(response, HttpStatus.UNAUTHORIZED.value());
         }
 
@@ -201,6 +189,9 @@ public class LoggerController {
                     realIp = request.getRemoteAddr();
                 }
 
+
+                Map<String,String> remoteSourceAddress = logEventDao.findRemoteAddresses();
+
                 // populate vo
                 if (logEventVO.getMonth() == null || (logEventVO.getMonth() != null && logEventVO.getMonth().length() < 4)) {
                     logEvent = new LogEvent((String) remoteSourceAddress.get(realIp.trim()), type.getId(), rtype == null ? null : rtype.getId(), stype == null ? null : stype.getId(),
@@ -219,27 +210,6 @@ public class LoggerController {
         return new ModelAndView(JSON_VIEW_NAME, "logEvent", logEvent);
     }
 
-    /*
-     * @RequestMapping(method=RequestMethod.GET,
-     * value={"/{entityUid}/{eventType}/counts.json",
-     * "/{entityUid}/{eventType}/counts"}) public ModelAndView
-     * getLogEventCounts(
-     * 
-     * @PathVariable("entityUid") String entityUid,
-     * 
-     * @PathVariable("eventType") Integer eventType){
-     * 
-     * //return createDownloadSummary(entityUid, eventType); return
-     * createSummary(entityUid, eventType, SummaryType.DOWNLOAD); }
-     * 
-     * @RequestMapping(method=RequestMethod.GET,
-     * value={"/{entityUid}/downloads/counts.json",
-     * "/{entityUid}/downloads/counts"}) public ModelAndView getLogEventCounts(
-     * 
-     * @PathVariable("entityUid") String entityUid){ //return
-     * createDownloadSummary(entityUid, 1002); return createSummary(entityUid,
-     * 1002, SummaryType.DOWNLOAD); }
-     */
     /**
      * Create a summary for event downloads
      * 
@@ -248,7 +218,6 @@ public class LoggerController {
      */
     @RequestMapping(method = RequestMethod.GET, value = { "/{entityUid}/events/{eventId}/counts.json", "/{entityUid}/events/{eventId}/counts" })
     public ModelAndView getLogEventCounts(@PathVariable("entityUid") String entityUid, @PathVariable("eventId") int eventId) {
-        // return createEventSummary(entityUid, eventId);
         return createSummary(entityUid, eventId, SummaryType.EVENT);
     }
 
@@ -336,6 +305,7 @@ public class LoggerController {
         }
         return noDownloadsAndCount;
     }
+
     /**
      * NQ changed this method to work with string value of the year/month thus removing issues with int conversions of months
      * 
@@ -365,23 +335,6 @@ public class LoggerController {
     }
 
     /**
-     * inject a map of remote user IP for security.
-     * 
-     * @param remoteSourceAddress
-     */
-    @Autowired
-    public void setRemoteSourceAddress(MapFactoryBean remoteSourceAddress) {
-        if (this.remoteSourceAddress == null) {
-            try {
-                this.remoteSourceAddress = (Map) remoteSourceAddress.getObject();
-            } catch (Exception e) {
-                logger.error(e);
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
      * security check
      * 
      * @param request
@@ -393,11 +346,14 @@ public class LoggerController {
             realIp = request.getRemoteAddr();
         }
 
-        if (remoteSourceAddress != null && realIp != null) {
+        if (realIp != null) {
+            Map<String,String> remoteSourceAddress = logEventDao.findRemoteAddresses();
             logger.debug("***** request.getRemoteAddr(): " + request.getRemoteAddr() + " request.getRemoteHost(): " + request.getRemoteHost() + " , realIp: " + request.getHeader(X_FORWARDED_FOR));
             if (remoteSourceAddress.containsKey(realIp.trim())) {
                 return true;
             }
+        } else {
+            logger.debug("***** RETURNING FALSE - request.getRemoteAddr(): " + request.getRemoteAddr() + " request.getRemoteHost(): " + request.getRemoteHost() + " , realIp: " + request.getHeader(X_FORWARDED_FOR));
         }
         return false;
     }
@@ -464,18 +420,86 @@ public class LoggerController {
     /**
      * Create a summary for event downloads with breakdown by reason for
      * download
-     * 
+     *
+     * @param entityUid
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET, value = { "/reasonBreakdownCSV"})
+    public void getReasonBreakdownCSV(HttpServletResponse response, @RequestParam(value = "entityUid", required = false) String entityUid, @RequestParam(value = "eventId", required = true) int eventId) throws IOException {
+        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(response.getOutputStream()));
+        Collection<Object[]> results = logEventDao.getLogEventsByReason(entityUid, eventId);
+
+        response.setHeader("Content-Type", "text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"downloads-by-reason-" + entityUid + ".csv\"");
+        //header
+        csvWriter.writeNext(new String[]{"year", "month", "reason", "number of events", "number of records"});
+        Map<Integer,String> reasons = getReasonMap();
+        for(Object[] properties : results){
+
+            String[] record = new String[5];
+
+            //year, month, log_reason_type_id, number_of_events, record_count
+            record[0] = properties[0].toString().substring(0,4);
+            record[1] = properties[0].toString().substring(4);
+
+            String reasonName;
+            if ( (Integer) properties[1] == -1) {
+                record[2] = "unclassified";
+            } else {
+                record[2] = reasons.get(properties[1]);
+            }
+            record[3] = properties[2].toString();
+            record[4] = properties[3].toString();
+            csvWriter.writeNext(record);
+
+        }
+        csvWriter.flush();
+        csvWriter.close();
+    }
+
+    /**
+     * Create a summary for event downloads with breakdown by reason for
+     * download
+     *
+     * @param entityUid
+     * @return
+     */
+    @RequestMapping(method = RequestMethod.GET, value = { "/emailBreakdownCSV"})
+    public void getEmailBreakdownCSV(HttpServletResponse response, @RequestParam(value = "entityUid", required = false) String entityUid, @RequestParam(value = "eventId", required = true) int eventId) throws IOException {
+        CSVWriter csvWriter = new CSVWriter(new OutputStreamWriter(response.getOutputStream()));
+        Collection<Object[]> results = logEventDao.getLogEventsByEmail(entityUid, eventId);
+
+        response.setHeader("Content-Type", "text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"downloads-by-reason-" + entityUid + ".csv\"");
+        //header
+        csvWriter.writeNext(new String[]{"year", "month", "user category", "number of events", "number of records"});
+        Map<Integer,String> reasons = getReasonMap();
+        for(Object[] properties : results){
+            String[] record = new String[5];
+            //year, month, log_reason_type_id, number_of_events, record_count
+            record[0] = properties[0].toString().substring(0,4);
+            record[1] = properties[0].toString().substring(4);
+            record[2] = properties[1].toString();
+            record[3] = properties[2].toString();
+            record[4] = properties[3].toString();
+            csvWriter.writeNext(record);
+
+        }
+        csvWriter.flush();
+        csvWriter.close();
+    }
+
+    /**
+     * Create a summary for event downloads with breakdown by reason for
+     * download
+     *
      * @param entityUid
      * @return
      */
     @RequestMapping(method = RequestMethod.GET, value = { "/reasonBreakdown", "/reasonBreakdown.json" })
     public ModelAndView getReasonBreakdown(@RequestParam(value = "entityUid", required = false) String entityUid, @RequestParam(value = "eventId", required = true) int eventId) {
 
-        Collection<LogReasonType> logReasonTypes = logEventDao.findLogReasonTypes();
-        Map<Integer, String> logReasonTypesMap = new HashMap<Integer, String>();
-        for (LogReasonType reasonType : logReasonTypes) {
-            logReasonTypesMap.put(reasonType.getId(), reasonType.getName());
-        }
+        Map<Integer, String> logReasonTypesMap = getReasonMap();
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
 
@@ -518,6 +542,15 @@ public class LoggerController {
         return mav;
     }
 
+    private Map<Integer, String> getReasonMap() {
+        Collection<LogReasonType> logReasonTypes = logEventDao.findLogReasonTypes();
+        Map<Integer, String> logReasonTypesMap = new HashMap<Integer, String>();
+        for (LogReasonType reasonType : logReasonTypes) {
+            logReasonTypesMap.put(reasonType.getId(), reasonType.getName());
+        }
+        return logReasonTypesMap;
+    }
+
     /**
      * Create a summary for event downloads with breakdown by reason for download
      *
@@ -525,31 +558,12 @@ public class LoggerController {
      * @return
      */
     @RequestMapping(method = RequestMethod.GET, value = { "/reasonBreakdownMonthly" })
-    public ModelAndView getReasonBreakdownByMonth(@RequestParam(value = "entityUid", required = false) String entityUid,
+    public ModelAndView getReasonBreakdownByMonth(@RequestParam(value = "entityUid", required = true) String entityUid,
                                                   @RequestParam(value = "eventId", required = true) int eventId,
                                                   @RequestParam(value = "reasonId", required = false) Integer reasonId
     ) {
 
-        Collection<LogReasonType> logReasonTypes = logEventDao.findLogReasonTypes();
-        Map<Integer, String> logReasonTypesMap = new HashMap<Integer, String>();
-        for (LogReasonType reasonType : logReasonTypes) {
-            logReasonTypesMap.put(reasonType.getId(), reasonType.getName());
-        }
-
-//        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
-//
-//        Calendar fromCal = Calendar.getInstance();
-//        Calendar toCal = Calendar.getInstance();
-//
-//        // search for events up to the beginning of the next month
-//        toCal.set(Calendar.DAY_OF_MONTH, 1);
-//        toCal.add(Calendar.MONTH, 1);
-//        fromCal.set(Calendar.DAY_OF_MONTH, 1);
-//        fromCal.add(Calendar.MONTH, 1);
-
-        //Collection<Object[]> temporalBreakdown = logEventDao.getTemporalEventsReasonBreakdown(eventId, entityUid,reasonId, sdf.format(fromCal.getTime()), sdf.format(toCal.getTime()));
-
-        Collection<Object[]> temporalBreakdown = logEventDao.getTemporalEventsReasonBreakdown(eventId, entityUid,reasonId, null, null);
+        Collection<Object[]> temporalBreakdown = logEventDao.getTemporalEventsReasonBreakdown(eventId, entityUid, reasonId, null, null);
         Map<String, Map<String,Number>> results  = new HashMap<String, Map<String,Number>> ();
         for(Object[] result: temporalBreakdown){
             String monthYear = (String) result[0];
@@ -621,12 +635,6 @@ public class LoggerController {
      */
     @RequestMapping(method = RequestMethod.GET, value = { "/emailBreakdown", "/emailBreakdown.json" })
     public ModelAndView getEmailBreakdown(@RequestParam(value = "entityUid", required = false) String entityUid, @RequestParam(value = "eventId", required = true) int eventId) {
-
-        Collection<LogReasonType> logReasonTypes = logEventDao.findLogReasonTypes();
-        Map<Integer, String> logReasonTypesMap = new HashMap<Integer, String>();
-        for (LogReasonType reasonType : logReasonTypes) {
-            logReasonTypesMap.put(reasonType.getId(), reasonType.getName());
-        }
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMM");
 

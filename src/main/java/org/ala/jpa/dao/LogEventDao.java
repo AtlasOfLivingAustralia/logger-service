@@ -15,13 +15,10 @@
 
 package org.ala.jpa.dao;
 
-import java.util.Collection;
+import org.ala.jpa.entity.*;
 
-import org.ala.jpa.entity.LogDetail;
-import org.ala.jpa.entity.LogEvent;
-import org.ala.jpa.entity.LogEventType;
-import org.ala.jpa.entity.LogReasonType;
-import org.ala.jpa.entity.LogSourceType;
+import java.util.Collection;
+import java.util.Map;
 
 public interface LogEventDao {
 
@@ -29,11 +26,6 @@ public interface LogEventDao {
      * Find LogEvent by id.
      */
     public LogEvent findLogEventById(int id);
-
-    /**
-     * Find LogEvents.
-     */
-    public Collection<LogEvent> findLogEvents();
 
     /**
      * Find LogEvent using a start index and max number of results.
@@ -74,8 +66,23 @@ public interface LogEventDao {
      * execute SQL statement
      */
     public Integer[] getLogEventsByEntity(String entity_uid, int log_event_type_id);
-        
-    public Collection<Object[]> executeNativeQuery(String sql);
+
+    /**
+     * Log events by reason ordered by month
+     *
+     * @param entity_uid
+     * @param log_event_type_id
+     * @return
+     */
+    public Collection<Object[]> getLogEventsByReason(String entity_uid, int log_event_type_id);
+
+    /**
+     * Log event counts by email category ordered by month
+     * @param entity_uid
+     * @param log_event_type_id
+     * @return
+     */
+    public Collection<Object[]> getLogEventsByEmail(String entity_uid, int log_event_type_id);
     
     /**
      * Returns the number of log events and total number of records involved in these log events between the supplied dates
@@ -127,7 +134,6 @@ public interface LogEventDao {
      */
     public Collection<Object[]> getTemporalEventsReasonBreakdown(int log_event_type_id, String entity_uid, Integer logReasonType, String dateFrom, String dateTo);
 
-
     public Collection<Object[]> getTotalsByEventType();
  
     //==== LogReasonType ========
@@ -137,4 +143,12 @@ public interface LogEventDao {
     public Collection<LogSourceType> findLogSourceTypes();
     public LogEventType findLogEventTypeById(int id);
     public Collection<LogEventType> findLogEventTypes();
+
+
+    /**
+     * Retrieve a list of allowed sources.
+     *
+     * @return key, value list of remote addresses.
+     */
+    public Map<String,String> findRemoteAddresses();
 }
