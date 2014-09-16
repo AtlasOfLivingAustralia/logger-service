@@ -196,6 +196,11 @@
 		
     <build>
 	    <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.2</version>
+            </plugin>
 	        <plugin>
 	            <artifactId>maven-compiler-plugin</artifactId>
 	            <configuration>
@@ -211,6 +216,15 @@
             </plugin>
 	    </plugins>
 	</build>
+
+    <distributionManagement>
+        <downloadUrl>https://maven.ala.org.au/repository</downloadUrl>
+        <repository>
+            <id>ala-repository</id>
+            <url>${ala.repository.url}</url>
+            <uniqueVersion>false</uniqueVersion>
+        </repository>
+    </distributionManagement>
 
 	<repositories>
 		<repository>
