@@ -34,11 +34,6 @@
 	        <artifactId>ala-logger</artifactId>
 	        <version>1.0</version>
 	    </dependency>
-        <dependency>
-            <groupId>au.org.ala</groupId>
-            <artifactId>ala-common-ui</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
