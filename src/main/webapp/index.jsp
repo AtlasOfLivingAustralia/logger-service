@@ -1,54 +1,35 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" session="false" %>
-<%@ page import = "java.util.Date" %> 
-<%@ page import = "org.springframework.context.ApplicationContext,  
-		org.springframework.web.context.support.WebApplicationContextUtils,
-		org.ala.jpa.dao.LogEventDao" %>
-<% 
-ApplicationContext applicationContext = WebApplicationContextUtils.getWebApplicationContext(getServletContext());
-LogEventDao logEventDao = (LogEventDao) applicationContext.getBean(LogEventDao.class);
-%>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <meta name="pageName" content="home"/>
-        <title>Atlas of Living Australia - ALA Logger Service</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+        <!-- Optional theme -->
+        <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap-theme.min.css">
+        <!-- Latest compiled and minified JavaScript -->
+        <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+        <title>Logger service</title>
     </head>
-    
-	<body bgcolor="white">
-        <p align="center"><font size=6>Welcome to the Atlas of Living Australia: <strong>ALA Logger Service</strong>.</font></p>
-		<hr/>
-		<p align="center">
-			<font size = 6 color = "#FF0000">current date is :<%= new Date().toString()%></font>
-		</p>
-		<hr/>
-		<h1> Request Information </h1>
-		<font size="4">
-			JSP Request Method: <%= request.getMethod() %><br/>
-			Request URI: <%= request.getRequestURI() %><br/>
-			Request Protocol: <%= request.getProtocol() %><br/>
-			Servlet path: <%= request.getServletPath() %><br/>
-			Path info: <%= request.getPathInfo() %><br/>
-			Server name: <%= request.getServerName() %><br/>
-			Server port: <%= request.getServerPort() %><br/>
-			Remote user: <%= request.getRemoteUser() %><br/>
-			Remote address: <%= request.getRemoteAddr() %><br/>
-			Remote host: <%= request.getRemoteHost() %><br/>
-			X-Forwarded-For: <%= request.getHeader("X-Forwarded-For") %><br/>
-			<hr/>
-			<%
-			java.util.Enumeration headerNames = request.getHeaderNames();
-			while(headerNames.hasMoreElements()) {
-			      String headerName = (String)headerNames.nextElement();
-			      out.println(headerName + " : " + request.getHeader(headerName) + ".<br/>");
-			}
-			%>
-		</font>
-		<hr />
-		<h1> Record Count </h1>	
-		<font size="4">
-			Total Log Event Count: <%= logEventDao.executeNativeQuery("SELECT Count(*) FROM log_event") %><br/>
-			Total Download Count: <%= logEventDao.executeNativeQuery("SELECT SUM(record_count) FROM log_detail") %><br/>
-		</font>		
-	</body>    
+    <body>
+        <div class="jumbotron">
+            <div class="container">
+                <h1>Logger web services</h1>
+            </div>
+        </div>
+        <div class="container">
+            <p class="lead">
+                Below is a list of reporting services that return JSON or CSV.
+            </p>
+            <ul>
+                <li><a href="${pageContext.request.contextPath}/service/logger/reasons">User reasons for download (JSON) </a></li>
+                <li><a href="${pageContext.request.contextPath}/service/logger/sources">Sources (JSON) </a></li>
+                <li><a href="${pageContext.request.contextPath}/service/logger/events">Events (JSON) </a></li>
+                <li><a href="${pageContext.request.contextPath}/service/reasonBreakdown?eventId=1002&entityUid=in4">Downloads breakdown (3 month, 1 year, all)</a></li>
+                <li><a href="${pageContext.request.contextPath}/service/reasonBreakdownMonthly?eventId=1002&entityUid=in4">Downloads breakdown by months (example for Australian Museum)</a></li>
+                <li><a href="${pageContext.request.contextPath}/service/reasonBreakdownCSV?eventId=1002&entityUid=in4">Downloads by reason breakdown in CSV (example for Australian Museum)</a></li>
+                <li><a href="${pageContext.request.contextPath}/service/reasonEmailCSV?eventId=1002&entityUid=in4">Downloads by user category breakdown in CSV (example for Australian Museum)</a></li>
+            </ul>
+        </div>
+	</body>
 </html>
