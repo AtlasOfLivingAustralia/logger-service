@@ -23,10 +23,15 @@
 
     <organization>
 		<name>ALA</name>
-		<url>http://www.ala.org</url>
+		<url>http://www.ala.org.au</url>
 	</organization>
 
     <dependencies>
+        <dependency>
+            <groupId>au.org.ala</groupId>
+            <artifactId>ala-common-ui</artifactId>
+            <version>1.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.maven.wagon</groupId>
             <artifactId>wagon-ssh-external</artifactId>
