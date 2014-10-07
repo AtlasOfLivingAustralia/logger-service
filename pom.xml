@@ -234,14 +234,18 @@
 	    </plugins>
 	</build>
 
-    <distributionManagement>
-        <downloadUrl>https://maven.ala.org.au/repository</downloadUrl>
-        <repository>
-            <id>ala-repository</id>
-            <url>${ala.repository.url}</url>
-            <uniqueVersion>false</uniqueVersion>
-        </repository>
-    </distributionManagement>
+        <distributionManagement>
+                <repository>
+                        <id>ala-repo</id>
+                        <name>Internal Releases</name>
+                        <url>http://ala-wonder.it.csiro.au/nexus/content/repositories/releases/</url>
+                </repository>
+                <snapshotRepository>
+                        <id>ala-repo</id>
+                        <name>Internal Releases</name>
+                        <url>http://ala-wonder.it.csiro.au/nexus/content/repositories/snapshots/</url>
+                </snapshotRepository>
+        </distributionManagement>
 
 	<repositories>
 		<repository>
