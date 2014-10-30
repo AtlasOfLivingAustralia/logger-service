@@ -5,7 +5,7 @@
 	<artifactId>logger-service</artifactId>
 	<version>1.1-SNAPSHOT</version>
 	<packaging>war</packaging>
-	<name>ala-logger-service</name>
+	<name>logger-service</name>
 	<description>
 		This is an JSON based REST web service to use Spring MVC annotations to make a CRUD webapp.
         JPA, Hibernate, and internationalized messages are also used.
@@ -15,9 +15,9 @@
 	</properties>
     <!-- AN SCM entry that points to the SVN directory that contains the pom file for the project  -->
     <scm>
-        <connection>scm:git:git@github.com:AtlasOfLivingAustralia/ala-logger-service.git</connection>
-        <url>https://github.com/AtlasOfLivingAustralia/ala-logger-service</url>
-        <developerConnection>scm:git:git@github.com:AtlasOfLivingAustralia/ala-logger-service.git</developerConnection>
+        <connection>scm:git:git@github.com:AtlasOfLivingAustralia/logger-service.git</connection>
+        <url>https://github.com/AtlasOfLivingAustralia/logger-service</url>
+        <developerConnection>scm:git:git@github.com:AtlasOfLivingAustralia/logger-service.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
@@ -238,12 +238,12 @@
                 <repository>
                         <id>ala-repo</id>
                         <name>Internal Releases</name>
-                        <url>http://ala-wonder.it.csiro.au/nexus/content/repositories/releases/</url>
+                        <url>http://nexus.ala.org.au/content/repositories/releases/</url>
                 </repository>
                 <snapshotRepository>
                         <id>ala-repo</id>
                         <name>Internal Releases</name>
-                        <url>http://ala-wonder.it.csiro.au/nexus/content/repositories/snapshots/</url>
+                        <url>http://nexus.ala.org.au/content/repositories/snapshots/</url>
                 </snapshotRepository>
         </distributionManagement>
 
