@@ -1,10 +1,10 @@
 -- This stored procedure is used to populate the "event_summary_totals" table from all existing log information
 
-DROP PROCEDURE IF EXISTS `logger`.`refresh_summary_totals`;
-
 delimiter $$
 
-CREATE DEFINER=`root`@`%` PROCEDURE `refresh_summary_totals`()
+DROP PROCEDURE IF EXISTS `logger`.`refresh_summary_totals`;
+
+CREATE DEFINER=`logger_user`@`%` PROCEDURE `refresh_summary_totals`()
 BEGIN
 DECLARE current_month varchar(255);
 DECLARE done INT DEFAULT 0;

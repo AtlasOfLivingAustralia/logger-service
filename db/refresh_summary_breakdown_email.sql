@@ -2,7 +2,9 @@
 -- from all existing log information
 delimiter $$
 
-CREATE DEFINER=`root`@`%` PROCEDURE `refresh_summary_breakdown_email`()
+DROP PROCEDURE IF EXISTS `logger`.`refresh_summary_breakdown_email`;
+
+CREATE DEFINER=`logger_user`@`%` PROCEDURE `refresh_summary_breakdown_email`()
 BEGIN
 DECLARE current_month varchar(255);
 DECLARE done INT DEFAULT 0;

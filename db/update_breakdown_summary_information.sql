@@ -4,10 +4,10 @@
 -- event_summary_breakdown_reason_entity
 -- event_summary_breakdown_email
 -- event_summary_breakdown_email_entity
-DROP TRIGGER `logger`.`update_breakdown_summary_information`;
 delimiter $$
+DROP TRIGGER if exists `logger`.`update_breakdown_summary_information`;
 CREATE
-  DEFINER=`root`@`%`
+  DEFINER=`logger_user`@`%`
 TRIGGER `logger`.`update_breakdown_summary_information`
 AFTER INSERT ON `logger`.`log_detail`
 FOR EACH ROW

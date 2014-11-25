@@ -1,8 +1,8 @@
-DROP PROCEDURE IF EXISTS `logger`.`refresh_summary_breakdown_email`;
-
 delimiter $$
 
-CREATE DEFINER=`root`@`%` PROCEDURE `refresh_summary_breakdown_email`()
+DROP PROCEDURE IF EXISTS `logger`.`refresh_summary_breakdown_reason`;
+
+CREATE DEFINER=`logger_user`@`%` PROCEDURE `refresh_summary_breakdown_reason`()
   BEGIN
 
 -- ############ Create temporary tables #################
