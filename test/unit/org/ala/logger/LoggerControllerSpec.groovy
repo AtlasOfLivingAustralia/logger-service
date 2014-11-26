@@ -1,15 +1,12 @@
 package org.ala.logger
 
 import grails.test.mixin.TestFor
-import grails.test.mixin.TestMixin
-import grails.test.mixin.web.FiltersUnitTestMixin
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
 import javax.persistence.PersistenceException
 
 @TestFor(LoggerController)
-@TestMixin(FiltersUnitTestMixin)
 class LoggerControllerSpec extends Specification {
 
     final VALID_JSON_REQUEST = """{ "eventTypeId": 1000, "comment":"test comment", "userEmail" : "fred@somewhere.gov.au", "userIP": "123.123.123.123", "recordCounts" : { "uid1": 100, "uid2": 200,} }""";
