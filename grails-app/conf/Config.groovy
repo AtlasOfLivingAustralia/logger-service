@@ -1,17 +1,28 @@
-// locations to search for config files that get merged into the main config;
-// config files can be ConfigSlurper scripts, Java properties files, or classes
-// in the classpath in ConfigSlurper format
+/******************************************************************************\
+ *  CONFIG MANAGEMENT
+ \******************************************************************************/
 
-// grails.config.locations = [ "classpath:${appName}-config.properties",
-//                             "classpath:${appName}-config.groovy",
-//                             "file:${userHome}/.grails/${appName}-config.properties",
-//                             "file:${userHome}/.grails/${appName}-config.groovy"]
+def appName = 'logger-service'
+def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
+default_config = "/data/${appName}/config/${appName}-config.properties"
+if(!grails.config.locations || !(grails.config.locations instanceof List)) {
+    grails.config.locations = []
+}
+if(System.getenv(ENV_NAME) && new File(System.getenv(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified in environment: " + System.getenv(ENV_NAME);
+    grails.config.locations.add "file:" + System.getenv(ENV_NAME)
+} else if(System.getProperty(ENV_NAME) && new File(System.getProperty(ENV_NAME)).exists()) {
+    println "[${appName}] Including configuration file specified on command line: " + System.getProperty(ENV_NAME);
+    grails.config.locations.add "file:" + System.getProperty(ENV_NAME)
+} else if(new File(default_config).exists()) {
+    println "[${appName}] Including default configuration file: " + default_config;
+    grails.config.locations.add "file:" + default_config
+} else {
+    println "[${appName}] No external configuration file defined."
+}
 
-// if (System.properties["${appName}.config.location"]) {
-//    grails.config.locations << "file:" + System.properties["${appName}.config.location"]
-// }
-
-grails.project.groupId = appName // change this to alter the default package name and Maven publishing destination
+println "[${appName}] (*) grails.config.locations = ${grails.config.locations}"
+grails.project.groupId = "au.org.ala" // change this to alter the default package name and Maven publishing destination
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
 grails.mime.disable.accept.header.userAgents = ['Gecko', 'WebKit', 'Presto', 'Trident']
@@ -79,6 +90,12 @@ grails.exceptionresolver.params.exclude = ['password']
 // configure auto-caching of queries by default (if false you can cache individual queries with 'cache: true')
 grails.hibernate.cache.queries = false
 
+// configure mail settings
+grails.mail.host = "smtp.csiro.au"
+grails.mail.default.from = "support@ala.org.au"
+
+
+
 // configure passing transaction's read-only attribute to Hibernate session, queries and criterias
 // set "singleSession = false" OSIV mode in hibernate configuration after enabling
 grails.hibernate.pass.readonly = false
@@ -91,37 +108,108 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        // TODO: grails.serverURL = "http://www.changeme.com"
+        grails.serverURL = "http://logger.ala.org.au"
     }
 }
 
 // log4j configuration
+def logging_dir
+if (!logging_dir) {
+    logging_dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
+}
 log4j.main = {
-    // Example of changing the log pattern for the default console appender:
-    //
     appenders {
-        console name: "stdout", layout: pattern(conversionPattern: "%d [%t] %-5p %c %x - %m%n"), threshold: org.apache.log4j.Level.DEBUG
+        environments{
+            development {
+                console name: "stdout",
+                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"),
+                        threshold: org.apache.log4j.Level.DEBUG
+                rollingFile name: "loggerLog",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger.log",
+                        threshold: org.apache.log4j.Level.INFO,
+                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                rollingFile name: "stacktrace",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger-stacktrace.log"
+            }
+            test {
+                rollingFile name: "loggerLog",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger.log",
+                        threshold: org.apache.log4j.Level.INFO,
+                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                rollingFile name: "stacktrace",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger-stacktrace.log"
+            }
+            nectar {
+                rollingFile name: "loggerLog",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger.log",
+                        threshold: org.apache.log4j.Level.INFO,
+                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                rollingFile name: "stacktrace",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger-stacktrace.log"
+            }
+            nectartest {
+                rollingFile name: "loggerLog",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger.log",
+                        threshold: org.apache.log4j.Level.INFO,
+                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                rollingFile name: "stacktrace",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger-stacktrace.log"
+            }
+            production {
+                rollingFile name: "loggerLog",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger.log",
+                        threshold: org.apache.log4j.Level.INFO,
+                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
+                rollingFile name: "stacktrace",
+                        maxFileSize: 104857600,
+                        file: "${logging_dir}/logger-stacktrace.log"
+            }
+        }
     }
 
-//    root {
-//        debug 'stdout'
-//    }
+    environments {
+        development {
+            all additivity: false, stdout: [
+                    'grails.app.controllers.org.ala.logger',
+                    'grails.app.domain.org.ala.logger',
+                    'grails.app.services.org.ala.logger',
+                    'grails.app.taglib.org.ala.logger',
+                    'grails.app.conf.org.ala.logger',
+                    'grails.app.filters.org.ala.logger',
+                    'au.org.ala.cas.client'
+            ]
+        }
+    }
+
+    all additivity: false, loggerLog: [
+            'grails.app.controllers.org.ala.logger',
+            'grails.app.domain.org.ala.logger',
+            'grails.app.services.org.ala.logger',
+            'grails.app.taglib.org.ala.logger',
+            'grails.app.conf.org.ala.logger',
+            'grails.app.filters.org.ala.logger'
+    ]
+
+    debug 'grails.app.controllers.au.org.ala','ala','au.org.ala.web' // 'au.org.ala.cas.client',
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
-           'org.codehaus.groovy.grails.web.pages',          // GSP
-           'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-           'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-           'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-           'org.codehaus.groovy.grails.commons',            // core / classloading
-           'org.codehaus.groovy.grails.plugins',            // plugins
-           'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-           'org.springframework',
-           'org.hibernate',
-           'net.sf.ehcache.hibernate'
-
-//    debug stdout: 'org.hibernate'
-
-    debug stdout: 'org.ala'
-
-//    error stdout: "StackTrace"
+            'org.codehaus.groovy.grails.web.pages',          // GSP
+            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
+            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
+            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
+            'org.codehaus.groovy.grails.commons',            // core / classloading
+            'org.codehaus.groovy.grails.plugins',            // plugins
+            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
+            'org.springframework',
+            'org.hibernate',
+            'net.sf.ehcache.hibernate'
 }

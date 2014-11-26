@@ -200,7 +200,7 @@ class LoggerControllerSpec extends Specification {
         controller.getReasonBreakdown()
 
         then: "a valid response with correct counts should be returned"
-        println response.json.all
+
         assert response.json.all.events == 10 && response.json.all.records == 100
         assert response.json.last3months.events == 10 && response.json.last3months.records == 100
         assert response.json.thisMonth.events == 10 && response.json.thisMonth.records == 100
