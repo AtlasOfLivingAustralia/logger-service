@@ -364,7 +364,7 @@ class LoggerController {
     // returns a triple of [totalEvents | totalRecords | reasonBreakdown] for the requested period.
     private def getReasonBreakdownForPeriod(eventTypeId, entityUid, from, to, reasonMap) {
         def reasonSummary = loggerService.getEventsReasonBreakdown(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"))
-println "${from} & ${to}"
+
         def grouped = reasonMap.collectEntries { k, v -> [(v): ["events": 0, "records": 0]] }
                 .withDefault { ["events": 0, "records": 0] }
 
