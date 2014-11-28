@@ -10,6 +10,7 @@ class LogEventType implements Serializable {
     String name
 
     static constraints = {
+        id bindable: true
         name maxSize: 255, nullable: true
     }
 

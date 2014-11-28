@@ -25,7 +25,7 @@ class LoggerControllerSpec extends Specification {
         loggerService = Mock(LoggerService)
         controller.loggerService = loggerService
 
-        for (i in 1 .. 10) {
+        for (i in 1..10) {
             def reason = new LogReasonType(name: "reason${i}", rkey: "rkey${i}")
             reason.setId(i)
             reasonTypes << reason
@@ -55,7 +55,7 @@ class LoggerControllerSpec extends Specification {
     def "save() should return a HTTP 406 (not acceptable) if an exception occurs while saving"() {
         when: "an exception is thrown from the logger service's createLog method"
         request.json = VALID_JSON_REQUEST
-        loggerService.createLog(_) >> {throw new PersistenceException("test")}
+        loggerService.createLog(_) >> { throw new PersistenceException("test") }
         controller.save()
 
         then: "a http 406 (NOT_ACCEPTABLE) should be returned"
@@ -195,8 +195,8 @@ class LoggerControllerSpec extends Specification {
         when: "a request is made with a recognised entityUid"
         params.entityUid = "dr143"
         params.eventId = 1000
-        loggerService.getEventsReasonBreakdown(_, _, _, _) >> [new Summary(reasonTypeId: 1, eventCount: 3, recordCount: 30),
-                                                               new Summary(reasonTypeId: 2, eventCount: 7, recordCount: 70)]
+        loggerService.getEventsReasonBreakdown(_, _, _, _) >> [new EventSummaryBreakdownReason(logReasonTypeId: 1, numberOfEvents: 3, recordCount: 30),
+                                                               new EventSummaryBreakdownReason(logReasonTypeId: 2, numberOfEvents: 7, recordCount: 70)]
         controller.getReasonBreakdown()
 
         then: "a valid response with correct counts should be returned"
@@ -212,8 +212,8 @@ class LoggerControllerSpec extends Specification {
     def "getReasonBreakdown should look for this month, last 3 months, last 12 months and all time"() {
         when: "a breakdown is requested"
         params << [entityUid: "dr143", eventId: 1000]
-        loggerService.getEventsReasonBreakdown(_, _, _, _) >> [new Summary(reasonTypeId: 1, eventCount: 3, recordCount: 30),
-                                                               new Summary(reasonTypeId: 2, eventCount: 7, recordCount: 70)]
+        loggerService.getEventsReasonBreakdown(_, _, _, _) >> [new EventSummaryBreakdownReason(logReasonTypeId: 1, numberOfEvents: 3, recordCount: 30),
+                                                               new EventSummaryBreakdownReason(logReasonTypeId: 2, numberOfEvents: 7, recordCount: 70)]
         controller.getReasonBreakdown()
 
         then: "the service method should be invoked 4 times with the relevant date ranges"
@@ -227,10 +227,10 @@ class LoggerControllerSpec extends Specification {
     def "getReasonBreakdown should collate results from difference date ranges correctly"() {
         when: "a breakdown is requested"
         params << [entityUid: "dr143", eventId: 1000]
-        loggerService.getEventsReasonBreakdown(_, _, null, null) >> [new Summary(reasonTypeId: 1, eventCount: 3, recordCount: 30)]
-        loggerService.getEventsReasonBreakdown(_, _, thisMonth, nextMonth) >> [new Summary(reasonTypeId: 2, eventCount: 6, recordCount: 40)]
-        loggerService.getEventsReasonBreakdown(_, _, last3Months, nextMonth) >> [new Summary(reasonTypeId: 3, eventCount: 8, recordCount: 50)]
-        loggerService.getEventsReasonBreakdown(_, _, last12Months, nextMonth) >> [new Summary(reasonTypeId: 4, eventCount: 10, recordCount: 60)]
+        loggerService.getEventsReasonBreakdown(_, _, null, null) >> [new EventSummaryBreakdownReason(logReasonTypeId: 1, numberOfEvents: 3, recordCount: 30)]
+        loggerService.getEventsReasonBreakdown(_, _, thisMonth, nextMonth) >> [new EventSummaryBreakdownReason(logReasonTypeId: 2, numberOfEvents: 6, recordCount: 40)]
+        loggerService.getEventsReasonBreakdown(_, _, last3Months, nextMonth) >> [new EventSummaryBreakdownReason(logReasonTypeId: 3, numberOfEvents: 8, recordCount: 50)]
+        loggerService.getEventsReasonBreakdown(_, _, last12Months, nextMonth) >> [new EventSummaryBreakdownReason(logReasonTypeId: 4, numberOfEvents: 10, recordCount: 60)]
         controller.getReasonBreakdown()
 
         then: "the results should be collated properly"
@@ -244,7 +244,7 @@ class LoggerControllerSpec extends Specification {
         when: "the retrieved data contains an unrecognised reason type"
         params.entityUid = "dr143"
         params.eventId = 1000
-        loggerService.getEventsReasonBreakdown(_, _, _, _) >> [new Summary(reasonTypeId: 11111, eventCount: 3, recordCount: 30)]
+        loggerService.getEventsReasonBreakdown(_, _, _, _) >> [new EventSummaryBreakdownReason(logReasonTypeId: 11111, numberOfEvents: 3, recordCount: 30)]
         controller.getReasonBreakdown()
 
         then: "'unclassified' should be used as the reason name in the response"
@@ -291,8 +291,8 @@ class LoggerControllerSpec extends Specification {
     def "getReasonBreakdownMonthly should return correct counts when given a valid request"() {
         when:
         params << [eventId: 1000, entityUid: "dr143"]
-        loggerService.getTemporalEventsReasonBreakdown(_, _, _) >> [new Summary(month: "201410", recordCount: 20, eventCount: 4),
-                                                             new Summary(month: "201411", recordCount: 10, eventCount: 2)]
+        loggerService.getTemporalEventsReasonBreakdown(_, _, _) >> [new EventSummaryBreakdownReasonEntity(month: "201410", recordCount: 20, numberOfEvents: 4),
+                                                                    new EventSummaryBreakdownReasonEntity(month: "201411", recordCount: 10, numberOfEvents: 2)]
         controller.getReasonBreakdownByMonth()
 
         then:
@@ -338,8 +338,8 @@ class LoggerControllerSpec extends Specification {
         params.entityUid = "1234"
         params.eventId = 100
 
-        loggerService.getLogEventsByReason(_, _) >> [new Summary(reasonTypeId: 1, month: "201411", recordCount: 10, eventCount: 2),
-                                                     new Summary(reasonTypeId: 2, month: "201411", recordCount: 200, eventCount: 20)]
+        loggerService.getLogEventsByReason(_, _) >> [new EventSummaryBreakdownReasonEntity(logReasonTypeId: 1, month: "201411", recordCount: 10, numberOfEvents: 2),
+                                                     new EventSummaryBreakdownReasonEntity(logReasonTypeId: 2, month: "201411", recordCount: 200, numberOfEvents: 20)]
         controller.getReasonBreakdownCSV()
 
         then: "a csv with the correct counts should be returned"
@@ -373,8 +373,8 @@ class LoggerControllerSpec extends Specification {
         when: "a request is made with a recognised entityUid"
         params.entityUid = "unknown"
         params.eventId = 1000
-        loggerService.getEventsEmailBreakdown(_, _, _, _) >> [new Summary(userEmail: "edu", eventCount: 3, recordCount: 30),
-                                                              new Summary(userEmail: "gov", eventCount: 7, recordCount: 70)]
+        loggerService.getEventsEmailBreakdown(_, _, _, _) >> [new EventSummaryBreakdownEmail(userEmailCategory: "edu", numberOfEvents: 3, recordCount: 30),
+                                                              new EventSummaryBreakdownEmail(userEmailCategory: "gov", numberOfEvents: 7, recordCount: 70)]
         controller.getEmailBreakdown()
 
         then: "a valid response with correct counts should be returned"
@@ -391,8 +391,8 @@ class LoggerControllerSpec extends Specification {
     def "getEmailBreakdown should look for this month, last 3 months, last 12 months and all time"() {
         when: "a breakdown is requested"
         params << [entityUid: "dr143", eventId: 1000]
-        loggerService.getEventsEmailBreakdown(_, _, _, _) >> [new Summary(reasonTypeId: 1, eventCount: 3, recordCount: 30),
-                                                               new Summary(reasonTypeId: 2, eventCount: 7, recordCount: 70)]
+        loggerService.getEventsEmailBreakdown(_, _, _, _) >> [new EventSummaryBreakdownEmail(userEmailCategory: "edu", numberOfEvents: 3, recordCount: 30),
+                                                              new EventSummaryBreakdownEmail(userEmailCategory: "org", numberOfEvents: 7, recordCount: 70)]
         controller.getEmailBreakdown()
 
         then: "the service method should be invoked 4 times with the relevant date ranges"
@@ -405,10 +405,10 @@ class LoggerControllerSpec extends Specification {
     def "getEmailBreakdown should collate results from difference date ranges correctly"() {
         when: "a breakdown is requested"
         params << [entityUid: "dr143", eventId: 1000]
-        loggerService.getEventsEmailBreakdown(_, _, null, null) >> [new Summary(userEmail: "edu", eventCount: 3, recordCount: 30)]
-        loggerService.getEventsEmailBreakdown(_, _, thisMonth, nextMonth) >> [new Summary(userEmail: "gov", eventCount: 6, recordCount: 40)]
-        loggerService.getEventsEmailBreakdown(_, _, last3Months, nextMonth) >> [new Summary(userEmail: "other", eventCount: 8, recordCount: 50)]
-        loggerService.getEventsEmailBreakdown(_, _, last12Months, nextMonth) >> [new Summary(userEmail: "unspecified", eventCount: 10, recordCount: 60)]
+        loggerService.getEventsEmailBreakdown(_, _, null, null) >> [new EventSummaryBreakdownEmail(userEmailCategory: "edu", numberOfEvents: 3, recordCount: 30)]
+        loggerService.getEventsEmailBreakdown(_, _, thisMonth, nextMonth) >> [new EventSummaryBreakdownEmail(userEmailCategory: "gov", numberOfEvents: 6, recordCount: 40)]
+        loggerService.getEventsEmailBreakdown(_, _, last3Months, nextMonth) >> [new EventSummaryBreakdownEmail(userEmailCategory: "other", numberOfEvents: 8, recordCount: 50)]
+        loggerService.getEventsEmailBreakdown(_, _, last12Months, nextMonth) >> [new EventSummaryBreakdownEmail(userEmailCategory: "unspecified", numberOfEvents: 10, recordCount: 60)]
         controller.getEmailBreakdown()
 
         then: "the results should be collated properly"
@@ -463,8 +463,8 @@ class LoggerControllerSpec extends Specification {
         when: "a request is made without the eventId parameter"
         params.entityUid = "1234"
         params.eventId = 100
-        loggerService.getLogEventsByEmail(_, _) >> [new Summary(userEmail: "edu", month: "201411", recordCount: 10, eventCount: 2),
-                                                    new Summary(userEmail: "gov", month: "201411", recordCount: 200, eventCount: 20)]
+        loggerService.getLogEventsByEmail(_, _) >> [new EventSummaryBreakdownEmailEntity(userEmailCategory: "edu", month: "201411", recordCount: 10, numberOfEvents: 2),
+                                                    new EventSummaryBreakdownEmailEntity(userEmailCategory: "gov", month: "201411", recordCount: 200, numberOfEvents: 20)]
         controller.getEmailBreakdownCSV()
 
         then: "a csv with the correct counts should be returned"
@@ -478,8 +478,8 @@ class LoggerControllerSpec extends Specification {
 
     def "getTotalsByEventType should return correct counts"() {
         when: "a valid request is made"
-        loggerService.getEventTypeBreakdown() >> [new Summary(eventTypeId: 1000, eventCount: 10, recordCount: 100),
-                                                  new Summary(eventTypeId: 200, eventCount: 20, recordCount: 200)]
+        loggerService.getEventTypeBreakdown() >> [new EventSummaryTotal(logEventTypeId: 1000, numberOfEvents: 10, recordCount: 100),
+                                                  new EventSummaryTotal(logEventTypeId: 200, numberOfEvents: 20, recordCount: 200)]
         controller.getTotalsByEventType()
 
         then: "the correct counts should be returned in JSON format"
@@ -506,8 +506,8 @@ class LoggerControllerSpec extends Specification {
         when: "a request is made with a recognised entityUid"
         params.entityUid = "unknown"
         params.eventId = 1000
-        loggerService.getLogEventsByEntity(_, _, _, _) >> [new Summary(eventCount: 3, recordCount: 30),
-                                                           new Summary(eventCount: 7, recordCount: 70)]
+        loggerService.getLogEventsByEntity(_, _, _, _) >> [new EventSummaryBreakdownReason(numberOfEvents: 3, recordCount: 30),
+                                                           new EventSummaryBreakdownReason(numberOfEvents: 7, recordCount: 70)]
         controller.getEntityBreakdown()
 
         then: "a valid response with correct counts should be returned"
@@ -520,8 +520,8 @@ class LoggerControllerSpec extends Specification {
     def "getEntityBreakdown should look for this month, last 3 months, last 12 months and all time"() {
         when: "a breakdown is requested"
         params << [entityUid: "dr143", eventId: 1000]
-        loggerService.getLogEventsByEntity(_, _, _, _) >> [new Summary(reasonTypeId: 1, eventCount: 3, recordCount: 30),
-                                                              new Summary(reasonTypeId: 2, eventCount: 7, recordCount: 70)]
+        loggerService.getLogEventsByEntity(_, _, _, _) >> [new EventSummaryBreakdownReason(reasonTypeId: 1, eventCount: 3, recordCount: 30),
+                                                           new EventSummaryBreakdownReason(reasonTypeId: 2, eventCount: 7, recordCount: 70)]
         controller.getEntityBreakdown()
 
         then: "the service method should be invoked 4 times with the relevant date ranges"
@@ -534,10 +534,10 @@ class LoggerControllerSpec extends Specification {
     def "getEntityBreakdown should collate results from difference date ranges correctly"() {
         when: "a breakdown is requested"
         params << [entityUid: "dr143", eventId: 1000]
-        loggerService.getLogEventsByEntity(_, _, null, null) >> [new Summary(eventCount: 3, recordCount: 30)]
-        loggerService.getLogEventsByEntity(_, _, thisMonth, nextMonth) >> [new Summary(eventCount: 6, recordCount: 40)]
-        loggerService.getLogEventsByEntity(_, _, last3Months, nextMonth) >> [new Summary(eventCount: 8, recordCount: 50)]
-        loggerService.getLogEventsByEntity(_, _, last12Months, nextMonth) >> [new Summary(eventCount: 10, recordCount: 60)]
+        loggerService.getLogEventsByEntity(_, _, null, null) >> [new EventSummaryBreakdownReason(numberOfEvents: 3, recordCount: 30)]
+        loggerService.getLogEventsByEntity(_, _, thisMonth, nextMonth) >> [new EventSummaryBreakdownReason(numberOfEvents: 6, recordCount: 40)]
+        loggerService.getLogEventsByEntity(_, _, last3Months, nextMonth) >> [new EventSummaryBreakdownReason(numberOfEvents: 8, recordCount: 50)]
+        loggerService.getLogEventsByEntity(_, _, last12Months, nextMonth) >> [new EventSummaryBreakdownReason(numberOfEvents: 10, recordCount: 60)]
         controller.getEntityBreakdown()
 
         then: "the results should be collated properly"

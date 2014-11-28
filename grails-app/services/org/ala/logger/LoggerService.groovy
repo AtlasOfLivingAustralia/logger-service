@@ -95,17 +95,17 @@ class LoggerService {
 
         assert eventTypeId && entityUid && year, "All parameters are mandatory"
 
-        def query = "select month, sum(record_count) as record_count from event_summary_breakdown_reason_entity"
-        query += " where log_event_type_id = :eventTypeId and entity_uid = :entityUid and month like :year group by month"
+        EventSummaryBreakdownReasonEntity.withCriteria {
+            eq("logEventTypeId", eventTypeId as int)
+            eq("entityUid", entityUid)
+            like("month", year + "%")
 
-        def sqlQuery = sessionFactory.currentSession.createSQLQuery(query)
+            projections {
+                groupProperty("month")
 
-        sqlQuery.with {
-            setParameter("eventTypeId", eventTypeId)
-            setParameter("entityUid", entityUid)
-            setParameter("year", year + "%")
-
-            list()
+                "month"
+                sum("recordCount")
+            }
         }
     }
 
@@ -115,7 +115,7 @@ class LoggerService {
      * @param eventTypeId The event type to search for
      * @param entityUid The entityUid to search for. Optional. If not provided, all entityUids starting with 'dr' will be retrieved.
      * @param reasonTypeId The reason type to search for. Optional. If not provided, all reason types will be included.
-     * @return list of Summary objects with the following fields populated: [month, eventCount, recordCount]
+     * @return list of EventSummaryBreakdownReasonEntity objects with the following fields populated: [month, numberOfEvents, recordCount]
      */
     def getTemporalEventsReasonBreakdown(eventTypeId, entityUid, reasonTypeId) {
         log.debug("Summarising events by reason per month, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}," +
@@ -123,47 +123,49 @@ class LoggerService {
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
 
-        def query = "select month, SUM(number_of_events) as number_of_events, SUM(record_count) as record_count from "
-        query += "event_summary_breakdown_reason_entity e where log_event_type_id = :eventTypeId and entity_uid "
-        query += entityUid ? " = :entityUid" : " like 'dr%'"
-
-        if (reasonTypeId) {
-            query += " and log_reason_type_id = :reasonTypeId"
-        }
-        query += " group by month"
-
-        def sqlQuery = sessionFactory.currentSession.createSQLQuery(query)
-
-        def result = sqlQuery.with {
-            setParameter("eventTypeId", eventTypeId)
-
+        def result = EventSummaryBreakdownReasonEntity.withCriteria {
+            eq("logEventTypeId", eventTypeId as int)
             if (entityUid) {
-                setParameter("entityUid", entityUid)
-            }
-            if (reasonTypeId) {
-                setParameter("reasonTypeId", reasonTypeId)
+                eq("entityUid", entityUid)
+            } else {
+                ilike("entityUid", "dr%")
             }
 
-            list()
+            if (reasonTypeId) {
+                eq("logReasonTypeId", reasonTypeId as int)
+            }
+
+            projections {
+                groupProperty("month")
+
+                "month"
+                sum("numberOfEvents")
+                sum("recordCount")
+            }
         }
 
-        result.collect { k -> new Summary(month: k[0], eventCount: k[1], recordCount: k[2]) }
+        result.collect { k -> new EventSummaryBreakdownReasonEntity(month: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
 
     /**
      * Retrieve a breakdown of log events grouped by event type
      *
-     * @return list of Summary objects with the following fields populated: [eventTypeId, eventCount, recordCount]
+     * @return list of EventSummaryTotal objects
      */
     def getEventTypeBreakdown() {
         log.debug("Summarising events by type")
 
-        def query = "select log_event_type_id, sum(number_of_events), sum(record_count) " +
-                "from event_summary_totals GROUP BY log_event_type_id"
+        def result = EventSummaryTotal.withCriteria {
+            projections {
+                groupProperty("logEventTypeId")
 
-        def result = sessionFactory.currentSession.createSQLQuery(query).list()
+                "logEventTypeId"
+                sum("numberOfEvents")
+                sum("recordCount")
+            }
+        }
 
-        result.collect { k -> new Summary(eventTypeId: k[0], eventCount: k[1], recordCount: k[2]) }
+        result.collect { k -> new EventSummaryTotal(logEventTypeId: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
 
     /**
@@ -171,25 +173,14 @@ class LoggerService {
      *
      * @param eventTypeId The event type to filter on
      * @param entityUid The entity to filter on
-     * @return list of Summary objects with the following fields populated: [month, reasonTypeId, eventCount, recordCount]
+     * @return list of EventSummaryBreakdownReasonEntity objects
      */
     def getLogEventsByReason(eventTypeId, entityUid) {
         log.debug("Listing all events by reason for eventTypeId ${eventTypeId} and entityUid ${entityUid}")
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
 
-        def query = "select month, log_reason_type_id, number_of_events, record_count " +
-                "from event_summary_breakdown_reason_entity " +
-                "where log_event_type_id = :eventTypeId and entity_uid = :entityUid " +
-                "order by month desc"
-
-        def result = sessionFactory.currentSession.createSQLQuery(query).with {
-            setParameter("eventTypeId", eventTypeId)
-            setParameter("entityUid", entityUid)
-            list()
-        }
-
-        result.collect { k -> new Summary(month: k[0], reasonTypeId: k[1], eventCount: k[2], recordCount: k[3]) }
+        EventSummaryBreakdownReasonEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
     }
 
     /**
@@ -199,7 +190,7 @@ class LoggerService {
      * @param entityUid The entity to search for. Optional.
      * @param fromDate The first year/month (yyyyMM) in the range to search for. Inclusive.
      * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
-     * @return list of Summary objects with the following fields set: [reasonTypeId, eventCount, recordCount]
+     * @return list of EventSummaryBreakdownReasonEntity objects with the following fields set: [logReasonTypeId, numberOfEvents, recordCount]
      */
     def getEventsReasonBreakdown(eventTypeId, entityUid, fromDate, toDate) {
         log.debug("Summarising events by reason, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}, " +
@@ -211,11 +202,11 @@ class LoggerService {
                 entityUid,
                 fromDate,
                 toDate,
-                "log_reason_type_id",
-                "event_summary_breakdown_reason_entity",
-                "event_summary_breakdown_reason")
+                "logReasonTypeId",
+                EventSummaryBreakdownReasonEntity,
+                EventSummaryBreakdownReason)
 
-        result.collect { k -> new Summary(reasonTypeId: k[0], eventCount: k[1], recordCount: k[2]) }
+        result.collect { k -> new EventSummaryBreakdownReason(logReasonTypeId: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
 
     /**
@@ -223,25 +214,14 @@ class LoggerService {
      *
      * @param eventTypeId The event type to filter on
      * @param entityUid The entity to filter on
-     * @return list of Summary objects with the following fields populated: [month, emailCategory, numberOfEvents, numberOfRecords]
+     * @return list of EventSummaryBreakdownEmailEntity objects
      */
     def getLogEventsByEmail(eventTypeId, entityUid) {
         log.debug("Listing all events by reason for eventTypeId ${eventTypeId} and entityUid ${entityUid}")
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
 
-        def query = "select month, user_email_category, number_of_events, record_count " +
-                "from event_summary_breakdown_email_entity " +
-                "where log_event_type_id = :eventTypeId and entity_uid = :entityUid " +
-                "order by month desc"
-
-        def result = sessionFactory.currentSession.createSQLQuery(query).with {
-            setParameter("eventTypeId", eventTypeId)
-            setParameter("entityUid", entityUid)
-            list()
-        }
-
-        result.collect { k -> new Summary(month: k[0], userEmail: k[1], eventCount: k[2], recordCount: k[3]) }
+        EventSummaryBreakdownEmailEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
     }
 
     /**
@@ -251,7 +231,7 @@ class LoggerService {
      * @param entityUid The entity to search for. Optional.
      * @param fromDate The first year/month (yyyyMM) in the range to search for. Inclusive.
      * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
-     * @return list of Summary objects with the following fields set: [userEmail, eventCount, recordCount]
+     * @return list of EventSummaryBreakdownReason objects with the following fields set: [userEmailCategory, numberOfEvents, recordCount]
      */
     def getEventsEmailBreakdown(eventTypeId, entityUid, fromDate, toDate) {
         log.debug("Summarising events by email, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}, " +
@@ -263,11 +243,11 @@ class LoggerService {
                 entityUid,
                 fromDate,
                 toDate,
-                "user_email_category",
-                "event_summary_breakdown_email_entity",
-                "event_summary_breakdown_email")
+                "userEmailCategory",
+                EventSummaryBreakdownEmailEntity,
+                EventSummaryBreakdownEmail)
 
-        result.collect { k -> new Summary(userEmail: k[0], eventCount: k[1], recordCount: k[2]) }
+        result.collect { k -> new EventSummaryBreakdownEmail(userEmailCategory: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
 
     /**
@@ -277,7 +257,7 @@ class LoggerService {
      * @param entityUid The entity to search for. Mandatory.
      * @param fromDate The first year/month (yyyyMM) in the range to search for. Inclusive.
      * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
-     * @return list of Summary objects with the following fields set: [month, eventCount, recordCount]
+     * @return list of EventSummaryBreakdownReason objects with the following fields set: [month, numberOfEvents, recordCount]
      */
     def getLogEventsByEntity(eventTypeId, entityUid, fromDate, toDate) {
         log.debug("Summarising log events by entity, with eventTypeId = ${eventTypeId}. entityUid = ${entityUid}" +
@@ -290,42 +270,36 @@ class LoggerService {
                 fromDate,
                 toDate,
                 "month",
-                "event_summary_breakdown_reason_entity",
-                "event_summary_breakdown_reason")
+                EventSummaryBreakdownReasonEntity,
+                EventSummaryBreakdownReason)
 
-        result.collect { k -> new Summary(month: k[0], eventCount: k[1], recordCount: k[2]) }
+        result.collect { k -> new EventSummaryBreakdownReason(month: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
 
-    private
-    def getBreakdown(eventTypeId, entityUid, fromDate, toDate, categoryColumn, withEntityTable, withoutEntityTable) {
+    private getBreakdown(eventTypeId, entityUid, fromDate, toDate, categoryProperty, domainClass, noEntityDomainClass) {
         assert fromDate && toDate || !fromDate && !toDate, "Must supply both a dateFrom and dateTo string or neither"
 
-        def query = "select ${categoryColumn}, SUM(number_of_events) as number_of_events, SUM(record_count) as record_count from "
-        query += "${entityUid ? withEntityTable : withoutEntityTable} e where log_event_type_id = :eventTypeId"
-        if (entityUid) {
-            query += " and entity_uid = :entityUid"
-        }
-        if (fromDate && toDate) {
-            query += " and month >= :from and month < :to"
-        }
-        query += " group by ${categoryColumn}"
-
-        def sqlQuery = sessionFactory.currentSession.createSQLQuery(query)
-
-        sqlQuery.with {
-            setParameter("eventTypeId", eventTypeId)
-
-            if (entityUid) setParameter("entityUid", entityUid)
+        (entityUid ? domainClass : noEntityDomainClass).withCriteria {
+            eq("logEventTypeId", eventTypeId as int)
+            if (entityUid) {
+                eq("entityUid", entityUid)
+            }
             if (fromDate && toDate) {
-                setParameter("from", fromDate);
-                setParameter("to", toDate)
+                ge("month", fromDate)
+                lt("month", toDate)
             }
 
-            list()
+            projections {
+                groupProperty("${categoryProperty}")
+
+                "${categoryProperty}"
+                sum("numberOfEvents")
+                sum("recordCount")
+            }
         }
     }
 
-    private def getValidType(id, finder) {
+    private getValidType(id, finder) {
         def value = null
         if (id) {
             value = finder(id)
@@ -337,7 +311,7 @@ class LoggerService {
         value
     }
 
-    private static def determineMonth(month) {
+    private static determineMonth(month) {
         if (month != null && month.trim().length() > 3 && month.isInteger) {
             month.trim();
         } else {
@@ -345,7 +319,7 @@ class LoggerService {
         }
     }
 
-    private static def recordCountsToLogDetails(long eventTypeId, Map<String, Integer> recordCounts, LogEvent event) {
+    private static recordCountsToLogDetails(long eventTypeId, Map<String, Integer> recordCounts, LogEvent event) {
         def logDetails = []
         recordCounts.each({
             k, v -> logDetails << new LogDetail(entityType: eventTypeId as String, entityUid: k, recordCount: v, logEvent: event)
@@ -354,7 +328,7 @@ class LoggerService {
         logDetails
     }
 
-    private def logWrite(entity, result) {
+    private logWrite(entity, result) {
         if (!result) {
             log.error("Database write failed")
             entity.errors.each { log.error(it) }

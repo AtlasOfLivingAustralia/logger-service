@@ -199,7 +199,7 @@ log4j.main = {
             'grails.app.filters.org.ala.logger'
     ]
 
-    debug 'grails.app.controllers.au.org.ala','ala','au.org.ala.web' // 'au.org.ala.cas.client',
+    debug 'grails.app.controllers.org.ala','ala','org.ala'
 
     error  'org.codehaus.groovy.grails.web.servlet',        // controllers
             'org.codehaus.groovy.grails.web.pages',          // GSP
@@ -212,4 +212,6 @@ log4j.main = {
             'org.springframework',
             'org.hibernate',
             'net.sf.ehcache.hibernate'
+
+//    debug stdout: 'org.hibernate'
 }

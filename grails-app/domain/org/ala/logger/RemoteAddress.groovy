@@ -16,6 +16,7 @@ class RemoteAddress implements Serializable {
     }
 
     static mapping = {
+        id bindable: true
         table "remote_address"
         version false
 

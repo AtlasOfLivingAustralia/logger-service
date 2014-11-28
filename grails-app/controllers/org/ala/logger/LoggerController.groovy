@@ -149,9 +149,9 @@ class LoggerController {
                     col2:
                     "month" { (it.month as String).substring(4) }
                     col3:
-                    "reason" { reasonMap.get(it.reasonTypeId) ?: UNCLASSIFIED_REASON_TYPE }
+                    "reason" { reasonMap.get(it.logReasonTypeId) ?: UNCLASSIFIED_REASON_TYPE }
                     col4:
-                    "number of events" { it.eventCount }
+                    "number of events" { it.numberOfEvents }
                     col5:
                     "number of records" { it.recordCount }
                 })
@@ -186,7 +186,7 @@ class LoggerController {
             def results = loggerService.getTemporalEventsReasonBreakdown(params.eventId, params.entityUid, params.reasonId)
 
             // convert the list of summaries into a map keyed by the category (month) so it can be rendered in the desired JSON formats
-            def grouped = results ? results.collectEntries { [(it.month): [records: it.recordCount, events: it.eventCount]] } : [:]
+            def grouped = results ? results.collectEntries { [(it.month): [records: it.recordCount, events: it.numberOfEvents]] } : [:]
 
             render ([temporalBreakdown: grouped] as JSON)
         }
@@ -252,9 +252,9 @@ class LoggerController {
                     col2:
                     "month" { (it.month as String)?.substring(4) }
                     col3:
-                    "user category" { it.userEmail }
+                    "user category" { it.userEmailCategory }
                     col4:
-                    "number of events" { it.eventCount }
+                    "number of events" { it.numberOfEvents }
                     col5:
                     "number of records" { it.recordCount }
                 })
@@ -301,7 +301,7 @@ class LoggerController {
         def results = loggerService.getEventTypeBreakdown()
 
         // convert the list of summaries into a map keyed by the category (month) so it can be rendered in the desired JSON formats
-        def grouped = results.collectEntries { [(it.eventTypeId): [records: it.recordCount, events: it.eventCount]] }
+        def grouped = results.collectEntries { [(it.logEventTypeId): [records: it.recordCount, events: it.numberOfEvents]] }
 
         render ([totals: grouped] as JSON)
     }
@@ -350,10 +350,10 @@ class LoggerController {
 
         if (emailSummary) {
             emailSummary.each {
-                def entry = grouped[it.userEmail]
+                def entry = grouped[it.userEmailCategory]
                 entry["records"] += it.recordCount
-                entry["events"] += it.eventCount
-                totalEvents += it.eventCount
+                entry["events"] += it.numberOfEvents
+                totalEvents += it.numberOfEvents
                 totalRecords += it.recordCount
             }
         }
@@ -364,7 +364,7 @@ class LoggerController {
     // returns a triple of [totalEvents | totalRecords | reasonBreakdown] for the requested period.
     private def getReasonBreakdownForPeriod(eventTypeId, entityUid, from, to, reasonMap) {
         def reasonSummary = loggerService.getEventsReasonBreakdown(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"))
-
+println "${from} & ${to}"
         def grouped = reasonMap.collectEntries { k, v -> [(v): ["events": 0, "records": 0]] }
                 .withDefault { ["events": 0, "records": 0] }
 
@@ -373,10 +373,10 @@ class LoggerController {
 
         if (reasonSummary) {
             reasonSummary.each {
-                def entry = grouped[reasonMap[it.reasonTypeId] ?: UNCLASSIFIED_REASON_TYPE]
+                def entry = grouped[reasonMap[it.logReasonTypeId] ?: UNCLASSIFIED_REASON_TYPE]
                 entry["records"] += it.recordCount
-                entry["events"] += it.eventCount
-                totalEvents += it.eventCount
+                entry["events"] += it.numberOfEvents
+                totalEvents += it.numberOfEvents
                 totalRecords += it.recordCount
             }
         }
@@ -393,7 +393,7 @@ class LoggerController {
 
         if (entitySummary) {
             entitySummary.each {
-                totalEvents += it.eventCount
+                totalEvents += it.numberOfEvents
                 totalRecords += it.recordCount
             }
         }
