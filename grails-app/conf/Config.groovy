@@ -113,10 +113,13 @@ environments {
 }
 
 // log4j configuration
-def logging_dir
+def logging_dir = System.getProperty('application.log.dir')
 if (!logging_dir) {
     logging_dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
 }
+
+println "Application log files will be written to: ${logging_dir}"
+
 log4j.main = {
     appenders {
         environments{
