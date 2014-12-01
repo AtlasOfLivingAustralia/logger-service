@@ -27,6 +27,21 @@ class UrlMappings {
 
         "500"(view: '/error')
 
-        "/"(view:"/index", controller: "logger")
+        "/"(view: "/index", controller: "logger")
+
+        // admin screens
+        "/admin/"(view: "/admin/admin", controller: "admin")
+        "/admin/logEvent/$action?/$id?"(controller: "logEvent")
+        "/admin/logDetail/$action?/$id?"(controller: "logDetail")
+        "/admin/logEventType/$action?/$id?"(controller: "logEventType")
+        "/admin/logReasonType/$action?/$id?"(controller: "logReasonType")
+        "/admin/logSourceType/$action?/$id?"(controller: "logSourceType")
+        "/admin/remoteAddress/$action?/$id?"(controller: "remoteAddress")
+        "/admin/eventSummaryBreakdownEmail/$action?/$id?"(controller: "eventSummaryBreakdownEmail")
+        "/admin/eventSummaryBreakdownEmailEntity/$action?/$id?"(controller: "eventSummaryBreakdownEmailEntity")
+        "/admin/eventSummaryBreakdownReason/$action?/$id?"(controller: "eventSummaryBreakdownReason")
+        "/admin/eventSummaryBreakdownReasonEntity/$action?/$id?"(controller: "eventSummaryBreakdownReasonEntity")
+        "/admin/eventSummaryTotal/$action?/$id?"(controller: "eventSummaryTotal")
+
     }
 }

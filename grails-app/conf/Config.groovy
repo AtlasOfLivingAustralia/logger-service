@@ -2,7 +2,7 @@
  *  CONFIG MANAGEMENT
  \******************************************************************************/
 
-def appName = 'logger-service'
+def appName = 'logger'
 def ENV_NAME = "${appName.toUpperCase()}_CONFIG"
 default_config = "/data/${appName}/config/${appName}-config.properties"
 if(!grails.config.locations || !(grails.config.locations instanceof List)) {
