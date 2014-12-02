@@ -4,9 +4,9 @@ import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
 import grails.test.mixin.TestMixin
 import grails.test.mixin.web.FiltersUnitTestMixin
-import org.ala.logger.LoggerController
-import org.ala.logger.LoggerService
-import org.ala.logger.RemoteAddress
+import au.org.ala.logger.LoggerController
+import au.org.ala.logger.LoggerService
+import au.org.ala.logger.RemoteAddress
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 import spock.lang.Unroll

@@ -2,7 +2,7 @@
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor
-import org.ala.logger.LoggerController
+import au.org.ala.logger.LoggerController
 import spock.lang.Specification
 
 @TestFor(UrlMappings)
