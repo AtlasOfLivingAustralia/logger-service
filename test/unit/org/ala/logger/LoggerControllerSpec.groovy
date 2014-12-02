@@ -1,6 +1,7 @@
 package org.ala.logger
 
 import grails.test.mixin.TestFor
+import groovy.time.TimeCategory
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
@@ -32,12 +33,12 @@ class LoggerControllerSpec extends Specification {
         }
         loggerService.getAllReasonTypes() >> reasonTypes
 
-        String currentYear = new Date().format("yyyy")
-        int currentMonth = new Date().format("MM") as int
-        thisMonth = "${currentYear}" + sprintf("%02d", currentMonth)
-        nextMonth = "${currentYear}" + sprintf("%02d", currentMonth + 1)
-        last3Months = "${currentYear}" + sprintf("%02d", currentMonth - 2)
-        last12Months = "${(currentYear as int) - 1}" + sprintf("%02d", currentMonth + 1)
+        use(TimeCategory) {
+            thisMonth = new Date().format("yyyyMM")
+            nextMonth = (new Date() + 1.month).format("yyyyMM")
+            last3Months = (new Date() - 2.months).format("yyyyMM")
+            last12Months = (new Date() - 11.months).format("yyyyMM")
+        }
     }
 
     def cleanup() {
