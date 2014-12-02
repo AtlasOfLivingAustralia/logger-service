@@ -14,6 +14,7 @@ class LogEvent implements Serializable {
     String userEmail
     String userIp
     String source
+    String userAgent
     int logEventTypeId
     Integer logReasonTypeId
     Integer logSourceTypeId
@@ -28,6 +29,7 @@ class LogEvent implements Serializable {
         month maxSize: 255, nullable: true
         source maxSize: 255, nullable: true
         sourceUrl nullable: true
+        userAgent maxSize: 255, nullable: true
         month nullable: true
         logEventTypeId nullable: true
         logSourceTypeId nullable: true
@@ -45,6 +47,7 @@ class LogEvent implements Serializable {
         userEmail column: "user_email"
         userIp column: "user_ip"
         source column: "source"
+        userAgent column: "user_agent"
         logEventTypeId column: "log_event_type_id"
         logReasonTypeId column: "log_reason_type_id"
         logSourceTypeId column: "log_source_type_id"
@@ -64,6 +67,7 @@ class LogEvent implements Serializable {
                     sourceUrl      : sourceUrl,
                     month          : month,
                     source         : source,
+                    userAgent      : userAgent,
                     comment        : comment,
                     id             : id]] as JSON
     }

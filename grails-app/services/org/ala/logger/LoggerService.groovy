@@ -18,7 +18,7 @@ class LoggerService {
      * @throws PersistenceException if the database write fails
      */
     @Transactional(readOnly = false)
-    def createLog(LogEventVO incomingLog, String realIp) {
+    def createLog(LogEventVO incomingLog, Map additionalProperties = [:]) {
         log.debug("Creating new log event with details ${incomingLog}")
 
         assert incomingLog, "incomingLog is a mandatory parameter"
@@ -34,8 +34,9 @@ class LoggerService {
                 userEmail: incomingLog.userEmail,
                 userIp: incomingLog.getUserIP(),
                 sourceUrl: incomingLog.getSourceUrl(),
+                userAgent: additionalProperties["userAgent"],
                 month: determineMonth(incomingLog.month),
-                source: findRemoteAddress(realIp)?.hostName)
+                source: findRemoteAddress(additionalProperties["realIp"])?.hostName)
         event.logDetails = recordCountsToLogDetails(eventType.id, incomingLog.recordCounts, event)
 
         def result = event.save()

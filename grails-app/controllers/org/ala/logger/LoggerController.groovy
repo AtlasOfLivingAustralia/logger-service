@@ -8,7 +8,8 @@ import groovy.time.*
 
 class LoggerController {
 
-    final String X_FORWARDED_FOR = "X-Forwarded-For"
+    final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For"
+    final String USER_AGENT_HEADER = "user-agent"
     final String UNCLASSIFIED_REASON_TYPE = "unclassified"
     final List<String> EMAIL_CATEGORIES = ["edu", "gov", "other", "unspecified"]
 
@@ -25,13 +26,15 @@ class LoggerController {
      * @return JSON representation of the new log record.
      */
     def save() {
-        String ip = request.getHeader(X_FORWARDED_FOR) ?: request.getRemoteAddr();
+        String ip = request.getHeader(X_FORWARDED_FOR_HEADER) ?: request.getRemoteAddr();
         log.debug("Received log event from remote host ${request.getRemoteHost()} with ip address ${ip}")
+
+        String userAgent = request.getHeader(USER_AGENT_HEADER)
 
         LogEventVO incomingLog = new LogEventVO(request.getJSON());
 
         try {
-            LogEvent logEvent = loggerService.createLog(incomingLog, ip)
+            LogEvent logEvent = loggerService.createLog(incomingLog, [realIp: ip, userAgent: userAgent])
             render logEvent.toJSON()
         }
         catch (Exception e) {

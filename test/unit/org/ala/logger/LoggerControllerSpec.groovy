@@ -56,11 +56,24 @@ class LoggerControllerSpec extends Specification {
     def "save() should return a HTTP 406 (not acceptable) if an exception occurs while saving"() {
         when: "an exception is thrown from the logger service's createLog method"
         request.json = VALID_JSON_REQUEST
-        loggerService.createLog(_) >> { throw new PersistenceException("test") }
+        loggerService.createLog(*_) >> { throw new PersistenceException("test") }
         controller.save()
 
         then: "a http 406 (NOT_ACCEPTABLE) should be returned"
         assert response.status == HttpStatus.NOT_ACCEPTABLE.value()
+    }
+
+    def "save() should pull the 'user-agent' header from the request and save it with the log_event"() {
+        when: "a request is made to save a new log event"
+        request.addHeader("user-agent", "someUserAgent")
+        request.json = VALID_JSON_REQUEST
+        controller.save()
+
+        then: "the user-agent header should be passed to the service as an additional parameter"
+        1 * loggerService.createLog(*_) >> { arguments ->
+            Map additionalParamsArg = arguments[1]
+            assert additionalParamsArg["userAgent"] == "someUserAgent"
+        }
     }
 
     def "Find log event should return 404 when no match is found"() {
