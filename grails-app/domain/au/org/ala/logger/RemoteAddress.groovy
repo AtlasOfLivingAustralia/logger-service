@@ -20,7 +20,8 @@ class RemoteAddress implements Serializable {
         table "remote_address"
         version false
 
-        id generator: "assigned", name: "ip", column: "ip"
+        id sqlType: "int(11)"
         hostName column: "host_name"
+        ip column: "ip"
     }
 }

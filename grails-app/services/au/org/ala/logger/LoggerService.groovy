@@ -51,7 +51,7 @@ class LoggerService {
     }
 
     def findRemoteAddress(String ipAddress) {
-        def remoteAddress = RemoteAddress.get(ipAddress)
+        def remoteAddress = RemoteAddress.findByIp(ipAddress)
         log.debug("Found remote address ${remoteAddress} for ip ${ipAddress}")
         remoteAddress
     }

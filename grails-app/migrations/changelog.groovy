@@ -4,4 +4,6 @@ databaseChangeLog = {
     }
 
     include file: useragent.sql
+
+    include file: remoteAddress.sql
 }

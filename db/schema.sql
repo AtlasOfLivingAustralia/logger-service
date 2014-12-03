@@ -117,6 +117,7 @@ CREATE TABLE `log_event` (
   `user_email` varchar(255) default NULL,
   `user_ip` varchar(255) default NULL,
   `source` varchar(255) default NULL,
+  `user_agent` varchar(255) default NULL,
   `log_reason_type_id` int(11) default NULL,
   `log_source_type_id` int(11) default NULL,
   `source_url` text,
@@ -163,11 +164,14 @@ DROP TABLE IF EXISTS `remote_address`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `remote_address` (
+  `id` int(11) NOT NULL auto_increment,
   `ip` varchar(255) NOT NULL,
   `host_name` varchar(255) NOT NULL,
-  PRIMARY KEY  (`ip`)
+  PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 SET character_set_client = @saved_cs_client;
+
+alter table remote_address add constraint ra_ip_unique unique (ip);
 
 
 --
