@@ -24,13 +24,13 @@ class LogEvent implements Serializable {
     static hasMany = [logDetails: LogDetail]
 
     static constraints = {
+        month maxSize: 255, nullable: true
         userEmail maxSize: 255, nullable: true
         userIp maxSize: 255, nullable: true
-        month maxSize: 255, nullable: true
+        comment maxSize: 255, nullable: true
         source maxSize: 255, nullable: true
-        sourceUrl nullable: true
         userAgent maxSize: 255, nullable: true
-        month nullable: true
+        sourceUrl nullable: true
         logEventTypeId nullable: true
         logSourceTypeId nullable: true
         logReasonTypeId nullable: true
