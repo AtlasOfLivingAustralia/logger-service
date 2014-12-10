@@ -1,0 +1,1 @@
+ALTER TABLE log_event ADD user_agent VARCHAR(255) AFTER SOURCE;
