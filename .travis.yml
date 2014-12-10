@@ -1,13 +1,28 @@
-language: java
+language: groovy
 jdk:
 - oraclejdk7
 branches:
   only:
   - master
 before_install:
-- mkdir -p ~/.m2; wget -q -O ~/.m2/settings.xml https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_maven_settings.xml
-script: mvn clean install deploy
+- rm -rf ~/.gvm
+- curl -s get.gvmtool.net > ~/install_gvm.sh
+- chmod 775 ~/install_gvm.sh
+- ~/install_gvm.sh
+- echo "gvm_auto_answer=true" > ~/.gvm/etc/config
+- source ~/.gvm/bin/gvm-init.sh
+- GRAILS_VERSION=`grep '^app\.grails\.version=' ./application.properties | sed -e
+  's/^app\.grails\.version=//g'`
+- rm -rf ~/applicationlogs
+- mkdir ~/applicationlogs
+- gvm install grails $GRAILS_VERSION || true
+before_script:
+- mkdir -p ~/.grails; wget -q -O ~/.grails/settings.groovy https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_grails_settings_new.groovy
+- MAVEN_REPO="ala-repo-snapshot"; grep '^app\.version=' ./application.properties |
+  grep -q "\-SNAPSHOT"; if [ "$?" = "1" ]; then MAVEN_REPO="ala-repo-release"; fi;
+script: grails clean && grails refresh-dependencies --non-interactive && grails test-app --non-interactive && grails prod
+  war --non-interactive -Dapplication.log.dir=~/applicationlogs
 env:
   global:
-  - secure: e+mOEr7dYqtgtGKHFRxFc9MrZGqU+RhHuV7Kj1pH/ep7lEfUiq59OE6h0ytQHIqLVgIpcLyB7rsrjO/0+gexKT56VDZdg2p/xfY5kDIKBW62fDu9QzPfHQPtfay6v/6hYTts2SlZFBAcbey9zMbnJxL8WbFziEyPiQNz7BwT+Zc=
-  - secure: Z77KQVs9VGz31Zh3dERyW+4/YCCNiUrklcQB1cra8BfWO0Dq/6yuRRe1Viox1WLXewnXxh1Dh/WXgSDDv8pLC92dcnBtdc3MWSsTwyUqR4nFRORntPXoXkuuva1mMGHeXV913o9XyAq7vD/U7qU20aOKi6OoGxX/UC5A3MiNP74=
+  - secure: cWYm92Lwc8jyxwd4eYDEEtXJhF5SrFD/eN+e2d6V3Vk22qTlCZDOzKY3XEg5O5KAM0htYdSVcif47fpFJh6GFnvO0C2AiSoWLeqMXwiTijQK/nfc/WirqRK71UtGvQYTVjNn3Si8XETsFB3jwYuqV5T20cJ/13bZxxWCc6cU6M4=
+  - secure: us9oCHkG8Ls9EogTh6h5ZbICKiwuKFX4IhuaayyGlPBgg5XLl3VY+FHEPMsxrSOaEhCvdXz3dijvfRp43HRa9bx9No1iL3ttIERwaXP7ERYKlRWUD6xh8p30XZ+NABo9xCFsIOYSJQbkvxaAFAbG11h4BX557s7bwNwJbVDBspc=
