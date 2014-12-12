@@ -34,6 +34,7 @@ environments {
     }
     production {
         dataSource {
+            dbCreate = "validate"
             // defined in external configuration file
         }
     }
