@@ -59,6 +59,7 @@ grails.project.dependency.resolution = {
         compile ":scaffolding:2.1.2"
         compile ':cache:1.1.6' // GRAILS-11535
         compile ":csv:0.3.1"
+        compile ":jsonp:0.2"
 
         // plugins needed at runtime but not for compilation
         runtime ":ala-web-theme:1.0.1"
