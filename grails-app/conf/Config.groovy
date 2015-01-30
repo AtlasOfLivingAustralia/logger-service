@@ -1,3 +1,5 @@
+import org.apache.log4j.Level
+
 /******************************************************************************\
  *  CONFIG MANAGEMENT
  \******************************************************************************/
@@ -113,108 +115,36 @@ environments {
 }
 
 // log4j configuration
-def logging_dir = System.getProperty('application.log.dir')
-if (!logging_dir) {
-    logging_dir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs'  : '/var/log/tomcat6')
-}
+def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
 
-println "Application log files will be written to: ${logging_dir}"
-
-log4j.main = {
+log4j = {
     appenders {
-        environments{
+        environments {
+            production {
+                println "Lo4j logs will be written to : ${loggingDir}"
+                rollingFile name: "tomcatLog", maxFileSize: '1MB', file: "${loggingDir}/${appName}.log", threshold: Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
+            }
             development {
-                console name: "stdout",
-                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n"),
-                        threshold: org.apache.log4j.Level.DEBUG
-                rollingFile name: "loggerLog",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger.log",
-                        threshold: org.apache.log4j.Level.INFO,
-                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
-                rollingFile name: "stacktrace",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger-stacktrace.log"
+                console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n"), threshold: Level.DEBUG
             }
             test {
-                rollingFile name: "loggerLog",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger.log",
-                        threshold: org.apache.log4j.Level.INFO,
-                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
-                rollingFile name: "stacktrace",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger-stacktrace.log"
-            }
-            nectar {
-                rollingFile name: "loggerLog",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger.log",
-                        threshold: org.apache.log4j.Level.INFO,
-                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
-                rollingFile name: "stacktrace",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger-stacktrace.log"
-            }
-            nectartest {
-                rollingFile name: "loggerLog",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger.log",
-                        threshold: org.apache.log4j.Level.INFO,
-                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
-                rollingFile name: "stacktrace",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger-stacktrace.log"
-            }
-            production {
-                rollingFile name: "loggerLog",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger.log",
-                        threshold: org.apache.log4j.Level.INFO,
-                        layout: pattern(conversionPattern: "%d %-5p [%c{1}]  %m%n")
-                rollingFile name: "stacktrace",
-                        maxFileSize: 104857600,
-                        file: "${logging_dir}/logger-stacktrace.log"
+                println "Lo4j logs will be written to : ${loggingDir}"
+                rollingFile name: "tomcatLog", maxFileSize: '1MB', file: "/tmp/${appName}", threshold: Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
             }
         }
     }
-
-    environments {
-        development {
-            all additivity: false, stdout: [
-                    'grails.app.controllers.org.ala.logger',
-                    'grails.app.domain.org.ala.logger',
-                    'grails.app.services.org.ala.logger',
-                    'grails.app.taglib.org.ala.logger',
-                    'grails.app.conf.org.ala.logger',
-                    'grails.app.filters.org.ala.logger',
-                    'au.org.ala.cas.client'
-            ]
-        }
+    root {
+        // change the root logger to my tomcatLog file
+        error 'tomcatLog'
+        warn 'tomcatLog'
+        additivity = true
     }
 
-    all additivity: false, loggerLog: [
-            'grails.app.controllers.org.ala.logger',
-            'grails.app.domain.org.ala.logger',
-            'grails.app.services.org.ala.logger',
-            'grails.app.taglib.org.ala.logger',
-            'grails.app.conf.org.ala.logger',
-            'grails.app.filters.org.ala.logger'
-    ]
-
-    debug 'grails.app.controllers.org.ala','ala','org.ala'
-
-    error  'org.codehaus.groovy.grails.web.servlet',        // controllers
-            'org.codehaus.groovy.grails.web.pages',          // GSP
-            'org.codehaus.groovy.grails.web.sitemesh',       // layouts
-            'org.codehaus.groovy.grails.web.mapping.filter', // URL mapping
-            'org.codehaus.groovy.grails.web.mapping',        // URL mapping
-            'org.codehaus.groovy.grails.commons',            // core / classloading
-            'org.codehaus.groovy.grails.plugins',            // plugins
-            'org.codehaus.groovy.grails.orm.hibernate',      // hibernate integration
-            'org.springframework',
-            'org.hibernate',
-            'net.sf.ehcache.hibernate'
-
-//    debug stdout: 'org.hibernate'
+    debug 'grails.app',
+            'grails.app.domain',
+            'grails.app.controller',
+            'grails.app.service',
+            'grails.app.tagLib',
+            'au.org.ala.logger',
+            'grails.app.jobs'
 }

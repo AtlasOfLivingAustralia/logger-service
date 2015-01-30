@@ -43,5 +43,10 @@ class UrlMappings {
         "/admin/eventSummaryBreakdownReasonEntity/$action?/$id?"(controller: "eventSummaryBreakdownReasonEntity")
         "/admin/eventSummaryTotal/$action?/$id?"(controller: "eventSummaryTotal")
 
+        "/logout/$action?/$id?"(controller:'logout'){
+            constraints {
+                // apply constraints here
+            }
+        }
     }
 }
