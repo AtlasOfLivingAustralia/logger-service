@@ -121,14 +121,14 @@ log4j = {
     appenders {
         environments {
             production {
-                println "Lo4j logs will be written to : ${loggingDir}"
+                println "Log4j logs will be written to : ${loggingDir}"
                 rollingFile name: "tomcatLog", maxFileSize: '1MB', file: "${loggingDir}/${appName}.log", threshold: Level.ERROR, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
             }
             development {
                 console name: "stdout", layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n"), threshold: Level.DEBUG
             }
             test {
-                println "Lo4j logs will be written to : ${loggingDir}"
+                println "Log4j logs will be written to : ${loggingDir}"
                 rollingFile name: "tomcatLog", maxFileSize: '1MB', file: "/tmp/${appName}", threshold: Level.DEBUG, layout: pattern(conversionPattern: "%d %-5p [%c{1}] %m%n")
             }
         }
