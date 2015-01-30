@@ -21,7 +21,7 @@ before_script:
 - MAVEN_REPO="ala-repo-snapshot"; grep '^app\.version=' ./application.properties |
   grep -q "\-SNAPSHOT"; if [ "$?" = "1" ]; then MAVEN_REPO="ala-repo-release"; fi;
 - echo "MAVEN_REPO:$MAVEN_REPO"
-script: grails clean && grails refresh-dependencies --non-interactive && grails prod
+script: grails clean && grails refresh-dependencies --non-interactive && grails test-app --non-interactive && grails prod
   war --non-interactive && grails prod maven-deploy --repository=$MAVEN_REPO --non-interactive --stacktrace
 env:
   global:
