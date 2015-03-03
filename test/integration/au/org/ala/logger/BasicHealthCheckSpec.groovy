@@ -144,8 +144,8 @@ class BasicHealthCheckSpec extends Specification {
         then:
         assert controller.response.json.thisMonth.events == 5 && controller.response.json.thisMonth.records == 15
         assert controller.response.json.thisMonth.reasonBreakdown.reason1.events == 2 && controller.response.json.thisMonth.reasonBreakdown.reason1.records == 5
-        assert controller.response.json.last3months.events == 14 && controller.response.json.last3months.records == 50
-        assert controller.response.json.last3months.reasonBreakdown.reason3.events == 4 && controller.response.json.last3months.reasonBreakdown.reason3.records == 15
+        assert controller.response.json.last3Months.events == 14 && controller.response.json.last3Months.records == 50
+        assert controller.response.json.last3Months.reasonBreakdown.reason3.events == 4 && controller.response.json.last3Months.reasonBreakdown.reason3.records == 15
         assert controller.response.json.lastYear.events == 27 && controller.response.json.lastYear.records == 105
         assert controller.response.json.lastYear.reasonBreakdown.reason5.events == 6 && controller.response.json.lastYear.reasonBreakdown.reason5.records == 25
         assert controller.response.json.all.events == 44 && controller.response.json.all.records == 180
@@ -170,8 +170,8 @@ class BasicHealthCheckSpec extends Specification {
         then:
         assert controller.response.json.thisMonth.events == 5 && controller.response.json.thisMonth.records == 15
         assert controller.response.json.thisMonth.emailBreakdown.edu.events == 2 && controller.response.json.thisMonth.emailBreakdown.edu.records == 5
-        assert controller.response.json.last3months.events == 14 && controller.response.json.last3months.records == 50
-        assert controller.response.json.last3months.emailBreakdown.gov.events == 8 && controller.response.json.last3months.emailBreakdown.gov.records == 30
+        assert controller.response.json.last3Months.events == 14 && controller.response.json.last3Months.records == 50
+        assert controller.response.json.last3Months.emailBreakdown.gov.events == 8 && controller.response.json.last3Months.emailBreakdown.gov.records == 30
         assert controller.response.json.lastYear.events == 27 && controller.response.json.lastYear.records == 105
         assert controller.response.json.lastYear.emailBreakdown.edu.events == 12 && controller.response.json.lastYear.emailBreakdown.edu.records == 45
         assert controller.response.json.all.events == 44 && controller.response.json.all.records == 180
@@ -271,7 +271,7 @@ class BasicHealthCheckSpec extends Specification {
 
         then:
         assert controller.response.json.thisMonth.numberOfEvents == 5 && controller.response.json.thisMonth.numberOfEventItems == 15
-        assert controller.response.json.last3months.numberOfEvents == 14 && controller.response.json.last3months.numberOfEventItems == 50
+        assert controller.response.json.last3Months.numberOfEvents == 14 && controller.response.json.last3Months.numberOfEventItems == 50
         assert controller.response.json.lastYear.numberOfEvents == 27 && controller.response.json.lastYear.numberOfEventItems == 105
         assert controller.response.json.all.numberOfEvents == 44 && controller.response.json.all.numberOfEventItems == 180
     }

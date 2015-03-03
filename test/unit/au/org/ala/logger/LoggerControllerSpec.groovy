@@ -194,12 +194,12 @@ class LoggerControllerSpec extends Specification {
 
         then: "a valid response with 0 counts should be returned"
         assert response.json.all.events == 0 && response.json.all.records == 0
-        assert response.json.last3months.events == 0 && response.json.last3months.records == 0
+        assert response.json.last3Months.events == 0 && response.json.last3Months.records == 0
         assert response.json.thisMonth.events == 0 && response.json.thisMonth.records == 0
         assert response.json.lastYear.events == 0 && response.json.lastYear.records == 0
         for (r in reasonTypes) {
             assert response.json.all.reasonBreakdown."${r.name}".events == 0
-            assert response.json.last3months.reasonBreakdown."${r.name}".events == 0
+            assert response.json.last3Months.reasonBreakdown."${r.name}".events == 0
             assert response.json.thisMonth.reasonBreakdown."${r.name}".events == 0
             assert response.json.lastYear.reasonBreakdown."${r.name}".events == 0
         }
@@ -216,7 +216,7 @@ class LoggerControllerSpec extends Specification {
         then: "a valid response with correct counts should be returned"
 
         assert response.json.all.events == 10 && response.json.all.records == 100
-        assert response.json.last3months.events == 10 && response.json.last3months.records == 100
+        assert response.json.last3Months.events == 10 && response.json.last3Months.records == 100
         assert response.json.thisMonth.events == 10 && response.json.thisMonth.records == 100
         assert response.json.lastYear.events == 10 && response.json.lastYear.records == 100
         assert response.json.all.reasonBreakdown.reason1.events == 3 && response.json.all.reasonBreakdown.reason1.records == 30
@@ -249,7 +249,7 @@ class LoggerControllerSpec extends Specification {
 
         then: "the results should be collated properly"
         assert response.json.all.events == 3 && response.json.all.records == 30
-        assert response.json.last3months.events == 8 && response.json.last3months.records == 50
+        assert response.json.last3Months.events == 8 && response.json.last3Months.records == 50
         assert response.json.thisMonth.events == 6 && response.json.thisMonth.records == 40
         assert response.json.lastYear.events == 10 && response.json.lastYear.records == 60
     }
@@ -374,7 +374,7 @@ class LoggerControllerSpec extends Specification {
 
         then: "a valid response with 0 counts should be returned"
         assert response.json.all.events == 0 && response.json.all.records == 0
-        assert response.json.last3months.events == 0 && response.json.last3months.records == 0
+        assert response.json.last3Months.events == 0 && response.json.last3Months.records == 0
         assert response.json.thisMonth.events == 0 && response.json.thisMonth.records == 0
         assert response.json.lastYear.events == 0 && response.json.lastYear.records == 0
         assert response.json.all.emailBreakdown.edu.events == 0
@@ -393,7 +393,7 @@ class LoggerControllerSpec extends Specification {
 
         then: "a valid response with correct counts should be returned"
         assert response.json.all.events == 10 && response.json.all.records == 100
-        assert response.json.last3months.events == 10 && response.json.last3months.records == 100
+        assert response.json.last3Months.events == 10 && response.json.last3Months.records == 100
         assert response.json.thisMonth.events == 10 && response.json.thisMonth.records == 100
         assert response.json.lastYear.events == 10 && response.json.lastYear.records == 100
         assert response.json.all.emailBreakdown.edu.events == 3
@@ -427,7 +427,7 @@ class LoggerControllerSpec extends Specification {
 
         then: "the results should be collated properly"
         assert response.json.all.events == 3 && response.json.all.records == 30
-        assert response.json.last3months.events == 8 && response.json.last3months.records == 50
+        assert response.json.last3Months.events == 8 && response.json.last3Months.records == 50
         assert response.json.thisMonth.events == 6 && response.json.thisMonth.records == 40
         assert response.json.lastYear.events == 10 && response.json.lastYear.records == 60
     }
@@ -511,7 +511,7 @@ class LoggerControllerSpec extends Specification {
 
         then: "a valid response with 0 counts should be returned"
         assert response.json.all.numberOfEvents == 0 && response.json.all.numberOfEventItems == 0
-        assert response.json.last3months.numberOfEvents == 0 && response.json.last3months.numberOfEventItems == 0
+        assert response.json.last3Months.numberOfEvents == 0 && response.json.last3Months.numberOfEventItems == 0
         assert response.json.thisMonth.numberOfEvents == 0 && response.json.thisMonth.numberOfEventItems == 0
         assert response.json.lastYear.numberOfEvents == 0 && response.json.lastYear.numberOfEventItems == 0
     }
@@ -526,7 +526,7 @@ class LoggerControllerSpec extends Specification {
 
         then: "a valid response with correct counts should be returned"
         assert response.json.all.numberOfEvents == 10 && response.json.all.numberOfEventItems == 100
-        assert response.json.last3months.numberOfEvents == 10 && response.json.last3months.numberOfEventItems == 100
+        assert response.json.last3Months.numberOfEvents == 10 && response.json.last3Months.numberOfEventItems == 100
         assert response.json.thisMonth.numberOfEvents == 10 && response.json.thisMonth.numberOfEventItems == 100
         assert response.json.lastYear.numberOfEvents == 10 && response.json.lastYear.numberOfEventItems == 100
     }
@@ -556,7 +556,7 @@ class LoggerControllerSpec extends Specification {
 
         then: "the results should be collated properly"
         assert response.json.all.numberOfEvents == 3 && response.json.all.numberOfEventItems == 30
-        assert response.json.last3months.numberOfEvents == 8 && response.json.last3months.numberOfEventItems == 50
+        assert response.json.last3Months.numberOfEvents == 8 && response.json.last3Months.numberOfEventItems == 50
         assert response.json.thisMonth.numberOfEvents == 6 && response.json.thisMonth.numberOfEventItems == 40
         assert response.json.lastYear.numberOfEvents == 10 && response.json.lastYear.numberOfEventItems == 60
     }

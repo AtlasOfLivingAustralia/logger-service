@@ -112,7 +112,7 @@ class LoggerController {
 
                 def results = [:]
                 results << ["thisMonth": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, reasonMap)]
-                results << ["last3months": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, reasonMap)]
+                results << ["last3Months": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, reasonMap)]
                 results << ["lastYear": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, reasonMap)]
                 results << ["all": getReasonBreakdownForPeriod(params.eventId, params.entityUid, null, null, reasonMap)]
 
@@ -216,7 +216,7 @@ class LoggerController {
                 nextMonth.set([date: 1])
 
                 def results = [:]
-                results << ["last3months": getEmailBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth)]
+                results << ["last3Months": getEmailBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth)]
                 results << ["all": getEmailBreakdownForPeriod(params.eventId, params.entityUid, null, null)]
                 results << ["thisMonth": getEmailBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth)]
                 results << ["lastYear": getEmailBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth)]
@@ -282,7 +282,7 @@ class LoggerController {
 
             def results = [:]
             results << ["all": getEntityBreakdownForPeriod(params.eventId, params.entityUid, null, null)]
-            results << ["last3months": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth)]
+            results << ["last3Months": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth)]
             results << ["thisMonth": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth)]
             results << ["lastYear": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth)]
 
