@@ -37,10 +37,12 @@ grails.project.dependency.resolution = {
 
         grailsPlugins()
         grailsHome()
-        mavenLocal()
         grailsCentral()
         mavenCentral()
-        mavenRepo "http://maven.ala.org.au/repository/"
+        mavenLocal()
+        mavenRepo("http://nexus.ala.org.au/content/groups/public/") {
+            updatePolicy 'always'
+        }
     }
 
     dependencies {
@@ -62,7 +64,10 @@ grails.project.dependency.resolution = {
         compile ":jsonp:0.2"
 
         // plugins needed at runtime but not for compilation
-        runtime ":ala-web-theme:1.0.1"
+        runtime ":ala-bootstrap2:2.0"
+        runtime (":ala-auth:1.2") {
+            exclude "servlet-api"
+        }
         runtime ":hibernate4:4.3.5.5"
         runtime ":database-migration:1.4.0"
         runtime ":jquery:1.11.1"
