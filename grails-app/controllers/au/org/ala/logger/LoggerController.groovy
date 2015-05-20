@@ -31,6 +31,10 @@ class LoggerController {
 
         String userAgent = request.getHeader(USER_AGENT_HEADER)
 
+        Map json = request.getJSON()
+        if (json.containsKey("class")) {
+            json.remove("class")
+        }
         LogEventVO incomingLog = new LogEventVO(request.getJSON());
 
         try {

@@ -2,6 +2,7 @@ package au.org.ala.logger
 
 import grails.test.mixin.TestFor
 import groovy.time.TimeCategory
+import org.ala.client.model.LogEventVO
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
@@ -42,6 +43,18 @@ class LoggerControllerSpec extends Specification {
     }
 
     def cleanup() {
+    }
+
+    def "save() should ignore any JSON attributes that match read-only properties of classes (e.g. 'class')"() {
+        // See https://github.com/AtlasOfLivingAustralia/logger-service/issues/7
+
+        when: "the incoming JSON contains an attribute 'class'"
+        request.json = """{ "class": "myclassname", "eventTypeId": 1000, "comment":"test comment", "userEmail" : "fred@somewhere.gov.au", "userIP": "123.123.123.123", "recordCounts" : { "uid1": 100, "uid2": 200,} }"""
+        controller.save()
+
+        then: "the system should ignore that attribute to avoid ReadOnlyPropertyExceptions"
+        // a ReadOnlyPropertyException would be thrown without the fix for this bug
+        1 * loggerService.createLog(!null, !null)
     }
 
     def "save() should invoke the logger service save method"() {
