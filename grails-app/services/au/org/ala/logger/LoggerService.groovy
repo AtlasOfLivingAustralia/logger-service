@@ -313,7 +313,7 @@ class LoggerService {
     }
 
     private static determineMonth(month) {
-        if (month != null && month.trim().length() > 3 && month.isInteger) {
+        if (month != null && month.trim().length() > 3 && month.isInteger()) {
             month.trim();
         } else {
             new Date().format("yyyyMM")

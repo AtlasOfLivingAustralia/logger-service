@@ -32,7 +32,7 @@ class BasicHealthCheckSpec extends Specification {
 
         when: "a POST is made to /logger with a valid request"
         controller.request.contentType = "text/json"
-        controller.request.content = """{"eventTypeId": 1000, "reasonTypeId":10,"comment":"For doing some research with..","userEmail" : "fred.smith@bla.gov.au","userIP": "123.123.123.123","recordCounts" : { "dp123": 32, "dr143": 22,"ins322": 55 } }""".bytes
+        controller.request.content = """{"eventTypeId": 1000, "reasonTypeId":10,"comment":"For doing some research with..","month":"null", "userEmail" : "fred.smith@bla.gov.au","userIP": "123.123.123.123","recordCounts" : { "dp123": 32, "dr143": 22,"ins322": 55 } }""".bytes
 
         controller.save()
 
