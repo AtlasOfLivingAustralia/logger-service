@@ -31,11 +31,10 @@ class LoggerController {
 
         String userAgent = request.getHeader(USER_AGENT_HEADER)
 
-        Map json = request.getJSON()
-        if (json.containsKey("class")) {
-            json.remove("class")
-        }
-        LogEventVO incomingLog = new LogEventVO(request.getJSON());
+        // ignore any JSON attribute that is not a property of the LogEventVO class to avoid constructor errors
+        Map json = request.getJSON().takeWhile { k, v -> LogEventVO.properties.containsKey(k) && k != "class"}
+
+        LogEventVO incomingLog = new LogEventVO(json);
 
         try {
             LogEvent logEvent = loggerService.createLog(incomingLog, [realIp: ip, userAgent: userAgent])

@@ -45,15 +45,16 @@ class LoggerControllerSpec extends Specification {
     def cleanup() {
     }
 
-    def "save() should ignore any JSON attributes that match read-only properties of classes (e.g. 'class')"() {
+    def "save() should ignore any JSON attributes that do not match properties of the LogEventVO object"() {
         // See https://github.com/AtlasOfLivingAustralia/logger-service/issues/7
 
         when: "the incoming JSON contains an attribute 'class'"
-        request.json = """{ "class": "myclassname", "eventTypeId": 1000, "comment":"test comment", "userEmail" : "fred@somewhere.gov.au", "userIP": "123.123.123.123", "recordCounts" : { "uid1": 100, "uid2": 200,} }"""
+        request.json = """{ "class": "myclassname", lastUpdated: "aaa", "eventTypeId": 1000, "comment":"test comment", "userEmail" : "fred@somewhere.gov.au", "userIP": "123.123.123.123", "recordCounts" : { "uid1": 100, "uid2": 200,} }"""
         controller.save()
 
         then: "the system should ignore that attribute to avoid ReadOnlyPropertyExceptions"
-        // a ReadOnlyPropertyException would be thrown without the fix for this bug
+        // an exception would be thrown without the fix for this bug because the LogEventVO constructor would try to
+        // set 'class', which is readonly, and 'lastUpdated', which does not exist.
         1 * loggerService.createLog(!null, !null)
     }
 
