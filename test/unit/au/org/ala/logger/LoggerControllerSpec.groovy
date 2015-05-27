@@ -2,7 +2,6 @@ package au.org.ala.logger
 
 import grails.test.mixin.TestFor
 import groovy.time.TimeCategory
-import org.ala.client.model.LogEventVO
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
@@ -55,7 +54,8 @@ class LoggerControllerSpec extends Specification {
         then: "the system should ignore that attribute to avoid ReadOnlyPropertyExceptions"
         // an exception would be thrown without the fix for this bug because the LogEventVO constructor would try to
         // set 'class', which is readonly, and 'lastUpdated', which does not exist.
-        1 * loggerService.createLog(!null, !null)
+        1 * loggerService.createLog(!null, !null) >> new LogEvent()
+        assert response.status == HttpStatus.OK.value()
     }
 
     def "save() should invoke the logger service save method"() {

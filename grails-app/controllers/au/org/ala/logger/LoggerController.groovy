@@ -32,7 +32,8 @@ class LoggerController {
         String userAgent = request.getHeader(USER_AGENT_HEADER)
 
         // ignore any JSON attribute that is not a property of the LogEventVO class to avoid constructor errors
-        Map json = request.getJSON().takeWhile { k, v -> LogEventVO.properties.containsKey(k) && k != "class"}
+        List fields = LogEventVO.properties.declaredFields.collect { it.name }
+        Map json = request.getJSON().findAll { k, v -> fields.contains(k) && k != "class"}
 
         LogEventVO incomingLog = new LogEventVO(json);
 
