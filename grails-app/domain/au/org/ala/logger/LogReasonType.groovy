@@ -7,8 +7,10 @@ import groovy.transform.ToString
 @EqualsAndHashCode
 class LogReasonType implements Serializable {
 
-    String rkey;
-    String name;
+    String rkey
+    String name
+    Integer defaultOrder
+    Boolean isDeprecated = false
 
     static constraints = {
         id bindable: true
@@ -19,7 +21,7 @@ class LogReasonType implements Serializable {
     static mapping = {
         table "log_reason_type"
         version false
-
+        sort 'defaultOrder': 'asc'
         id generator: "assigned", sqlType: "int(11)"
     }
 }

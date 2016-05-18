@@ -331,7 +331,7 @@ class LoggerController {
      * @return all log reason types in JSON format
      */
     def getReasonTypes() {
-        render loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id]}) as JSON
+        render loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id, deprecated: k.isDeprecated]}) as JSON
     }
 
     /**

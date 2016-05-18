@@ -1,3 +1,8 @@
 logger-service.iml
 target/*
 .idea/*
+.slcache
+grailsw
+grailsw.bat
+.classpath
+.project

@@ -39,7 +39,7 @@ class LogEvent implements Serializable {
     static mapping = {
         table "log_event"
         version false
-
+        sort 'dateCreated': 'desc'
         id sqlType: "int(11)"
         sourceUrl column: "source_url", type: "text"
         comment column: "comment", type: "text"
