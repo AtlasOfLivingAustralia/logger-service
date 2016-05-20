@@ -15,7 +15,7 @@ class LogEvent implements Serializable {
     String userIp
     String source
     String userAgent
-    int logEventTypeId
+    Integer logEventTypeId
     Integer logReasonTypeId
     Integer logSourceTypeId
     Date dateCreated
@@ -24,22 +24,23 @@ class LogEvent implements Serializable {
     static hasMany = [logDetails: LogDetail]
 
     static constraints = {
+        // ordering here determines order in scaffold views (list and show)
         month maxSize: 255, nullable: true
-        userEmail maxSize: 255, nullable: true
-        userIp maxSize: 255, nullable: true
-        comment maxSize: 255, nullable: true
-        source maxSize: 255, nullable: true
-        userAgent maxSize: 255, nullable: true
-        sourceUrl nullable: true
         logEventTypeId nullable: true
         logSourceTypeId nullable: true
         logReasonTypeId nullable: true
+        userEmail maxSize: 255, nullable: true
+        source maxSize: 255, nullable: true
+        sourceUrl nullable: true
+        userIp maxSize: 255, nullable: true
+        comment maxSize: 255, nullable: true
+        userAgent maxSize: 255, nullable: true
     }
 
     static mapping = {
         table "log_event"
         version false
-        sort 'dateCreated': 'desc'
+        sort 'month': 'desc'
         id sqlType: "int(11)"
         sourceUrl column: "source_url", type: "text"
         comment column: "comment", type: "text"
