@@ -11,6 +11,7 @@ class LoggerController {
     final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For"
     final String USER_AGENT_HEADER = "user-agent"
     final String UNCLASSIFIED_REASON_TYPE = "unclassified"
+    final String UNCLASSIFIED_SOURCE_TYPE = "unclassified"
     final List<String> EMAIL_CATEGORIES = ["edu", "gov", "other", "unspecified"]
 
     def loggerService
@@ -126,6 +127,40 @@ class LoggerController {
     }
 
     /**
+     * Retrieve a breakdown of log events by source for a particular entity
+     * <p/>
+     * The request is expected to have the following parameters:
+     * <ul>
+     * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.
+     * <li>entityUid - the entityUid to query on. Optional.
+     * </ul>
+     * <p/>
+     * Example url: <pre>.../logger/getReasonBreakdown?eventId=1002&entityUid=in4</pre>
+     *
+     * @return breakdown of log events by reason in JSON format
+     */
+    def getSourceBreakdown() {
+        if (!params.eventId) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
+        } else {
+            use(TimeCategory) {
+                Date nextMonth = (new Date() + 1.month)
+                nextMonth.set([date: 1])
+
+                Map<Integer, String> sourceMap = getSourceMap()
+
+                def results = [:]
+                results << ["thisMonth": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, sourceMap)]
+                results << ["last3Months": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, sourceMap)]
+                results << ["lastYear": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, sourceMap)]
+                results << ["all": getSourceBreakdownForPeriod(params.eventId, params.entityUid, null, null, sourceMap)]
+
+                render results as JSON
+            }
+        }
+    }
+
+    /**
      * Generate a CSV file containing all log events for the specified eventType and entity, with the reason for download
      * <p/>
      * The request is expected to have the following parameters:
@@ -171,15 +206,64 @@ class LoggerController {
     }
 
     /**
-     * Retrieve a monthly breakdown of log events by reason for download
+     * Generate a CSV file containing all log events for the specified eventType and entity, with the source for download
+     * <p/>
+     * The request is expected to have the following parameters:
+     * <ul>
+     *     <li>eventId - the logEventTypeId to query on. Mandatory.
+     *     <li>entityUid - the entity id to search for.
+     * </ul>
+     * Example request: <pre>.../logger/sourceBreakdownCSV?eventId=1002&entityUid=in4</pre>
+     *
+     * @return all log events for the specified eventType and entity in CSV format
+     */
+    def getSourceBreakdownCSV() {
+        if (!params.eventId) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
+        } else {
+            Map<Integer, String> sourceMap = getSourceMap()
+            Map<Integer, String> reasonMap = getReasonMap()
+
+            def results = loggerService.getLogEventsBySource(params.eventId, params.entityUid)
+
+            response.contentType = "text/csv"
+            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-reason-${params.entityUid}.csv\"")
+
+            if (results) {
+                def csv = new CSVWriter(response.writer, {
+                    col1:
+                    "year" { (it.month as String).substring(0, 4) }
+                    col2:
+                    "month" { (it.month as String).substring(4) }
+                    col3:
+                    "reason" { reasonMap.get(it.logReasonTypeId) ?: UNCLASSIFIED_REASON_TYPE }
+                    col4:
+                    "source" { sourceMap.get(it.logSourceTypeId) ?: UNCLASSIFIED_SOURCE_TYPE }
+                    col5:
+                    "number of events" { it.numberOfEvents }
+                    col6:
+                    "number of records" { it.recordCount }
+                })
+
+                results.each { e -> csv << e }
+            } else {
+                response.writer.write("\"year\",\"month\",\"source\",\"number of events\",\"number of records\"")
+            }
+            response.writer.flush()
+        }
+    }
+
+    /**
+     * Retrieve a monthly breakdown of log events for downloads
      * <p/>
      * The request is expected to have the following parameters:
      * <ul>
      *     <li>eventId - the event <strong>type</strong> to query on. Mandatory.
      *     <li>entityUid - the entity id to search for. Mandatory.
      *     <li>reasonTypeId - the log reason to query on. Optional. If not provided, all reasons will be included
+     *     <li>sourceTypeId - the log source to query on. Optional. If not provided, all sources will be included
      * </ul>
-     * Example request: <pre>.../logger/reasonBreakdown?eventId=1002&entityUid=in4&reasonId=1</pre>
+     * Example request: <pre>.../logger/sourceBreakdownMonthly?eventId=1002&entityUid=in4&reasonId=1</pre>
      * <p/>
      * Example response: <pre>{"temporalBreakdown":{"201212":{"records":344,"events":1},"201311":{"records":1188,"events":4}}}</pre>
      *
@@ -189,7 +273,13 @@ class LoggerController {
         if (!params.eventId || !params.entityUid) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId and/or entityUid")
         } else {
-            def results = loggerService.getTemporalEventsReasonBreakdown(params.eventId, params.entityUid, params.reasonId)
+            def results
+
+            if (params.sourceId) {
+                results = loggerService.getTemporalEventsSourceBreakdown(params.eventId, params.entityUid, params.reasonId, params.sourceId)
+            } else {
+                results = loggerService.getTemporalEventsReasonBreakdown(params.eventId, params.entityUid, params.reasonId)
+            }
 
             // convert the list of summaries into a map keyed by the category (month) so it can be rendered in the desired JSON formats
             def grouped = results ? results.collectEntries { [(it.month): [records: it.recordCount, events: it.numberOfEvents]] } : [:]
@@ -390,6 +480,29 @@ class LoggerController {
         [events: totalEvents, records: totalRecords, reasonBreakdown: grouped]
     }
 
+    // returns a triple of [totalEvents | totalRecords | sourceBreakdown] for the requested period.
+    private def getSourceBreakdownForPeriod(eventTypeId, entityUid, from, to, sourceMap) {
+        def sourceSummary = loggerService.getEventsSourceBreakdown(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"))
+
+        def grouped = sourceMap.collectEntries { k, v -> [(v): ["events": 0, "records": 0]] }
+                .withDefault { ["events": 0, "records": 0] }
+
+        def totalEvents = 0
+        def totalRecords = 0
+
+        if (sourceSummary) {
+            sourceSummary.each {
+                def entry = grouped[sourceMap[it.logSourceTypeId] ?: UNCLASSIFIED_SOURCE_TYPE]
+                entry["records"] += it.recordCount
+                entry["events"] += it.numberOfEvents
+                totalEvents += it.numberOfEvents
+                totalRecords += it.recordCount
+            }
+        }
+
+        [events: totalEvents, records: totalRecords, sourceBreakdown: grouped]
+    }
+
     // returns a tuple of [totalEvents | totalRecords] for the requested period.
     private def getEntityBreakdownForPeriod(eventTypeId, entityUid, from, to) {
         def entitySummary = loggerService.getLogEventsByEntity(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"))
@@ -418,5 +531,12 @@ class LoggerController {
             [it.id as Integer, it.name]
         })
         reasonMap
+    }
+
+    private getSourceMap() {
+        Map<Integer, String> sourceMap = loggerService.getAllSourceTypes().collectEntries({
+            [it.id as Integer, it.name]
+        })
+        sourceMap
     }
 }

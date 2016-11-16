@@ -26,9 +26,11 @@
 		<li><a href="${request.contextPath}/service/logger/sources">Sources (JSON) </a></li>
 		<li><a href="${request.contextPath}/service/logger/events">Events (JSON) </a></li>
 		<li><a href="${request.contextPath}/service/reasonBreakdown?eventId=1002&entityUid=in4">Downloads breakdown (3 month, 1 year, all)</a></li>
-		<li><a href="${request.contextPath}/service/reasonBreakdownMonthly?eventId=1002&entityUid=in4">Downloads breakdown by months (example for Australian Museum)</a></li>
+		<li><a href="${request.contextPath}/service/reasonBreakdownMonthly?eventId=1002&entityUid=in4&sourceId=2001">Downloads breakdown by months with optional reasonId and sourceId filters (example for Australian Museum downloads from source ALA4R)</a></li>
 		<li><a href="${request.contextPath}/service/reasonBreakdownCSV?eventId=1002&entityUid=in4">Downloads by reason breakdown in CSV (example for Australian Museum)</a></li>
 		<li><a href="${request.contextPath}/service/emailBreakdownCSV?eventId=1002&entityUid=in4">Downloads by user category breakdown in CSV (example for Australian Museum)</a></li>
+		<li><a href="${request.contextPath}/service/sourceBreakdown?eventId=1002&entityUid=in4">Downloads source breakdown (3 month, 1 year, all)</a></li>
+		<li><a href="${request.contextPath}/service/sourceBreakdownCSV?eventId=1002&entityUid=in4">Downloads by source and reason breakdown in CSV (example for Australian Museum)</a></li>
 	</ul>
 </div>
 </body>

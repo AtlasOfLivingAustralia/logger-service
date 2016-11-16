@@ -149,6 +149,49 @@ class LoggerService {
     }
 
     /**
+     * Retrieve a summary of log events grouped by month, possibly filtered by reason type and source type
+     *
+     * @param eventTypeId The event type to search for
+     * @param entityUid The entityUid to search for. Optional. If not provided, all entityUids starting with 'dr' will be retrieved.
+     * @param reasonTypeId The reason type to search for. Optional. If not provided, all reason types will be included.
+     * @param sourceTypeId The source type to search for. Optional. If not provided, all source types will be included.
+     * @return list of EventSummaryBreakdownReasonSourceEntity objects with the following fields populated: [month, numberOfEvents, recordCount]
+     */
+    def getTemporalEventsSourceBreakdown(eventTypeId, entityUid, reasonTypeId, sourceTypeId) {
+        log.debug("Summarising events by reason per month, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}," +
+                "reasonTypeId = ${reasonTypeId} and sourceTypeId = ${sourceTypeId})")
+
+        assert eventTypeId, "eventTypeId is a mandatory parameter"
+
+        def result = EventSummaryBreakdownReasonSourceEntity.withCriteria {
+            eq("logEventTypeId", eventTypeId as int)
+            if (entityUid) {
+                eq("entityUid", entityUid)
+            } else {
+                ilike("entityUid", "dr%")
+            }
+
+            if (reasonTypeId) {
+                eq("logReasonTypeId", reasonTypeId as int)
+            }
+
+            if (sourceTypeId) {
+                eq("logSourceTypeId", sourceTypeId as int)
+            }
+
+            projections {
+                groupProperty("month")
+
+                "month"
+                sum("numberOfEvents")
+                sum("recordCount")
+            }
+        }
+
+        result.collect { k -> new EventSummaryBreakdownReasonSourceEntity(month: k[0], numberOfEvents: k[1], recordCount: k[2]) }
+    }
+
+    /**
      * Retrieve a breakdown of log events grouped by event type
      *
      * @return list of EventSummaryTotal objects
@@ -185,6 +228,21 @@ class LoggerService {
     }
 
     /**
+     * List all log event reasons for the specified type and entity
+     *
+     * @param eventTypeId The event type to filter on
+     * @param entityUid The entity to filter on
+     * @return list of EventSummaryBreakdownReasonSourceEntity objects
+     */
+    def getLogEventsBySource(eventTypeId, entityUid) {
+        log.debug("Listing all events by reason for eventTypeId ${eventTypeId} and entityUid ${entityUid}")
+
+        assert eventTypeId, "eventTypeId is a mandatory parameter"
+
+        EventSummaryBreakdownReasonSourceEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
+    }
+
+    /**
      * Retrieve a breakdown of log events grouped by reason type
      *
      * @param eventTypeId The event type to search for. Mandatory.
@@ -208,6 +266,32 @@ class LoggerService {
                 EventSummaryBreakdownReason)
 
         result.collect { k -> new EventSummaryBreakdownReason(logReasonTypeId: k[0], numberOfEvents: k[1], recordCount: k[2]) }
+    }
+
+    /**
+     * Retrieve a breakdown of log events grouped by source type
+     *
+     * @param eventTypeId The event type to search for. Mandatory.
+     * @param entityUid The entity to search for. Optional.
+     * @param fromDate The first year/month (yyyyMM) in the range to search for. Inclusive.
+     * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
+     * @return list of EventSummaryBreakdownReasonEntity objects with the following fields set: [logReasonTypeId, numberOfEvents, recordCount]
+     */
+    def getEventsSourceBreakdown(eventTypeId, entityUid, fromDate, toDate) {
+        log.debug("Summarising events by reason, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}, " +
+                "fromDate = ${fromDate} and toDate = ${toDate}")
+
+        assert eventTypeId, "eventTypeId is a mandatory parameter"
+
+        def result = getBreakdown(eventTypeId,
+                entityUid,
+                fromDate,
+                toDate,
+                "logSourceTypeId",
+                EventSummaryBreakdownReasonSourceEntity,
+                EventSummaryBreakdownReasonSourceEntity)
+
+        result.collect { k -> [logSourceTypeId: k[0], numberOfEvents: k[1], recordCount: k[2]] }
     }
 
     /**
