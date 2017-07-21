@@ -1,7 +1,10 @@
 <!DOCTYPE html>
+<%
+	def grailsApplication = grails.util.Holders.grailsApplication
+%>
 <html>
 	<head>
-		<meta name="layout" content="main">
+		<meta name="layout" content="${grailsApplication.config.skin.layout}" />
 		<g:set var="entityName" value="\${message(code: '${domainClass.propertyName}.label', default: '${className}')}" />
 		<title><g:message code="default.create.label" args="[entityName]" /></title>
 	</head>

@@ -65,7 +65,7 @@ grails.project.dependency.resolution = {
 
         // plugins needed at runtime but not for compilation
         runtime ":ala-bootstrap2:2.4.4"
-        runtime (":ala-auth:1.2") {
+        runtime (":ala-auth:1.3") {
             exclude "servlet-api"
         }
         runtime ":hibernate4:4.3.5.5"

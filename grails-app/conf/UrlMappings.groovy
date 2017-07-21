@@ -27,7 +27,12 @@ class UrlMappings {
         "/service/$entityUid/events/$eventId/counts.json"(controller: "logger", action: [GET: "getEntityBreakdown"])
         "/service/$entityUid/events/$eventId/counts"(controller: "logger", action: [GET: "getEntityBreakdown"])
 
-        "/service/logger"(resource: "logger", includes: ["save"])
+        "/service/userBreakdown"(controller: "logger",  action: [GET: "getUserBreakdownCSV"])
+
+        "/logger/notAuthorised"(controller: "logger",  action: [GET: "notAuthorised"])
+
+        "/service/userBreakdown"(resource: "logger", includes: ["userBreakdown"])
+
 
         "500"(view: '/error')
 
@@ -46,6 +51,9 @@ class UrlMappings {
         "/admin/eventSummaryBreakdownReason/$action?/$id?"(controller: "eventSummaryBreakdownReason")
         "/admin/eventSummaryBreakdownReasonEntity/$action?/$id?"(controller: "eventSummaryBreakdownReasonEntity")
         "/admin/eventSummaryTotal/$action?/$id?"(controller: "eventSummaryTotal")
+
+        "/admin/userReport"(controller: "userReport")
+        "/admin/userReport/download"(controller: "userReport", action:"download")
 
         "/logout/$action?/$id?"(controller:'logout'){
             constraints {

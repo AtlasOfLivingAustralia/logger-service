@@ -1,9 +1,12 @@
 <% import grails.persistence.Event %>
 <%=packageName%>
-<!DOCTYPE html>
+<%
+	def grailsApplication = grails.util.Holders.grailsApplication
+%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 	<head>
-		<meta name="layout" content="main">
+		<meta name="layout" content="${grailsApplication.config.skin.layout}" />
 		<g:set var="entityName" value="\${message(code: '${domainClass.propertyName}.label', default: '${className}')}" />
 		<title><g:message code="default.list.label" args="[entityName]" /></title>
 	</head>
@@ -22,7 +25,7 @@
 			<g:if test="\${flash.message}">
 				<div class="message" role="status">\${flash.message}</div>
 			</g:if>
-			<table>
+			<table class="table">
 			<thead>
 					<tr>
 					<%  excludedProps = Event.allEvents.toList() << 'id' << 'version'

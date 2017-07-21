@@ -384,6 +384,47 @@ class LoggerService {
         }
     }
 
+    def getUserBreakdown(eventTypeId, entityUids, fromDate, toDate) {
+
+        def fromClause = ""
+        def toClause = ""
+        def params = [entityUids:entityUids, eventTypeId:eventTypeId]
+
+        if(fromDate) {
+            fromClause = " and month >= :fromDate "
+            params["fromDate"] = fromDate
+        }
+
+        if(toDate) {
+            toClause = " and month <= :toDate "
+            params["toDate"] = toDate
+        }
+
+        def results = LogEvent.executeQuery(
+                "select le.userEmail, ld.entityUid, le.logReasonTypeId, count(*), sum(ld.recordCount) from LogEvent le " +
+                        "join le.logDetails ld " +
+                        "where ld.entityUid IN (:entityUids) " +
+                        "and le.userEmail is NOT NULL " +
+                        "and le.logEventTypeId = :eventTypeId " +
+                        fromClause +
+                        toClause +
+                        "group by le.userEmail, le.logReasonTypeId, ld.entityUid " +
+                        "order by le.userEmail",
+                params
+        )
+
+        results.each {
+            def lrt = LogReasonType.findById(it[2])
+            if(lrt) {
+                it[2] = lrt.name
+            } else {
+                it[2] = 'Not supplied'
+            }
+        }
+
+        results
+    }
+
     private getValidType(id, finder) {
         def value = null
         if (id) {

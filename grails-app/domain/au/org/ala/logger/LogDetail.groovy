@@ -14,7 +14,6 @@ class LogDetail implements Serializable {
     static belongsTo = [logEvent: LogEvent]
 
     static constraints = {
-
     }
 
     static mapping = {
@@ -23,7 +22,7 @@ class LogDetail implements Serializable {
 
         id sqlType: "int(11)"
         entityType column: "entity_type"
-        entityUid column: "entity_uid"
+        entityUid column: "entity_uid", type: "text"
         recordCount column: "record_count"
 
         logEvent column: "log_event_id", sqlType: "int(11)"

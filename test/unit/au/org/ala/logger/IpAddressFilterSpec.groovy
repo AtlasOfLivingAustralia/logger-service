@@ -1,4 +1,4 @@
-package logger.service
+package au.org.ala.logger.service
 
 import grails.test.mixin.Mock
 import grails.test.mixin.TestFor

@@ -29,6 +29,11 @@
   </ul>
   There is also 1 POST operation at ${request.contextPath}/service/logger to upload a new (JSON) log event.
 
+  <h2>User reports</h2>
+  <ul>
+    <li><a href="${request.contextPath}/admin/userReport">Download a user report for a set of entities</a></li>
+  </ul>
+
   <h2>Data view</h2>
   <p>
     Below is a list of data views for each table in the logger service database.
@@ -46,6 +51,9 @@
     <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReason">Event Summary Breakdown by Reason</a></li>
     <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReasonEntity">Event Summary Breakdown by Reason and Entity</a></li>
   </ul>
+
+
+
 </div>
 </body>
 </html>

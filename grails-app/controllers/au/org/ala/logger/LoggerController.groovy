@@ -16,7 +16,9 @@ class LoggerController {
 
     def loggerService
 
-    def index() {}
+    def index = {}
+
+    def notAuthorised = {}
 
     /**
      * Create a new event log record. Record details are expected in the JSON object of the POST request in the form of
