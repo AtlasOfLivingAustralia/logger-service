@@ -2,7 +2,7 @@
 
 ### Installation
 
-The logger service is built using Ansible. Scripts reside in the ala-install repository: ansible/logger-standalone.yml and ansible/roles/logger-service.
+The logger service is deployed using Ansible. Scripts reside in the ala-install repository: ansible/logger-standalone.yml and ansible/roles/logger-service.
 
 ### Database setup
 
