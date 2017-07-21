@@ -19,7 +19,7 @@
     <g:form controller="userReport" action="download">
 
         <p>
-            <label for="entityUids">Entity UIDS</label>
+            <label for="entityUids">Entity UIDS (comma separated e.g. dr523,dr233)</label>
             <input id="entityUids" name="entityUids" class="input-xxlarge" type="text" value="dr1305,dr1178,dr528,dr1237,dr529"/>
         </p>
         <p>
@@ -27,12 +27,8 @@
             <input id="eventId" name="eventId" class="input-medium" type="text" value="1002"/>
         </p>
         <p>
-            <label for="fromDate">From month (mmyyyy format e.g. 201607)</label>
-            <input id="fromDate" name="fromDate" class="input-large" type="text" value=""/>
-        </p>
-        <p>
-            <label for="toDate">To month (mmyyyy format e.g. 201707)</label>
-            <input id="toDate" name="toDate" class="input-large" type="text" value=""/>
+            <label for="months">Months (comma separated and in yyyyMM format e.g. 201607)</label>
+            <input id="months" name="months" class="input-large" type="text" value=""/>
         </p>
 
         <button type="submit" class="btn btn-primary"> <i class="fa-download"></i> Download </button>

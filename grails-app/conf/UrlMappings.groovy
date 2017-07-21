@@ -54,6 +54,7 @@ class UrlMappings {
 
         "/admin/userReport"(controller: "userReport")
         "/admin/userReport/download"(controller: "userReport", action:"download")
+        "/admin/userReport/downloadDetailed"(controller: "userReport", action:"downloadDetailed")
 
         "/logout/$action?/$id?"(controller:'logout'){
             constraints {

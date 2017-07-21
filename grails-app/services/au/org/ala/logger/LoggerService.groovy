@@ -384,21 +384,18 @@ class LoggerService {
         }
     }
 
-    def getUserBreakdown(eventTypeId, entityUids, fromDate, toDate) {
+    def getUserBreakdown(eventTypeId, entityUids, months) {
 
-        def fromClause = ""
-        def toClause = ""
+        def monthsClause = ""
+        if(months){
+            monthsClause = " and le.month in (:months)"
+        }
+
         def params = [entityUids:entityUids, eventTypeId:eventTypeId]
-
-        if(fromDate) {
-            fromClause = " and month >= :fromDate "
-            params["fromDate"] = fromDate
+        if(months){
+            params.months  = months
         }
 
-        if(toDate) {
-            toClause = " and month <= :toDate "
-            params["toDate"] = toDate
-        }
 
         def results = LogEvent.executeQuery(
                 "select le.userEmail, ld.entityUid, le.logReasonTypeId, count(*), sum(ld.recordCount) from LogEvent le " +
@@ -406,8 +403,7 @@ class LoggerService {
                         "where ld.entityUid IN (:entityUids) " +
                         "and le.userEmail is NOT NULL " +
                         "and le.logEventTypeId = :eventTypeId " +
-                        fromClause +
-                        toClause +
+                        monthsClause +
                         "group by le.userEmail, le.logReasonTypeId, ld.entityUid " +
                         "order by le.userEmail",
                 params
@@ -424,6 +420,42 @@ class LoggerService {
 
         results
     }
+
+    def getUserBreakdownDetailed(eventTypeId, entityUids, months) {
+
+        def monthsClause = ""
+        if(months){
+            monthsClause = " and le.month in (:months)"
+        }
+
+        def params = [entityUids:entityUids, eventTypeId:eventTypeId]
+        if(months){
+            params.months  = months
+        }
+
+        def results = LogEvent.executeQuery(
+                "select le.userEmail, ld.entityUid, le.logReasonTypeId, ld.recordCount, le.dateCreated, le.sourceUrl from LogEvent le " +
+                        "join le.logDetails ld " +
+                        "where ld.entityUid IN (:entityUids) " +
+                        "and le.userEmail is NOT NULL " +
+                        "and le.logEventTypeId = :eventTypeId " +
+                        monthsClause +
+                        "order by le.userEmail, le.dateCreated",
+                params
+        )
+
+        results.each {
+            def lrt = LogReasonType.findById(it[2])
+            if(lrt) {
+                it[2] = lrt.name
+            } else {
+                it[2] = 'Not supplied'
+            }
+        }
+
+        results
+    }
+
 
     private getValidType(id, finder) {
         def value = null
