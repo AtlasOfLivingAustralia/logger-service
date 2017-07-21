@@ -96,7 +96,8 @@ grails.hibernate.cache.queries = false
 grails.mail.host = "smtp.csiro.au"
 grails.mail.default.from = "support@ala.org.au"
 
-
+// url for collectory for user reports
+collectoryUrl = "http://collections.ala.org.au"
 
 // configure passing transaction's read-only attribute to Hibernate session, queries and criterias
 // set "singleSession = false" OSIV mode in hibernate configuration after enabling

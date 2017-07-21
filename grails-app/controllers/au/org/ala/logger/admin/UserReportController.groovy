@@ -1,6 +1,7 @@
 package au.org.ala.logger.admin
 
 import au.org.ala.web.AlaSecured
+import groovy.json.JsonSlurper
 import org.springframework.http.HttpStatus
 import org.grails.plugins.csv.CSVWriter
 
@@ -13,6 +14,8 @@ class UserReportController {
     def loggerService
 
     def index() {}
+
+    def uidLookupCache = [:]
 
     def download(){
         if (!params.eventId) {
@@ -44,16 +47,18 @@ class UserReportController {
                     col2:
                     "UID" { it[1] }
                     col3:
-                    "name" { it[2] }
+                    "name" { getEntityNameFromUid(it[1]) }
                     col4:
-                    "number of events" { it[3] }
+                    "download reason" { it[2] }
                     col5:
+                    "number of events" { it[3] }
+                    col6:
                     "number of records" { it[4] }
                 })
 
                 results.each { e -> csv << e }
             } else {
-                response.writer.write("\"Email\",\"UID\",\"Name\",\"number of events\",\"number of records\"")
+                response.writer.write("\"email\",\"uid\",\"name\",\"number of events\",\"number of records\"")
             }
             response.writer.flush()
         }
@@ -90,21 +95,39 @@ class UserReportController {
                     col2:
                     "UID" { it[1] }
                     col3:
-                    "name" { it[2] }
+                    "name" { getEntityNameFromUid(it[1]) }
                     col4:
-                    "number of records" { it[3] }
+                    "download reason" { it[2] }
                     col5:
-                    "date created" { it[4] }
+                    "number of records" { it[3] }
                     col6:
+                    "date created" { it[4] }
+                    col7:
                     "source" { it[5] }
                 })
 
                 results.each { e -> csv << e }
             } else {
-                response.writer.write("\"Email\",\"UID\",\"Name\",\"number of records\",\"date created\",\"source\"\"")
+                response.writer.write("\"email\",\"uid\",\"name\",\"download reason\",\"number of records\",\"date created\",\"source\"\"")
             }
             response.writer.flush()
         }
+    }
+
+    def getEntityNameFromUid(uid){
+
+        if(uidLookupCache[uid]){
+            return uidLookupCache[uid]
+        }
+
+        def url = grailsApplication.config.collectoryUrl + "/lookup/summary/" + uid
+        def js = new JsonSlurper()
+        def json = js.parseText(new URL(url).getText())
+        if(json.name){
+            uidLookupCache[uid] = json.name
+        }
+
+        uidLookupCache[uid]
     }
 
     private def handleError(HttpStatus httpStatus, String logMessage, Throwable e = null) {
