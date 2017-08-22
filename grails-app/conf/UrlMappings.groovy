@@ -1,6 +1,10 @@
 class UrlMappings {
 
     static mappings = {
+
+        "/service/logger"(controller: "logger", action: [POST: "save"])
+        "/service/logger/"(controller: "logger", action: [POST: "save"])
+
         "/service/logger/events"(controller: "logger", action: [GET: "getEventTypes"])
         "/service/logger/reasons"(controller: "logger", action: [GET: "getReasonTypes"])
         "/service/logger/sources"(controller: "logger", action: [GET: "getSourceTypes"])

@@ -6,3 +6,8 @@ grailsw
 grailsw.bat
 .classpath
 .project
+*.iml
+
+*.iml
+
+logger-service-grailsPlugins.iml
