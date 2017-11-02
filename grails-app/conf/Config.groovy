@@ -97,7 +97,7 @@ grails.mail.host = "smtp.csiro.au"
 grails.mail.default.from = "support@ala.org.au"
 
 // url for collectory for user reports
-collectoryUrl = "http://collections.ala.org.au"
+collectoryUrl = "https://collections.ala.org.au"
 
 // configure passing transaction's read-only attribute to Hibernate session, queries and criterias
 // set "singleSession = false" OSIV mode in hibernate configuration after enabling
@@ -111,7 +111,7 @@ environments {
     }
     production {
         grails.logging.jul.usebridge = false
-        grails.serverURL = "http://logger.ala.org.au"
+        grails.serverURL = "https://logger.ala.org.au"
     }
 }
 

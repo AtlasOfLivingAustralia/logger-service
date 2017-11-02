@@ -64,7 +64,7 @@ grails.project.dependency.resolution = {
         compile ":jsonp:0.2"
 
         // plugins needed at runtime but not for compilation
-        runtime ":ala-bootstrap2:2.4.4"
+        runtime ":ala-bootstrap2:2.7.0"
         runtime (":ala-auth:1.3") {
             exclude "servlet-api"
         }
