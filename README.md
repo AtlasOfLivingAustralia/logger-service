@@ -2,7 +2,7 @@
 
 # Installation
 
-The logger service is deployed using Ansible. Scripts reside in the ala-install repository: ansible/logger-standalone.yml and ansible/roles/logger-service.
+The logger service is deployed using Ansible. Scripts reside in the [ala-install](https://github.com/AtlasOfLivingAustralia/ala-install) repository: ansible/logger-standalone.yml and ansible/roles/logger-service. For testing, there is a vagrant inventory in ansible/inventories/vagrant/logger-service-vagrant
 
 # Database setup
 
