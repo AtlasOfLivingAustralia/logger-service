@@ -459,7 +459,7 @@ class LoggerService {
 
     private getValidType(id, finder) {
         def value = null
-        if (id) {
+        if (id != null) {
             value = finder(id)
             if (!value) {
                 log.error("Failed to find value for ${id}")
