@@ -223,8 +223,15 @@ class LoggerService {
         log.debug("Listing all events by reason for eventTypeId ${eventTypeId} and entityUid ${entityUid}")
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
+        List logEventsByReason
 
-        EventSummaryBreakdownReasonEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
+        if (entityUid) {
+            logEventsByReason = EventSummaryBreakdownReasonEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
+        } else {
+            logEventsByReason = EventSummaryBreakdownReasonEntity.findAllByLogEventTypeId(eventTypeId, [sort: "month", order: "desc"])
+        }
+
+        logEventsByReason
     }
 
     /**
@@ -238,8 +245,15 @@ class LoggerService {
         log.debug("Listing all events by reason for eventTypeId ${eventTypeId} and entityUid ${entityUid}")
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
+        List logEventsBySource
 
-        EventSummaryBreakdownReasonSourceEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
+        if (entityUid) {
+            logEventsBySource = EventSummaryBreakdownReasonSourceEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
+        } else {
+            logEventsBySource = EventSummaryBreakdownReasonSourceEntity.findAllByLogEventTypeId(eventTypeId, [sort: "month", order: "desc"])
+        }
+
+        logEventsBySource
     }
 
     /**

@@ -46,7 +46,7 @@ grails.project.dependency.resolution = {
     }
 
     dependencies {
-        runtime "au.org.ala:ala-logger:1.0"
+        runtime "au.org.ala:ala-logger:1.4.1"
         runtime "mysql:mysql-connector-java:5.1.34"
 
         test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
@@ -54,12 +54,12 @@ grails.project.dependency.resolution = {
 
     plugins {
         // plugins for the build system only
-        build ":tomcat:7.0.55"
+        build ":tomcat:7.0.70"
         build ":release:3.0.1"        
 
         // plugins for the compile step
         compile ":scaffolding:2.1.2"
-        compile ':cache:1.1.6' // GRAILS-11535
+        compile ':cache:1.1.8' // GRAILS-11535
         compile ":csv:0.3.1"
         compile ":jsonp:0.2"
 
@@ -68,7 +68,7 @@ grails.project.dependency.resolution = {
         runtime (":ala-auth:2.1.4") {
             exclude "servlet-api"
         }
-        runtime ":hibernate4:4.3.5.5"
+        runtime ":hibernate4:4.3.10"
         runtime ":database-migration:1.4.0"
         runtime ":jquery:1.11.1"
 

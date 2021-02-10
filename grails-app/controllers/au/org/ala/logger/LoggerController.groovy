@@ -183,7 +183,7 @@ class LoggerController {
             def results = loggerService.getLogEventsByReason(params.eventId, params.entityUid)
 
             response.contentType = "text/csv"
-            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-reason-${params.entityUid}.csv\"")
+            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-reason-${params.entityUid?:'all'}.csv\"")
 
             if (results) {
                 def csv = new CSVWriter(response.writer, {
@@ -229,7 +229,7 @@ class LoggerController {
             def results = loggerService.getLogEventsBySource(params.eventId, params.entityUid)
 
             response.contentType = "text/csv"
-            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-reason-${params.entityUid}.csv\"")
+            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-source-${params.entityUid?:'all'}.csv\"")
 
             if (results) {
                 def csv = new CSVWriter(response.writer, {
