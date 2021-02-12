@@ -55,7 +55,10 @@ grails.project.dependency.resolution = {
     plugins {
         // plugins for the build system only
         build ":tomcat:7.0.70"
-        build ":release:3.0.1"        
+        build ":release:3.0.1"
+
+        runtime ":jquery:1.11.1"
+        runtime ":resources:1.2.14"
 
         // plugins for the compile step
         compile ":scaffolding:2.1.2"
@@ -64,8 +67,9 @@ grails.project.dependency.resolution = {
         compile ":jsonp:0.2"
 
         // plugins needed at runtime but not for compilation
-        runtime ":ala-bootstrap2:2.7.0"
-        runtime (":ala-auth:2.1.4") {
+        runtime ":ala-bootstrap3:2.2.0"
+        compile "org.grails.plugins:ala-admin-plugin:1.3"
+        runtime (":ala-auth:2.1.6") {
             exclude "servlet-api"
         }
         runtime ":hibernate4:4.3.10"
