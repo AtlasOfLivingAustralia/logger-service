@@ -47,9 +47,8 @@ grails.project.dependency.resolution = {
 
     dependencies {
         runtime "au.org.ala:ala-logger:1.4.1"
-        runtime "mysql:mysql-connector-java:5.1.34"
-
-        test "org.grails:grails-datastore-test-support:1.0-grails-2.4"
+        runtime "mysql:mysql-connector-java:5.1.42"
+        test "org.grails:grails-datastore-test-support:1.0.2-grails-2.4"
     }
 
     plugins {
