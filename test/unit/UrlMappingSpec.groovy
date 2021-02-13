@@ -21,6 +21,7 @@ class UrlMappingSpec extends Specification {
         assertForwardUrlMapping("/service/reasonBreakdown.json", controller: "logger", action: "getReasonBreakdown")
         assertForwardUrlMapping("/service/reasonBreakdownMonthly", controller: "logger", action: "getReasonBreakdownByMonth")
         assertForwardUrlMapping("/service/reasonBreakdownCSV", controller: "logger", action: "getReasonBreakdownCSV")
+        assertForwardUrlMapping("/service/reasonBreakdownByMonthCSV", controller: "logger", action: "getReasonBreakdownByMonthCSV")
 
         assertForwardUrlMapping("/service/emailBreakdown", controller: "logger", action: "getEmailBreakdown")
         assertForwardUrlMapping("/service/emailBreakdown.json", controller: "logger", action: "getEmailBreakdown")

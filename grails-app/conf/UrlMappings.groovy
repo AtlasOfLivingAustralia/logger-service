@@ -14,6 +14,7 @@ class UrlMappings {
         "/service/reasonBreakdown"(controller: "logger", action: [GET: "getReasonBreakdown"])
         "/service/reasonBreakdown.json"(controller: "logger", action: [GET: "getReasonBreakdown"])
         "/service/reasonBreakdownMonthly"(controller: "logger", action: [GET: "getReasonBreakdownByMonth"])
+        "/service/reasonBreakdownByMonthCSV"(controller: "logger", action: [GET: "getReasonBreakdownByMonthCSV"])
         "/service/reasonBreakdownCSV"(controller: "logger", action: [GET: "getReasonBreakdownCSV"])
 
         "/service/sourceBreakdown"(controller: "logger", action: [GET: "getSourceBreakdown"])
