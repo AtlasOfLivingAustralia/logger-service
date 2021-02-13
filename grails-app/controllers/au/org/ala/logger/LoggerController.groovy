@@ -261,7 +261,7 @@ class LoggerController {
      * The request is expected to have the following parameters:
      * <ul>
      *     <li>eventId - the event <strong>type</strong> to query on. Mandatory.
-     *     <li>entityUid - the entity id to search for. Mandatory.
+     *     <li>entityUid - the entity id to search for.
      *     <li>reasonTypeId - the log reason to query on. Optional. If not provided, all reasons will be included
      *     <li>sourceTypeId - the log source to query on. Optional. If not provided, all sources will be included
      * </ul>
@@ -272,7 +272,7 @@ class LoggerController {
      * @return breakdown of log events by month in JSON format
      */
     def getReasonBreakdownByMonth() {
-        if (!params.eventId || !params.entityUid) {
+        if (!params.eventId) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId and/or entityUid")
         } else {
             def results
