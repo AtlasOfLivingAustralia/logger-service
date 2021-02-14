@@ -429,19 +429,24 @@ class LoggerController {
 
     /**
      * Requests are in the format /{entityUid}/events/{eventId}/counts.
-     *
-     * Example request: <pre>.../logger/dr143/events/1024/counts.json</pre>
+     *  <p/>
+     *  Optional param:
+     *  <ul>
+     *    <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;). Optional. If not provided, all reasons will be included
+     *  </ul>
+     *  Example request: <pre>.../logger/dr143/events/1024/counts.json</pre>
      */
     def getEntityBreakdown() {
         use(TimeCategory) {
             Date nextMonth = (new Date() + 1.month)
             nextMonth.set([date: 1])
+            Integer excludeReasonTypeId = params.int("excludeReasonTypeId")
 
             def results = [:]
-            results << ["all": getEntityBreakdownForPeriod(params.eventId, params.entityUid, null, null)]
-            results << ["last3Months": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth)]
-            results << ["thisMonth": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth)]
-            results << ["lastYear": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth)]
+            results << ["all": getEntityBreakdownForPeriod(params.eventId, params.entityUid, null, null, excludeReasonTypeId)]
+            results << ["last3Months": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, excludeReasonTypeId)]
+            results << ["thisMonth": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, excludeReasonTypeId)]
+            results << ["lastYear": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, excludeReasonTypeId)]
 
             render results as JSON
         }
@@ -567,8 +572,8 @@ class LoggerController {
     }
 
     // returns a tuple of [totalEvents | totalRecords] for the requested period.
-    private def getEntityBreakdownForPeriod(eventTypeId, entityUid, from, to) {
-        def entitySummary = loggerService.getLogEventsByEntity(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"))
+    private def getEntityBreakdownForPeriod(eventTypeId, entityUid, from, to, excludeReasonTypeId) {
+        def entitySummary = loggerService.getLogEventsByEntity(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"), excludeReasonTypeId)
 
         def totalEvents = 0
         def totalRecords = 0

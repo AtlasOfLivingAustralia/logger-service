@@ -369,9 +369,9 @@ class LoggerService {
      * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
      * @return list of EventSummaryBreakdownReason objects with the following fields set: [month, numberOfEvents, recordCount]
      */
-    def getLogEventsByEntity(eventTypeId, entityUid, fromDate, toDate) {
+    def getLogEventsByEntity(eventTypeId, entityUid, fromDate, toDate, Integer excludeReasonTypeId) {
         log.debug("Summarising log events by entity, with eventTypeId = ${eventTypeId}. entityUid = ${entityUid}" +
-                "fromDate = ${fromDate} and toDate = ${toDate}");
+                "fromDate = ${fromDate} and toDate = ${toDate} and excludeReasonTypeId = ${excludeReasonTypeId}");
 
         assert eventTypeId && entityUid, "eventTypeId and entityUid are both mandatory parameters"
 
@@ -381,7 +381,8 @@ class LoggerService {
                 toDate,
                 "month",
                 EventSummaryBreakdownReasonEntity,
-                EventSummaryBreakdownReason)
+                EventSummaryBreakdownReason,
+                excludeReasonTypeId)
 
         result.collect { k -> new EventSummaryBreakdownReason(month: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
