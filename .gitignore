@@ -8,6 +8,6 @@ grailsw.bat
 .project
 *.iml
 .DS_Store
-*.iml
+out/*
 
 logger-service-grailsPlugins.iml
