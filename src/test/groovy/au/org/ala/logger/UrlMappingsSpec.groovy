@@ -1,15 +1,26 @@
+/*
+ * Copyright (C) 2021 Atlas of Living Australia
+ * All Rights Reserved.
+ * The contents of this file are subject to the Mozilla Public
+ * License Version 1.1 (the "License"); you may not use this file
+ * except in compliance with the License. You may obtain a copy of
+ * the License at http://www.mozilla.org/MPL/
+ * Software distributed under the License is distributed on an "AS
+ * IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * rights and limitations under the License.
+ */
 
+package au.org.ala.logger
 
 import grails.testing.web.UrlMappingsUnitTest
 import spock.lang.Specification
-import grails.web.mapping.UrlMappings
 
 class UrlMappingsSpec extends Specification implements UrlMappingsUnitTest<UrlMappings> {
-
-
-    def "test mappings"() {
+    void "test url mappings"() {
         expect:
-        assertForwardUrlMapping("/service/logger/events", controller: "logger", action: "getEventTypes")
+        verifyController("admin")
+        assertReverseUrlMapping("/service/logger", controller: "logger", action: "getEventTypes")
         assertForwardUrlMapping("/service/logger/reasons", controller: "logger", action: "getReasonTypes")
         assertForwardUrlMapping("/service/logger/sources", controller: "logger", action: "getSourceTypes")
 
@@ -41,5 +52,14 @@ class UrlMappingsSpec extends Specification implements UrlMappingsUnitTest<UrlMa
         }
 
         assertForwardUrlMapping(500, view: "error")
+    }
+
+    void "verify url mappings"() {
+        when:
+        assertReverseUrlMapping("/admin", controller: 'admin', action: 'index')
+        assertReverseUrlMapping("/admin", controller: 'admin', action: 'logEvent')
+
+        then:
+        noExceptionThrown()
     }
 }
