@@ -1,13 +1,15 @@
 logger-service.iml
 target/*
+build/*
+logs/*
 .idea/*
 .slcache
 grailsw
 grailsw.bat
 .classpath
+.gradle/*
 .project
-*.iml
-.DS_Store
 *.iml
 
 logger-service-grailsPlugins.iml
+.DS_Store

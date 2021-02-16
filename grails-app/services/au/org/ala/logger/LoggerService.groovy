@@ -1,6 +1,6 @@
 package au.org.ala.logger
 
-import grails.transaction.Transactional
+import grails.gorm.transactions.Transactional
 import org.ala.client.model.LogEventVO
 
 import javax.persistence.PersistenceException
@@ -50,8 +50,8 @@ class LoggerService {
         }
     }
 
-    def findRemoteAddress(String ipAddress) {
-        def remoteAddress = RemoteAddress.findByIp(ipAddress)
+    RemoteAddress findRemoteAddress(String ipAddress) {
+        RemoteAddress remoteAddress = RemoteAddress.findByIp(ipAddress)
         log.debug("Found remote address ${remoteAddress} for ip ${ipAddress}")
         remoteAddress
     }
@@ -118,9 +118,9 @@ class LoggerService {
      * @param reasonTypeId The reason type to search for. Optional. If not provided, all reason types will be included.
      * @return list of EventSummaryBreakdownReasonEntity objects with the following fields populated: [month, numberOfEvents, recordCount]
      */
-    def getTemporalEventsReasonBreakdown(eventTypeId, entityUid, reasonTypeId) {
+    def getTemporalEventsReasonBreakdown(eventTypeId, entityUid, reasonTypeId, excludeReasonTypeId) {
         log.debug("Summarising events by reason per month, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}," +
-                "and reasonTypeId = ${reasonTypeId})")
+                "and reasonTypeId = ${reasonTypeId}) and excludeReasonTypeId = ${excludeReasonTypeId}")
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
 
@@ -134,6 +134,10 @@ class LoggerService {
 
             if (reasonTypeId) {
                 eq("logReasonTypeId", reasonTypeId as int)
+            }
+
+            if (excludeReasonTypeId) {
+                ne("logReasonTypeId", excludeReasonTypeId as int)
             }
 
             projections {
@@ -157,9 +161,9 @@ class LoggerService {
      * @param sourceTypeId The source type to search for. Optional. If not provided, all source types will be included.
      * @return list of EventSummaryBreakdownReasonSourceEntity objects with the following fields populated: [month, numberOfEvents, recordCount]
      */
-    def getTemporalEventsSourceBreakdown(eventTypeId, entityUid, reasonTypeId, sourceTypeId) {
+    def getTemporalEventsSourceBreakdown(eventTypeId, entityUid, reasonTypeId, sourceTypeId, excludeReasonTypeId) {
         log.debug("Summarising events by reason per month, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}," +
-                "reasonTypeId = ${reasonTypeId} and sourceTypeId = ${sourceTypeId})")
+                "reasonTypeId = ${reasonTypeId} and sourceTypeId = ${sourceTypeId}) and excludeReasonTypeId = ${excludeReasonTypeId}")
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
 
@@ -177,6 +181,10 @@ class LoggerService {
 
             if (sourceTypeId) {
                 eq("logSourceTypeId", sourceTypeId as int)
+            }
+
+            if (excludeReasonTypeId) {
+                ne("logReasonTypeId", excludeReasonTypeId as int)
             }
 
             projections {
@@ -289,11 +297,12 @@ class LoggerService {
      * @param entityUid The entity to search for. Optional.
      * @param fromDate The first year/month (yyyyMM) in the range to search for. Inclusive.
      * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
+     * @param excludeReasonTypeId The logReasonTypeId to exclude from results (usually &quot;testing&quot;)
      * @return list of EventSummaryBreakdownReasonEntity objects with the following fields set: [logReasonTypeId, numberOfEvents, recordCount]
      */
-    def getEventsSourceBreakdown(eventTypeId, entityUid, fromDate, toDate) {
+    def getEventsSourceBreakdown(eventTypeId, entityUid, fromDate, toDate, Integer excludeReasonTypeId) {
         log.debug("Summarising events by reason, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}, " +
-                "fromDate = ${fromDate} and toDate = ${toDate}")
+                "fromDate = ${fromDate} and toDate = ${toDate} and excludeReasonTypeId = ${excludeReasonTypeId}")
 
         assert eventTypeId, "eventTypeId is a mandatory parameter"
 
@@ -303,7 +312,9 @@ class LoggerService {
                 toDate,
                 "logSourceTypeId",
                 EventSummaryBreakdownReasonSourceEntity,
-                EventSummaryBreakdownReasonSourceEntity)
+                EventSummaryBreakdownReasonSourceEntity,
+                excludeReasonTypeId
+        )
 
         result.collect { k -> [logSourceTypeId: k[0], numberOfEvents: k[1], recordCount: k[2]] }
     }
@@ -358,9 +369,9 @@ class LoggerService {
      * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
      * @return list of EventSummaryBreakdownReason objects with the following fields set: [month, numberOfEvents, recordCount]
      */
-    def getLogEventsByEntity(eventTypeId, entityUid, fromDate, toDate) {
+    def getLogEventsByEntity(eventTypeId, entityUid, fromDate, toDate, Integer excludeReasonTypeId) {
         log.debug("Summarising log events by entity, with eventTypeId = ${eventTypeId}. entityUid = ${entityUid}" +
-                "fromDate = ${fromDate} and toDate = ${toDate}");
+                "fromDate = ${fromDate} and toDate = ${toDate} and excludeReasonTypeId = ${excludeReasonTypeId}");
 
         assert eventTypeId && entityUid, "eventTypeId and entityUid are both mandatory parameters"
 
@@ -370,12 +381,13 @@ class LoggerService {
                 toDate,
                 "month",
                 EventSummaryBreakdownReasonEntity,
-                EventSummaryBreakdownReason)
+                EventSummaryBreakdownReason,
+                excludeReasonTypeId)
 
         result.collect { k -> new EventSummaryBreakdownReason(month: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
 
-    private getBreakdown(eventTypeId, entityUid, fromDate, toDate, categoryProperty, domainClass, noEntityDomainClass) {
+    private getBreakdown(eventTypeId, entityUid, fromDate, toDate, categoryProperty, domainClass, noEntityDomainClass, Integer excludeReasonTypeId) {
         assert fromDate && toDate || !fromDate && !toDate, "Must supply both a dateFrom and dateTo string or neither"
 
         (entityUid ? domainClass : noEntityDomainClass).withCriteria {
@@ -387,7 +399,9 @@ class LoggerService {
                 ge("month", fromDate)
                 lt("month", toDate)
             }
-
+            if (excludeReasonTypeId) {
+                ne("logReasonTypeId", excludeReasonTypeId)
+            }
             projections {
                 groupProperty("${categoryProperty}")
 
