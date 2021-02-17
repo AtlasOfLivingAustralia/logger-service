@@ -122,10 +122,10 @@ class LoggerController {
                 Map<Integer, String> reasonMap = getReasonMap()
 
                 def results = [:]
-                results << ["thisMonth": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, reasonMap, excludeReasonTypeId)]
-                results << ["last3Months": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, reasonMap, excludeReasonTypeId)]
-                results << ["lastYear": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, reasonMap, excludeReasonTypeId)]
-                results << ["all": getReasonBreakdownForPeriod(params.eventId, params.entityUid, null, null, reasonMap, excludeReasonTypeId)]
+                results << ["thisMonth": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, reasonMap)]
+                results << ["last3Months": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, reasonMap)]
+                results << ["lastYear": getReasonBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, reasonMap)]
+                results << ["all": getReasonBreakdownForPeriod(params.eventId, params.entityUid, null, null, reasonMap)]
 
                 render results as JSON
             }
