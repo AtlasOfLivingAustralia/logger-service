@@ -22,19 +22,11 @@ class IpAddressInterceptorSpec extends Specification implements  InterceptorUnit
     def VALID_ADDRESS = "1.1.1.1"
     def INVALID_ADDRESS = "0.0.0.0"
 
-    // value will vary with test methods
-    RemoteAddress ra;
     def controller
 
     def setup() {
         mockDomains(RemoteAddress, LogEvent)
-        //interceptor.loggerService = Mock(LoggerService)
-        //interceptor.loggerService.findRemoteAddress(_) >> ra
-        //interceptor.loggerService = Stub(LoggerService)
         interceptor.loggerService = new MockLoggerService()
-//        defineBeans {
-//            loggerService(MockLoggerService)
-//        }
         controller = (LoggerController)mockController(LoggerController)
         grailsApplication.addArtefact("Service", MockLoggerService)
         grailsApplication.addArtefact("Controller", LoggerController)
