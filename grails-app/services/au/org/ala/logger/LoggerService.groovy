@@ -285,7 +285,8 @@ class LoggerService {
                 toDate,
                 "logReasonTypeId",
                 EventSummaryBreakdownReasonEntity,
-                EventSummaryBreakdownReason)
+                EventSummaryBreakdownReason,
+                null)
 
         result.collect { k -> new EventSummaryBreakdownReason(logReasonTypeId: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }

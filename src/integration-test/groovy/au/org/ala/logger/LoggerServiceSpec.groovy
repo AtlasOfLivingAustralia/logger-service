@@ -1,20 +1,27 @@
 package au.org.ala.logger
 
-import grails.test.spock.IntegrationSpec
+import grails.testing.mixin.integration.Integration
+import org.springframework.beans.factory.annotation.Autowired
+import spock.lang.Specification
+import grails.gorm.transactions.*
 
 /**
  * Integration test to verify the behaviour of the queries used to retrieve aggregated data - simple crud operations are
  * not tested, just those operations that perform comparatively complex criteria queries
  */
-class LoggerServiceSpec extends IntegrationSpec {
+@Integration
+@Rollback
+class LoggerServiceSpec extends Specification {
 
-    LoggerService service = new LoggerService()
+    @Autowired
+    LoggerService service
 
     def "getEventTypeBreakdown should return the expected grouping"() {
-        new EventSummaryTotal(month: "201410", logEventTypeId: 1, numberOfEvents: 2, recordCount: 10).save()
-        new EventSummaryTotal(month: "201410", logEventTypeId: 2, numberOfEvents: 3, recordCount: 15).save()
-        new EventSummaryTotal(month: "201411", logEventTypeId: 1, numberOfEvents: 4, recordCount: 20).save()
-        new EventSummaryTotal(month: "201411", logEventTypeId: 2, numberOfEvents: 5, recordCount: 25).save()
+        setup:
+        new EventSummaryTotal(month: "201410", logEventTypeId: 1, numberOfEvents: 2, recordCount: 10).save(flush: true)
+        new EventSummaryTotal(month: "201410", logEventTypeId: 2, numberOfEvents: 3, recordCount: 15).save(flush: true)
+        new EventSummaryTotal(month: "201411", logEventTypeId: 1, numberOfEvents: 4, recordCount: 20).save(flush: true)
+        new EventSummaryTotal(month: "201411", logEventTypeId: 2, numberOfEvents: 5, recordCount: 25).save(flush: true)
 
         when:
         def result = service.getEventTypeBreakdown()
@@ -26,12 +33,12 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getLogEventsByReason should return all results ordered by month (descending)"() {
-        def r1 = new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        def r2 = new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        def r4 = new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        def r5 = new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save()
+        def r1 = new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        def r2 = new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        def r4 = new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        def r5 = new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
 
         def expectedOrder = [r4, r5, r1, r2]
 
@@ -43,18 +50,18 @@ class LoggerServiceSpec extends IntegrationSpec {
         assert result == expectedOrder
     }
 
-    def "getLogEventsByReason should return 0 results if no entityUid is provided"() {
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
+    def "getLogEventsByReason should (now) return results if no entityUid is provided"() {
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
 
         when:
         def result = service.getLogEventsByReason(1, null)
 
         then:
-        assert !result
+        assert result
     }
 
     def "getLogEventsByReason should return 0 results if there are no matches"() {
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
 
         when:
         def result = service.getLogEventsByReason(1, "nomatch")
@@ -64,12 +71,12 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getLogEventsByEmail should return all results ordered by month (descending)"() {
-        def r1 = new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 2, recordCount: 5).save()
-        def r2 = new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "gov", numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 4, recordCount: 15).save()
-        def r4 = new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 5, recordCount: 20).save()
-        def r5 = new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "other", numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 7, recordCount: 30).save()
+        def r1 = new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 2, recordCount: 5).save(flush: true)
+        def r2 = new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "gov", numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 4, recordCount: 15).save(flush: true)
+        def r4 = new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 5, recordCount: 20).save(flush: true)
+        def r5 = new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "other", numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 7, recordCount: 30).save(flush: true)
 
         def expectedOrder = [r4, r5, r1, r2]
 
@@ -82,7 +89,7 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getLogEventsByEmail should return 0 results if no entityUid is provided"() {
-        new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 2, recordCount: 5).save()
+        new EventSummaryBreakdownEmailEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 2, recordCount: 5).save(flush: true)
 
         when:
         def result = service.getLogEventsByEmail(1, null)
@@ -92,7 +99,7 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getLogEventsByEmail should return 0 results if there are no matches"() {
-        new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 2, recordCount: 5).save()
+        new EventSummaryBreakdownEmailEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, userEmailCategory: "edu", numberOfEvents: 2, recordCount: 5).save(flush: true)
 
         when:
         def result = service.getLogEventsByEmail(1, "nomatch")
@@ -102,7 +109,7 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getLogEventCount should return 0 results if there are no matches"() {
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
 
         when:
         def result = service.getLogEventCount(1, "nomatch", "2013")
@@ -112,12 +119,12 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getLogEventCount should return log counts grouped by month"() {
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save()
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
 
         when:
         def result = service.getLogEventCount(1, "entity1", "201410")
@@ -128,12 +135,12 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getLogEventCount should perform a 'like' comparison on the year/month parameter"() {
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save()
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "entity2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
 
         when:
         def result = service.getLogEventCount(1, "entity1", "2014")
@@ -145,17 +152,17 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getTemporalEventsReasonBreakdown should should match eventTypeId, entityUid and reasonTypeId"() {
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save()
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save(flush: true)
 
         when:
-        def result = service.getTemporalEventsReasonBreakdown(1, "dr1", 2)
+        def result = service.getTemporalEventsReasonBreakdown(1, "dr1", 2, null)
 
         then:
         assert result.size() == 2
@@ -164,17 +171,17 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getTemporalEventsReasonBreakdown should should match eventTypeId and entityUid"() {
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save()
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save(flush: true)
 
         when:
-        def result = service.getTemporalEventsReasonBreakdown(1, "dr1", null)
+        def result = service.getTemporalEventsReasonBreakdown(1, "dr1", null, null)
 
         then:
         assert result.size() == 2
@@ -183,17 +190,17 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getTemporalEventsReasonBreakdown should should default entityUid to like dr% if not provided"() {
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save()
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save(flush: true)
 
         when:
-        def result = service.getTemporalEventsReasonBreakdown(1, null, null)
+        def result = service.getTemporalEventsReasonBreakdown(1, null, null, null)
 
         then:
         assert result.size() == 2
@@ -202,14 +209,14 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getXYZBreakdown() should filter by eventId, entityUid and date range when all are provided"() {
-        new EventSummaryBreakdownReasonEntity(month: "201309", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201310", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201408", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 7, recordCount: 30).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 8, recordCount: 35).save()
+        new EventSummaryBreakdownReasonEntity(month: "201309", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201310", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201408", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 8, recordCount: 35).save(flush: true)
 
         when:
         def result = service.getEventsReasonBreakdown(1, "dr1", "201409", "201412")
@@ -220,14 +227,14 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getXYZBreakdown() should retrieve all dates when no date range is specified"() {
-        new EventSummaryBreakdownReasonEntity(month: "201309", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201310", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201408", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 7, recordCount: 30).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 8, recordCount: 35).save()
+        new EventSummaryBreakdownReasonEntity(month: "201309", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201310", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201408", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 8, recordCount: 35).save(flush: true)
 
         when:
         def result = service.getEventsReasonBreakdown(1, "dr1", null, null)
@@ -238,14 +245,14 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getXYZBreakdown() should retrieve all entities when no entityUid is specified"() {
-        new EventSummaryBreakdownReason(month: "201309", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReason(month: "201310", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReason(month: "201407", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReason(month: "201408", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReason(month: "201409", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save()
-        new EventSummaryBreakdownReason(month: "201410", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 6, recordCount: 25).save()
-        new EventSummaryBreakdownReason(month: "201411", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 7, recordCount: 30).save()
-        new EventSummaryBreakdownReason(month: "201412", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 8, recordCount: 35).save()
+        new EventSummaryBreakdownReason(month: "201309", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReason(month: "201310", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReason(month: "201407", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReason(month: "201408", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReason(month: "201409", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReason(month: "201410", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReason(month: "201411", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReason(month: "201412", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 8, recordCount: 35).save(flush: true)
 
         when:
         def result = service.getEventsReasonBreakdown(1, null, null, null)
@@ -256,10 +263,10 @@ class LoggerServiceSpec extends IntegrationSpec {
     }
 
     def "getXYZBreakdown() should retrieve treat fromDate as an INCLUSIVE and toDate as an EXCLUSIVE condition"() {
-        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save()
-        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save()
-        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 4, recordCount: 15).save()
-        new EventSummaryBreakdownReasonEntity(month: "201412", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 4, numberOfEvents: 5, recordCount: 20).save()
+        new EventSummaryBreakdownReasonEntity(month: "201409", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201412", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 4, numberOfEvents: 5, recordCount: 20).save(flush: true)
 
         when:
         def result = service.getEventsReasonBreakdown(1, "dr1", "201410", "201412")
