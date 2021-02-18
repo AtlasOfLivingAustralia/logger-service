@@ -7,7 +7,7 @@ conversionRule 'clr', ColorConverter
 conversionRule 'wex', WhitespaceThrowableProxyConverter
 
 def loggingDir = (System.getProperty('catalina.base') ? System.getProperty('catalina.base') + '/logs' : './logs')
-def appName = 'ala-hub'
+def appName = 'logger-service'
 final APPENDER = 'APP_APPENDER'
 switch (Environment.current) {
     case Environment.PRODUCTION:
@@ -55,7 +55,7 @@ switch (Environment.current) {
     case Environment.DEVELOPMENT:
         [
                 (DEBUG): [ // DEBUG and TRACE should only be enabled for non-production environments
-//                           'grails.app',
+                           'grails.app',
                            'au.org.ala.cas',
                            'au.org.ala.logger',
                            'grails.app',

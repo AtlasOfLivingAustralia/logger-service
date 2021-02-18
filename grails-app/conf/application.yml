@@ -106,15 +106,23 @@ dataSource:
 environments:
     development:
         grails:
-            serverURL: "http://dev.ala.org.au:8090/logger-service"
+            serverURL: "http://dev.ala.org.au:8080/logger-service"
+        dataSource:
+            #dialect: org.hibernate.dialect.H2Dialect
+            dbCreate: create-drop
+            url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
         security:
             cas:
                 appServerName: "http://dev.ala.org.au"
 
     test:
+        dataSource:
+            dialect: org.hibernate.dialect.H2Dialect
+            dbCreate: create-drop
+            url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
         security:
-            cas:
-                appServerName: "http://dev.ala.org.au"
+                cas:
+                    appServerName: "http://dev.ala.org.au"
     production:
         security:
             cas:
