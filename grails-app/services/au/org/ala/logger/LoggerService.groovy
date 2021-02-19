@@ -116,6 +116,7 @@ class LoggerService {
      * @param eventTypeId The event type to search for
      * @param entityUid The entityUid to search for. Optional. If not provided, all entityUids starting with 'dr' will be retrieved.
      * @param reasonTypeId The reason type to search for. Optional. If not provided, all reason types will be included.
+     * @param excludeReasonTypeId The logReasonTypeId to exclude from results (usually &quot;testing&quot;)
      * @return list of EventSummaryBreakdownReasonEntity objects with the following fields populated: [month, numberOfEvents, recordCount]
      */
     def getTemporalEventsReasonBreakdown(eventTypeId, entityUid, reasonTypeId, excludeReasonTypeId) {
@@ -159,6 +160,7 @@ class LoggerService {
      * @param entityUid The entityUid to search for. Optional. If not provided, all entityUids starting with 'dr' will be retrieved.
      * @param reasonTypeId The reason type to search for. Optional. If not provided, all reason types will be included.
      * @param sourceTypeId The source type to search for. Optional. If not provided, all source types will be included.
+     * @param excludeReasonTypeId The logReasonTypeId to exclude from results (usually &quot;testing&quot;)
      * @return list of EventSummaryBreakdownReasonSourceEntity objects with the following fields populated: [month, numberOfEvents, recordCount]
      */
     def getTemporalEventsSourceBreakdown(eventTypeId, entityUid, reasonTypeId, sourceTypeId, excludeReasonTypeId) {

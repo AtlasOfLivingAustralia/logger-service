@@ -189,7 +189,26 @@ class LoggerServiceSpec extends Specification {
         assert result[1].month == "201411" && result[1].recordCount == 60 && result[1].numberOfEvents == 14
     }
 
-    def "getTemporalEventsReasonBreakdown should should default entityUid to like dr% if not provided"() {
+    def "getTemporalEventsReasonBreakdown should should match eventTypeId and entityUid with excludeReasonTypeId"() {
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save(flush: true)
+
+        when:
+        def result = service.getTemporalEventsReasonBreakdown(1, "dr1", null, 2)
+
+        then:
+        assert result.size() == 2
+        assert result[0].month == "201410" && result[0].recordCount == 5 && result[0].numberOfEvents == 2
+        assert result[1].month == "201411" && result[1].recordCount == 35 && result[1].numberOfEvents == 8
+    }
+
+    def "getTemporalEventsReasonBreakdown should match default entityUid to like dr% if not provided"() {
         new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
         new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
         new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
@@ -206,6 +225,63 @@ class LoggerServiceSpec extends Specification {
         assert result.size() == 2
         assert result[0].month == "201410" && result[0].recordCount == 30 && result[0].numberOfEvents == 9
         assert result[1].month == "201411" && result[1].recordCount == 90 && result[1].numberOfEvents == 21
+    }
+
+    def "getTemporalEventsReasonBreakdown should match default entityUid to like dr% if not provided, with excludeReasonTypeId"() {
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save(flush: true)
+
+        when:
+         def result = service.getTemporalEventsReasonBreakdown(1, null, null, 1)
+
+        then:
+        assert result.size() == 2
+        assert result[0].month == "201410" && result[0].recordCount == 25 && result[0].numberOfEvents == 7
+        assert result[1].month == "201411" && result[1].recordCount == 90 && result[1].numberOfEvents == 21
+    }
+
+    def "getTemporalEventsSourceBreakdown should match default entityUid to like dr% if not provided"() {
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save(flush: true)
+
+        when:
+        def result = service.getTemporalEventsSourceBreakdown(1, null, null, null, null)
+
+        then:
+        assert result.size() == 2
+        assert result[0].month == "201410" && result[0].recordCount == 30 && result[0].numberOfEvents == 9
+        assert result[1].month == "201411" && result[1].recordCount == 90 && result[1].numberOfEvents == 21
+    }
+
+    def "getTemporalEventsSourceBreakdown should match default entityUid to like dr% if not provided with excludeReasonTypeId"() {
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 2, recordCount: 5).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 3, recordCount: 10).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201410", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 4, recordCount: 15).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "im1", logEventTypeId: 1, logReasonTypeId: 1, numberOfEvents: 5, recordCount: 20).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 2, numberOfEvents: 6, recordCount: 25).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "dr2", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 7, recordCount: 30).save(flush: true)
+        new EventSummaryBreakdownReasonSourceEntity(month: "201411", entityUid: "dr1", logEventTypeId: 1, logReasonTypeId: 3, numberOfEvents: 8, recordCount: 35).save(flush: true)
+
+        when:
+        def result = service.getTemporalEventsSourceBreakdown(1, null, null, null, 3)
+
+        then:
+        assert result.size() == 2
+        assert result[0].month == "201410" && result[0].recordCount == 30 && result[0].numberOfEvents == 9
+        assert result[1].month == "201411" && result[1].recordCount == 25 && result[1].numberOfEvents == 6
     }
 
     def "getXYZBreakdown() should filter by eventId, entityUid and date range when all are provided"() {
