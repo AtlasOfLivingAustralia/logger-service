@@ -53,6 +53,7 @@ dependencies {
     compile "org.grails.plugins:gsp"
     console "org.grails:grails-console"
     compile "org.grails:grails-plugin-filters:3.0.12"
+    compile "org.grails:grails-datastore-rest-client"
     profile "org.grails.profiles:web"
     runtime "org.glassfish.web:el-impl:2.1.2-b03"
     runtime "com.h2database:h2"
