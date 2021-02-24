@@ -615,7 +615,6 @@ class LoggerControllerSpec extends Specification implements ControllerUnitTest<L
         controller.getReasonTypes()
 
         then:
-        println "output = ${response.text}"
         assert response.text == """[{"rkey":"key1","name":"reason1","id":1,"deprecated":false},{"rkey":"key2","name":"reason2","id":2,"deprecated":false},{"rkey":"key3","name":"reason3","id":3,"deprecated":false}]"""
     }
 }

@@ -139,7 +139,6 @@ class RestFunctionalTestSpec extends Specification {
         def json = resp.body
 
         then:
-        println "json = ${json}"
         assert json == """[{"rkey":"logger.download.reason.conservation","name":"conservation management/planning","id":0,"deprecated":false},{"rkey":"logger.download.reason.biosecurity","name":"biosecurity management, planning","id":1,"deprecated":false},{"rkey":"logger.download.reason.testing","name":"testing","id":10,"deprecated":false}]"""
     }
 
@@ -149,7 +148,6 @@ class RestFunctionalTestSpec extends Specification {
         def json = resp.body
 
         then:
-        println "json = ${json}"
         assert json == """[{"name":"ALA","id":0},{"name":"OZCAM","id":1},{"name":"AVH","id":2}]"""
     }
 }

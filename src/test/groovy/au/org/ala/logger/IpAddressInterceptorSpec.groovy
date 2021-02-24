@@ -160,7 +160,6 @@ class IpAddressInterceptorSpec2 extends Specification implements  InterceptorUni
 
         @Override
         RemoteAddress findRemoteAddress(String ipAddress) {
-            println "Mock checking if ${ipAddress} == ${VALID_ADDRESS}"
             if (VALID_ADDRESS == ipAddress) {
                 new RemoteAddress(hostName: "valid", ipAddress: VALID_ADDRESS)
             }
@@ -168,7 +167,6 @@ class IpAddressInterceptorSpec2 extends Specification implements  InterceptorUni
 
         @Override
         LogEvent findLogEvent(Long id) {
-            println "Mock checking if ${id}"
             new LogEvent(id: id)
         }
     }
