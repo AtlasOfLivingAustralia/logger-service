@@ -5,7 +5,7 @@ import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
 //@ToString
-//@EqualsAndHashCode(includes='dateCreated,sourceUrl,logEventTypeId,logReasonTypeId,logSourceTypeId')
+//@EqualsAndHashCode
 class LogEvent {
 
     String sourceUrl
@@ -56,7 +56,7 @@ class LogEvent {
     }
 
     def toJSON() {
-        def details = logDetails?.collect({ k -> k.toJSON() })
+        def details = logDetails?.collect({ LogDetail k -> k.toJSON() })
 
         [logEvent: [logDetails     : details,
                     created        : dateCreated?.getTime(),

@@ -3,8 +3,8 @@ package au.org.ala.logger
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-//@EqualsAndHashCode(includes='entityType,entityUid,recordCount')
-//@ToString
+@EqualsAndHashCode
+@ToString
 class LogDetail {
 
     String entityType;
