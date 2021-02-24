@@ -52,6 +52,18 @@ switch (Environment.current) {
             }
         }
         break
+//        [
+//                (DEBUG): [ // DEBUG and TRACE should only be enabled for non-production environments
+//                           'grails.app',
+//                           'au.org.ala.cas',
+//                           'au.org.ala.logger',
+//                           'grails.app',
+//                           'org.grails.plugins',
+//                ],
+//                (TRACE): [
+//                ]
+//        ].each { level, names -> names.each { name -> logger(name, level) } }
+//        //break
     case Environment.DEVELOPMENT:
         [
                 (DEBUG): [ // DEBUG and TRACE should only be enabled for non-production environments
