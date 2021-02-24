@@ -4,8 +4,8 @@ import grails.converters.JSON
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-//@ToString
-//@EqualsAndHashCode
+@ToString(excludes="logDetails")
+@EqualsAndHashCode(excludes="logDetails")
 class LogEvent {
 
     String sourceUrl
