@@ -18,15 +18,13 @@ import grails.testing.web.interceptor.InterceptorUnitTest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
-class IpAddressInterceptorSpec extends Specification implements  InterceptorUnitTest<IpAddressInterceptor>, DataTest {
+class IpAddressInterceptorSpec2 extends Specification implements  InterceptorUnitTest<IpAddressInterceptor>, DataTest {
     def VALID_ADDRESS = "1.1.1.1"
     def INVALID_ADDRESS = "0.0.0.0"
-
     def controller
 
     def setup() {
         mockDomains(RemoteAddress, LogEvent)
-        interceptor.loggerService = new MockLoggerService()
         controller = (LoggerController)mockController(LoggerController)
         grailsApplication.addArtefact("Service", MockLoggerService)
         grailsApplication.addArtefact("Controller", LoggerController)
@@ -50,7 +48,7 @@ class IpAddressInterceptorSpec extends Specification implements  InterceptorUnit
         where:
         action                      | sensitive
         "save"                      | true
-        "monthlyBreakdown"          | true
+        "monthlyBreakdown"          | false
         "getEventLog"               | true
         "getEventTypes"             | false
         "getReasonTypes"            | false
@@ -62,33 +60,6 @@ class IpAddressInterceptorSpec extends Specification implements  InterceptorUnit
         "getEmailBreakdownCSV"      | false
         "getTotalsByEventType"      | false
         "getEntityBreakdown"        | false
-    }
-
-    void 'test interceptor returns expected value for VALID address'() {
-        when:
-        request.remoteAddr = VALID_ADDRESS
-        withRequest(controller: controller, action: action)
-
-        then:
-        interceptor.before() == sensitive
-        response.status == HttpStatus.OK.value()
-
-        where:
-        action                      | sensitive
-        "foobar"                    | true
-        "save"                      | true
-        "monthlyBreakdown"          | true
-        "getEventLog"               | true
-        "getEventTypes"             | true
-        "getReasonTypes"            | true
-        "getSourceTypes"            | true
-        "getReasonBreakdown"        | true
-        "getReasonBreakdownByMonth" | true
-        "getReasonBreakdownCSV"     | true
-        "getEmailBreakdown"         | true
-        "getEmailBreakdownCSV"      | true
-        "getTotalsByEventType"      | true
-        "getEntityBreakdown"        | true
     }
 
     void "IpAddressFilter should reject unrecognised request.remoteAddr IP addresses for sensitive actions"() {

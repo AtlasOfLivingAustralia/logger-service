@@ -1,5 +1,6 @@
 package au.org.ala.logger
 
+import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 import org.ala.client.model.LogEventVO
 
@@ -37,7 +38,15 @@ class LoggerService {
                 userAgent: additionalProperties["userAgent"],
                 month: determineMonth(incomingLog.month),
                 source: findRemoteAddress(additionalProperties["realIp"])?.hostName)
-        event.logDetails = recordCountsToLogDetails(eventType.id, incomingLog.recordCounts, event)
+
+        List logDetails = recordCountsToLogDetails(eventType.id, incomingLog.recordCounts)
+
+        logDetails.each { LogDetail ld ->
+            log.debug "Adding LogDetails to event: ${ld.toJSON()}"
+            event.addToLogDetails(ld)
+        }
+
+        log.debug "Pre-save event = ${event.toJSON()}"
 
         def result = event.save()
 
@@ -358,7 +367,8 @@ class LoggerService {
                 toDate,
                 "userEmailCategory",
                 EventSummaryBreakdownEmailEntity,
-                EventSummaryBreakdownEmail)
+                EventSummaryBreakdownEmail,
+                null)
 
         result.collect { k -> new EventSummaryBreakdownEmail(userEmailCategory: k[0], numberOfEvents: k[1], recordCount: k[2]) }
     }
@@ -508,11 +518,12 @@ class LoggerService {
         }
     }
 
-    private static recordCountsToLogDetails(long eventTypeId, Map<String, Integer> recordCounts, LogEvent event) {
-        def logDetails = []
-        recordCounts.each({
-            k, v -> logDetails << new LogDetail(entityType: eventTypeId as String, entityUid: k, recordCount: v, logEvent: event)
-        })
+    private static List recordCountsToLogDetails(long eventTypeId, Map<String, Integer> recordCounts) {
+        List logDetails = []
+
+        recordCounts.each { k, v ->
+            logDetails.add(new LogDetail(entityType: eventTypeId as String, entityUid: k, recordCount: v))
+        }
 
         logDetails
     }

@@ -34,16 +34,20 @@ class LoggerController {
         String ip = request.getHeader(X_FORWARDED_FOR_HEADER) ?: request.getRemoteAddr();
         log.debug("Received log event from remote host ${request.getRemoteHost()} with ip address ${ip}")
 
-        String userAgent = request.getHeader(USER_AGENT_HEADER)
+        String userAgent = request.getHeader(USER_AGENT_HEADER) ?: "MOZILLA 5.0"
 
         // ignore any JSON attribute that is not a property of the LogEventVO class to avoid constructor errors
         List fields = LogEventVO.properties.declaredFields.collect { it.name }
         Map json = request.getJSON().findAll { k, v -> fields.contains(k) && k != "class"}
 
         LogEventVO incomingLog = new LogEventVO(json);
+        Map props = [realIp: ip, userAgent: userAgent]
+        log.debug "incomingLog = ${incomingLog} || props = ${props}"
+        log.debug "Checking loggerService is not null = ${(loggerService != null)}"
 
         try {
-            LogEvent logEvent = loggerService.createLog(incomingLog, [realIp: ip, userAgent: userAgent])
+            LogEvent logEvent = loggerService.createLog(incomingLog, props)
+            //log.debug("rendering json: ${logEvent.toJSON()}")
             render logEvent.toJSON()
         } catch (Exception e) {
             handleError(HttpStatus.NOT_ACCEPTABLE, "Failed to create log entry", e)
@@ -88,7 +92,7 @@ class LoggerController {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing either q (entityUid) or eventTypeId")
         } else {
             String year = params.year ?: Calendar.getInstance().get(Calendar.YEAR) as String
-
+            log.debug "monthlyBreakdown() - ${params.eventTypeId}, ${params.q}, ${year}"
             // the 'q' URL request parameter corresponds to the entityUid field
             def monthlyBreakdown = loggerService.getLogEventCount(params.eventTypeId, params.q, year);
 
@@ -491,7 +495,9 @@ class LoggerController {
      * @return all log reason types in JSON format
      */
     def getReasonTypes() {
-        render loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id, deprecated: k.isDeprecated]}) as JSON
+        def json = loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id, deprecated: k.isDeprecated]}) as JSON
+        log.debug "getReasonTypes = ${json}"
+        render json
     }
 
     /**

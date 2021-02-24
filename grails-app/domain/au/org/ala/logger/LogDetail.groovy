@@ -3,15 +3,15 @@ package au.org.ala.logger
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@EqualsAndHashCode
-@ToString
-class LogDetail implements Serializable {
+//@EqualsAndHashCode(includes='entityType,entityUid,recordCount')
+//@ToString
+class LogDetail {
 
     String entityType;
     String entityUid;
     Long recordCount;
 
-    //static belongsTo = [logEvent: LogEvent]
+    static belongsTo = [logEvent: LogEvent]
 
     static constraints = {
     }
@@ -25,7 +25,7 @@ class LogDetail implements Serializable {
         entityUid column: "entity_uid", type: "text"
         recordCount column: "record_count"
 
-        //logEvent column: "log_event_id", sqlType: "int(11)"
+        logEvent column: "log_event_id", sqlType: "int(11)"
     }
 
     def toJSON() {

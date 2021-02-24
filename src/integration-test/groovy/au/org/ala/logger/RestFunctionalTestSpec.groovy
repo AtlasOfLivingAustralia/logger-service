@@ -99,7 +99,6 @@ class RestFunctionalTestSpec extends Specification {
         resp.status == HttpStatus.OK.value()
         jsonResponse.logEvent?.id != null
         jsonResponse.logEvent?.logDetails?.size() == 3
-
     }
 
     def "GET to /service/logger/events should show eventTypes"() {
@@ -151,6 +150,6 @@ class RestFunctionalTestSpec extends Specification {
 
         then:
         println "json = ${json}"
-        assert json == """[{"name":"ALA","id":0},{"name":"OZCAM","id":1},{"name":"AVH","id":2},{"name":"source10","id":10}]"""
+        assert json == """[{"name":"ALA","id":0},{"name":"OZCAM","id":1},{"name":"AVH","id":2}]"""
     }
 }

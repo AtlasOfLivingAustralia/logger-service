@@ -4,9 +4,9 @@ import grails.converters.JSON
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@ToString
-@EqualsAndHashCode
-class LogEvent implements Serializable {
+//@ToString
+//@EqualsAndHashCode(includes='dateCreated,sourceUrl,logEventTypeId,logReasonTypeId,logSourceTypeId')
+class LogEvent {
 
     String sourceUrl
     String comment
