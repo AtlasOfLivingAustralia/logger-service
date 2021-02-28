@@ -5,7 +5,7 @@ import groovy.transform.ToString
 
 @EqualsAndHashCode
 @ToString
-class LogDetail implements Serializable {
+class LogDetail {
 
     String entityType;
     String entityUid;

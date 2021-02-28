@@ -1,8 +1,8 @@
 package au.org.ala.logger
 
 import grails.converters.JSON
+import grails.plugins.csv.CSVWriter
 import org.ala.client.model.LogEventVO
-import org.grails.plugins.csv.CSVWriter
 import org.springframework.http.HttpStatus
 import groovy.time.*
 
@@ -16,7 +16,9 @@ class LoggerController {
 
     def loggerService
 
-    def index = {}
+    def index = {
+        render(view: "/index")
+    }
 
     def notAuthorised = {}
 
@@ -32,16 +34,20 @@ class LoggerController {
         String ip = request.getHeader(X_FORWARDED_FOR_HEADER) ?: request.getRemoteAddr();
         log.debug("Received log event from remote host ${request.getRemoteHost()} with ip address ${ip}")
 
-        String userAgent = request.getHeader(USER_AGENT_HEADER)
+        String userAgent = request.getHeader(USER_AGENT_HEADER) ?: "MOZILLA 5.0"
 
         // ignore any JSON attribute that is not a property of the LogEventVO class to avoid constructor errors
         List fields = LogEventVO.properties.declaredFields.collect { it.name }
         Map json = request.getJSON().findAll { k, v -> fields.contains(k) && k != "class"}
 
         LogEventVO incomingLog = new LogEventVO(json);
+        Map props = [realIp: ip, userAgent: userAgent]
+        log.debug "incomingLog = ${incomingLog} || props = ${props}"
+        log.debug "Checking loggerService is not null = ${(loggerService != null)}"
 
         try {
-            LogEvent logEvent = loggerService.createLog(incomingLog, [realIp: ip, userAgent: userAgent])
+            LogEvent logEvent = loggerService.createLog(incomingLog, props)
+            //log.debug("rendering json: ${logEvent.toJSON()}")
             render logEvent.toJSON()
         } catch (Exception e) {
             handleError(HttpStatus.NOT_ACCEPTABLE, "Failed to create log entry", e)
@@ -86,7 +92,7 @@ class LoggerController {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing either q (entityUid) or eventTypeId")
         } else {
             String year = params.year ?: Calendar.getInstance().get(Calendar.YEAR) as String
-
+            log.debug "monthlyBreakdown() - ${params.eventTypeId}, ${params.q}, ${year}"
             // the 'q' URL request parameter corresponds to the entityUid field
             def monthlyBreakdown = loggerService.getLogEventCount(params.eventTypeId, params.q, year);
 
@@ -99,8 +105,9 @@ class LoggerController {
      * <p/>
      * The request is expected to have the following parameters:
      * <ul>
-     * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.
-     * <li>entityUid - the entityUid to query on. Optional.
+     * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.</li>
+     * <li>entityUid - the entityUid to query on. Optional.</li>
+     * <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;)</li>
      * </ul>
      * <p/>
      * Example url: <pre>.../logger/getReasonBreakdown?eventId=1002&entityUid=in4</pre>
@@ -112,6 +119,7 @@ class LoggerController {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             use(TimeCategory) {
+                Integer excludeReasonTypeId = params.int("excludeReasonTypeId")
                 Date nextMonth = (new Date() + 1.month)
                 nextMonth.set([date: 1])
 
@@ -133,8 +141,9 @@ class LoggerController {
      * <p/>
      * The request is expected to have the following parameters:
      * <ul>
-     * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.
-     * <li>entityUid - the entityUid to query on. Optional.
+     * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.</li>
+     * <li>entityUid - the entityUid to query on. Optional.</li>
+     * <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;)</li>
      * </ul>
      * <p/>
      * Example url: <pre>.../logger/getReasonBreakdown?eventId=1002&entityUid=in4</pre>
@@ -146,16 +155,17 @@ class LoggerController {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             use(TimeCategory) {
+                Integer excludeReasonTypeId = params.int("excludeReasonTypeId")
                 Date nextMonth = (new Date() + 1.month)
                 nextMonth.set([date: 1])
 
                 Map<Integer, String> sourceMap = getSourceMap()
 
                 def results = [:]
-                results << ["thisMonth": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, sourceMap)]
-                results << ["last3Months": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, sourceMap)]
-                results << ["lastYear": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, sourceMap)]
-                results << ["all": getSourceBreakdownForPeriod(params.eventId, params.entityUid, null, null, sourceMap)]
+                results << ["thisMonth": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, sourceMap, excludeReasonTypeId)]
+                results << ["last3Months": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, sourceMap, excludeReasonTypeId)]
+                results << ["lastYear": getSourceBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, sourceMap, excludeReasonTypeId)]
+                results << ["all": getSourceBreakdownForPeriod(params.eventId, params.entityUid, null, null, sourceMap, excludeReasonTypeId)]
 
                 render results as JSON
             }
@@ -264,6 +274,7 @@ class LoggerController {
      *     <li>entityUid - the entity id to search for.
      *     <li>reasonTypeId - the log reason to query on. Optional. If not provided, all reasons will be included
      *     <li>sourceTypeId - the log source to query on. Optional. If not provided, all sources will be included
+     *     <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;)
      * </ul>
      * Example request: <pre>.../logger/sourceBreakdownMonthly?eventId=1002&entityUid=in4&reasonId=1</pre>
      * <p/>
@@ -278,15 +289,71 @@ class LoggerController {
             def results
 
             if (params.sourceId) {
-                results = loggerService.getTemporalEventsSourceBreakdown(params.eventId, params.entityUid, params.reasonId, params.sourceId)
+                results = loggerService.getTemporalEventsSourceBreakdown(params.eventId, params.entityUid, params.reasonId, params.sourceId, params.excludeReasonTypeId)
             } else {
-                results = loggerService.getTemporalEventsReasonBreakdown(params.eventId, params.entityUid, params.reasonId)
+                results = loggerService.getTemporalEventsReasonBreakdown(params.eventId, params.entityUid, params.reasonId, params.excludeReasonTypeId)
             }
 
             // convert the list of summaries into a map keyed by the category (month) so it can be rendered in the desired JSON formats
             def grouped = results ? results.collectEntries { [(it.month): [records: it.recordCount, events: it.numberOfEvents]] } : [:]
 
             render ([temporalBreakdown: grouped] as JSON)
+        }
+    }
+
+    /**
+     * Generate a CSV file containing a monthly breakdown of log events for downloads
+     * <p/>
+     * The request is expected to have the following parameters:
+     * <ul>
+     *     <li>eventId - the logEventTypeId to query on. Mandatory.
+     *     <li>entityUid - the entity id to search for.
+     *     <li>reasonTypeId - the log reason to query on. Optional. If not provided, all reasons will be included
+     *     <li>sourceTypeId - the log source to query on. Optional. If not provided, all sources will be included
+     *     <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;). Optional. If not provided, all reasons will be included
+     * </ul>
+     * Example request: <pre>.../logger/reasonBreakdownByMonthCSV?eventId=1002&entityUid=in4&excludeReasonTypeId=10</pre>
+     *
+     * @return all log events for the specified eventType and entity in CSV format
+     */
+    def getReasonBreakdownByMonthCSV() {
+        if (!params.eventId) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId and/or entityUid")
+        } else {
+            def results
+
+            if (params.sourceId) {
+                results = loggerService.getTemporalEventsSourceBreakdown(params.eventId, params.entityUid, params.reasonId, params.sourceId, params.excludeReasonTypeId)
+            } else {
+                results = loggerService.getTemporalEventsReasonBreakdown(params.eventId, params.entityUid, params.reasonId, params.excludeReasonTypeId)
+            }
+
+            // convert the list of summaries into a map keyed by the category (month) so it can be rendered in the desired JSON formats
+            //def grouped = results ? results.collectEntries { [(it.month): [records: it.recordCount, events: it.numberOfEvents]] } : [:]
+
+            response.contentType = "text/csv"
+            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-reason-monthly-${params.entityUid ?: 'all'}.csv\"")
+
+            if (results) {
+                def csv = new CSVWriter(response.writer, {
+                    col1:
+                    "year-month" { (it.month as String) }
+                    col2:
+                    "year" { (it.month as String).substring(0, 4) }
+                    col3:
+                    "month" { (it.month as String).substring(4, 6) }
+                    col4:
+                    "number of events" { it.numberOfEvents }
+                    col5:
+                    "number of records" { it.recordCount }
+                })
+
+                results.each { e -> csv << e }
+            } else {
+                response.writer.write("\"year-month\",\"year\",\"month\",\"number of events\",\"number of records\"")
+            }
+
+            response.writer.flush()
         }
     }
 
@@ -368,19 +435,24 @@ class LoggerController {
 
     /**
      * Requests are in the format /{entityUid}/events/{eventId}/counts.
-     *
-     * Example request: <pre>.../logger/dr143/events/1024/counts.json</pre>
+     *  <p/>
+     *  Optional param:
+     *  <ul>
+     *    <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;). Optional. If not provided, all reasons will be included
+     *  </ul>
+     *  Example request: <pre>.../logger/dr143/events/1024/counts.json</pre>
      */
     def getEntityBreakdown() {
         use(TimeCategory) {
             Date nextMonth = (new Date() + 1.month)
             nextMonth.set([date: 1])
+            Integer excludeReasonTypeId = params.int("excludeReasonTypeId")
 
             def results = [:]
-            results << ["all": getEntityBreakdownForPeriod(params.eventId, params.entityUid, null, null)]
-            results << ["last3Months": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth)]
-            results << ["thisMonth": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth)]
-            results << ["lastYear": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth)]
+            results << ["all": getEntityBreakdownForPeriod(params.eventId, params.entityUid, null, null, excludeReasonTypeId)]
+            results << ["last3Months": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 3.months, nextMonth, excludeReasonTypeId)]
+            results << ["thisMonth": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 1.month, nextMonth, excludeReasonTypeId)]
+            results << ["lastYear": getEntityBreakdownForPeriod(params.eventId, params.entityUid, nextMonth - 12.months, nextMonth, excludeReasonTypeId)]
 
             render results as JSON
         }
@@ -423,7 +495,9 @@ class LoggerController {
      * @return all log reason types in JSON format
      */
     def getReasonTypes() {
-        render loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id, deprecated: k.isDeprecated]}) as JSON
+        def json = loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id, deprecated: k.isDeprecated]}) as JSON
+        log.debug "getReasonTypes = ${json}"
+        render json
     }
 
     /**
@@ -483,8 +557,8 @@ class LoggerController {
     }
 
     // returns a triple of [totalEvents | totalRecords | sourceBreakdown] for the requested period.
-    private def getSourceBreakdownForPeriod(eventTypeId, entityUid, from, to, sourceMap) {
-        def sourceSummary = loggerService.getEventsSourceBreakdown(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"))
+    private def getSourceBreakdownForPeriod(eventTypeId, entityUid, from, to, sourceMap, Integer excludeReasonTypeId ) {
+        def sourceSummary = loggerService.getEventsSourceBreakdown(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"), excludeReasonTypeId)
 
         def grouped = sourceMap.collectEntries { k, v -> [(v): ["events": 0, "records": 0]] }
                 .withDefault { ["events": 0, "records": 0] }
@@ -506,8 +580,8 @@ class LoggerController {
     }
 
     // returns a tuple of [totalEvents | totalRecords] for the requested period.
-    private def getEntityBreakdownForPeriod(eventTypeId, entityUid, from, to) {
-        def entitySummary = loggerService.getLogEventsByEntity(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"))
+    private def getEntityBreakdownForPeriod(eventTypeId, entityUid, from, to, excludeReasonTypeId) {
+        def entitySummary = loggerService.getLogEventsByEntity(eventTypeId as int, entityUid, from?.format("yyyyMM"), to?.format("yyyyMM"), excludeReasonTypeId)
 
         def totalEvents = 0
         def totalRecords = 0

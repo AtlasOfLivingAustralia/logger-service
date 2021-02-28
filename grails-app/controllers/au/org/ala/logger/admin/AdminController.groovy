@@ -6,7 +6,7 @@ import au.org.ala.web.AlaSecured
 class AdminController {
 
     def index () {
-
+        render(view: "admin")
     }
 
 }

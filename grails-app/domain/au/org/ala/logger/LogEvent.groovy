@@ -4,9 +4,9 @@ import grails.converters.JSON
 import groovy.transform.EqualsAndHashCode
 import groovy.transform.ToString
 
-@ToString
-@EqualsAndHashCode
-class LogEvent implements Serializable {
+@ToString(excludes="logDetails")
+@EqualsAndHashCode(excludes="logDetails")
+class LogEvent {
 
     String sourceUrl
     String comment
@@ -56,7 +56,7 @@ class LogEvent implements Serializable {
     }
 
     def toJSON() {
-        def details = logDetails?.collect({ k -> k.toJSON() })
+        def details = logDetails?.collect({ LogDetail k -> k.toJSON() })
 
         [logEvent: [logDetails     : details,
                     created        : dateCreated?.getTime(),
