@@ -70,7 +70,8 @@ dependencies {
     // Third-party plugins
     compile 'org.grails.plugins:external-config:1.1.1'
     compile 'org.grails.plugins:csv:1.0.1'
-    runtime "mysql:mysql-connector-java:5.1.42"
+    //runtime "mysql:mysql-connector-java:5.1.42"
+    runtime "mysql:mysql-connector-java:8.0.23"
 
     // ALA deps
     compile "au.org.ala:ala-logger:1.4.1"
