@@ -67,3 +67,6 @@ collectoryUrl = "https://collections.ala.org.au"
 grails.hibernate.pass.readonly = false
 // configure passing read-only to OSIV session by default, requires "singleSession = false" OSIV mode
 grails.hibernate.osiv.readonly = false
+
+// We need to override the System message data dir path (assumes it will be logger-service via ${Metadata.current.getApplicationName()})
+ala.admin.systemMessage.path = "/data/logger/config"
