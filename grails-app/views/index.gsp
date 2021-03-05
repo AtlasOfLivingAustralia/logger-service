@@ -3,6 +3,7 @@
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="layout" content="${grailsApplication.config.skin.layout}" />
+	<meta name="breadcrumb" content="Logger Service" />
 	<title>Logger service | ${grailsApplication.config.skin.orgNameLong}</title>
 	<style type="text/css">
 		span.file-type-icon {

@@ -6,12 +6,9 @@
     <title>User report download | Logger service |  ${grailsApplication.config.skin.orgNameLong}</title>
 </head>
 <body>
-<div class="jumbotron">
-    <div class="container">
-        <h1>User report download</h1>
-    </div>
-</div>
 <div class="container">
+    <h1>User report download</h1>
+
     <p class="lead">
         Below is a list of reporting services that return JSON or CSV.
     </p>
@@ -31,7 +28,7 @@
             <input id="months" name="months" class="input-large" type="text" value=""/>
         </p>
 
-        <button type="submit" class="btn btn-primary"> <i class="fa-download"></i> Download </button>
+        <button type="submit" class="btn btn-primary"><i class="glyphicon glyphicon-save"></i> Download </button>
     </g:form>
 </div>
 </body>

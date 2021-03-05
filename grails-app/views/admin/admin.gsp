@@ -19,8 +19,8 @@
     <li><a href="${request.contextPath}/service/logger/events">/service/logger/events</a></li>
     <li><a href="${request.contextPath}/service/logger/sources">/service/logger/sources</a></li>
     <li><a href="${request.contextPath}/service/logger/1">/service/logger/1</a></li>
-    <li><a href="${request.contextPath}/service/logger/logEvent/1">/service/logger/logEvent/1</a></li>
-    <li><a href="${request.contextPath}/service/logger/get.json?q=dr143&eventTypeId=1&year=2014">/service/logger/get.json?q=dr143&eventTypeId=1&year=2014</a></li>
+%{--    <li><a href="${request.contextPath}/service/logger/logEvent/1">/service/logger/logEvent/1</a></li>--}%
+    <li><a href="${request.contextPath}/service/logger/get.json?q=dr143&eventTypeId=1&year=2021">/service/logger/get.json?q=dr143&eventTypeId=1&year=2021</a></li>
     <li><a href="${request.contextPath}/service/reasonBreakdownCSV?entityUid=dr143&eventId=1">/service/reasonBreakdownCSV?entityUid=dr143&eventId=1</a></li>
     <li><a href="${request.contextPath}/service/reasonBreakdown?entityUid=dr143&eventId=1">/service/reasonBreakdown?entityUid=dr143&eventId=1</a></li>
     <li><a href="${request.contextPath}/service/reasonBreakdownMonthly?entityUid=dr143&eventId=1&reasonId=1">/service/reasonBreakdownMonthly?entityUid=dr143&eventId=1&reasonId=1</a></li>
