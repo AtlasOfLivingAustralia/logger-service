@@ -31,7 +31,8 @@ class LoggerController {
      * @return JSON representation of the new log record.
      */
     def save() {
-        String ip = request.getHeader(X_FORWARDED_FOR_HEADER) ?: request.getRemoteAddr();
+        String ip = request.getHeader(X_FORWARDED_FOR_HEADER) ?: request.getRemoteAddr()
+        ip = ip.tokenize(", ")[0] // Sometimes see 2 IP addresses like '3.105.55.111, 3.105.55.111' - grab first value
         log.debug("Received log event from remote host ${request.getRemoteHost()} with ip address ${ip}")
 
         String userAgent = request.getHeader(USER_AGENT_HEADER) ?: "MOZILLA 5.0"
