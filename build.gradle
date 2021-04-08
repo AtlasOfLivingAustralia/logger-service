@@ -6,8 +6,9 @@ buildscript {
     }
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "org.grails.plugins:hibernate5:${gormVersion-".RELEASE"}"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:2.15.1"
+        classpath "org.grails.plugins:hibernate5:${gormVersion}"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.2.4"
+        classpath "gradle.plugin.com.energizedwork.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
     }
 }
 
@@ -24,6 +25,7 @@ apply plugin:"war"
 apply plugin:"org.grails.grails-web"
 apply plugin:"asset-pipeline"
 apply plugin:"org.grails.grails-gsp"
+apply plugin:"com.energizedwork.webdriver-binaries"
 
 apply from: 'https://raw.githubusercontent.com/AtlasOfLivingAustralia/travis-build-configuration/master/travis_grails_publish.gradle'
 
@@ -66,10 +68,15 @@ dependencies {
     testCompile "org.grails:grails-gorm-testing-support"
     testCompile "org.grails.plugins:geb"
     testCompile "org.grails:grails-web-testing-support"
-    testCompile "org.grails.plugins:geb:1.1.2"
-    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
     testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:2.47.1"
+    testCompile "org.grails.plugins:geb"
+    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion"
+    testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testRuntime "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+    testCompile "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
 
     // Third-party plugins
     compile 'org.grails.plugins:external-config:1.1.1'
@@ -86,7 +93,7 @@ dependencies {
 
 bootRun {
     jvmArgs('-Dspring.output.ansi.enabled=always')
-    addResources = true
+    sourceResources sourceSets.main
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
 }
