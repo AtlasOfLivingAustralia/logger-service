@@ -152,7 +152,7 @@ class LoggerController {
      * @return breakdown of log events by reason in JSON format
      */
     def getSourceBreakdown() {
-        if (!params.eventId) {
+        if (!params.eventId || !params.entityUid) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             use(TimeCategory) {
