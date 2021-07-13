@@ -29,7 +29,7 @@ class EventSummaryBreakdownReasonSourceEntity implements Serializable {
         table "event_summary_breakdown_reason_entity_source"
         version false
 
-        id generator: "assigned", composite: ["month", "logEventTypeId", "logReasonTypeId", "entityUid"]
+        id generator: "assigned", composite: ["month", "logEventTypeId", "logReasonTypeId", "entityUid", "logSourceTypeId"]
 
         month column: "month"
         logEventTypeId column: "log_event_type_id"
