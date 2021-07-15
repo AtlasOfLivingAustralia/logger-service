@@ -285,7 +285,7 @@ class LoggerController {
      */
     def getReasonBreakdownByMonth() {
         if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId and/or entityUid")
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId parameter")
         } else {
             def results
 
