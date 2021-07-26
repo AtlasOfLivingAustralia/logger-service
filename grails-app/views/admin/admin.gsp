@@ -45,11 +45,21 @@
     <li><a href="${request.contextPath}/admin/logReasonType">Log Reason Types</a></li>
     <li><a href="${request.contextPath}/admin/logSourceType">Log Source Types</a></li>
     <li><a href="${request.contextPath}/admin/remoteAddress">Remote Addresses</a></li>
-    <li><a href="${request.contextPath}/admin/eventSummaryTotal">Event Summary Totals</a></li>
-    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmail">Event Summary Breakdown by Email</a></li>
-    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmailEntity">Event Summary Breakdown by Email and Entity</a></li>
-    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReason">Event Summary Breakdown by Reason</a></li>
-    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReasonEntity">Event Summary Breakdown by Reason and Entity</a></li>
+  </ul>
+
+  <p> Following are not working for now</p>
+  <ul>
+    <li>Event Summary Totals</li>
+    <li>Event Summary Breakdown by Email</li>
+    <li>Event Summary Breakdown by Email and Entity</li>
+    <li>Event Summary Breakdown by Reason</li>
+    <li>Event Summary Breakdown by Reason and Entity</li>
+
+%{--    <li><a href="${request.contextPath}/admin/eventSummaryTotal">Event Summary Totals</a></li>--}%
+%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmail">Event Summary Breakdown by Email</a></li>--}%
+%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmailEntity">Event Summary Breakdown by Email and Entity</a></li>--}%
+%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReason">Event Summary Breakdown by Reason</a></li>--}%
+%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReasonEntity">Event Summary Breakdown by Reason and Entity</a></li>--}%
   </ul>
 
 
