@@ -401,12 +401,12 @@ th:hover, tr:hover {
 /* ACTION BUTTONS */
 
 .buttons {
-    background-color: #efefef;
+    /*background-color: #efefef;*/
     overflow: hidden;
     padding: 0.3em;
-    -moz-box-shadow: 0 0 3px 1px #aaaaaa;
-    -webkit-box-shadow: 0 0 3px 1px #aaaaaa;
-    box-shadow: 0 0 3px 1px #aaaaaa;
+    /*-moz-box-shadow: 0 0 3px 1px #aaaaaa;*/
+    /*-webkit-box-shadow: 0 0 3px 1px #aaaaaa;*/
+    /*box-shadow: 0 0 3px 1px #aaaaaa;*/
     margin: 0.1em 0 0 0;
     border: none;
 }
