@@ -263,15 +263,9 @@ class LoggerService {
     def getLogEventsBySource(eventTypeId, entityUid) {
         log.debug("Listing all events by reason for eventTypeId ${eventTypeId} and entityUid ${entityUid}")
 
-        assert eventTypeId, "eventTypeId is a mandatory parameter"
-        List logEventsBySource
+        assert eventTypeId && entityUid, "eventTypeId and entityUid are both mandatory parameters"
 
-        if (entityUid) {
-            logEventsBySource = EventSummaryBreakdownReasonSourceEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
-        } else {
-            logEventsBySource = EventSummaryBreakdownReasonSourceEntity.findAllByLogEventTypeId(eventTypeId, [sort: "month", order: "desc"])
-        }
-
+        def logEventsBySource = EventSummaryBreakdownReasonSourceEntity.findAllByLogEventTypeIdAndEntityUid(eventTypeId, entityUid, [sort: "month", order: "desc"])
         logEventsBySource
     }
 
@@ -306,7 +300,7 @@ class LoggerService {
      * Retrieve a breakdown of log events grouped by source type
      *
      * @param eventTypeId The event type to search for. Mandatory.
-     * @param entityUid The entity to search for. Optional.
+     * @param entityUid The entity to search for. Mandatory.
      * @param fromDate The first year/month (yyyyMM) in the range to search for. Inclusive.
      * @param toDate The last year/month (yyyyMM) in the range to search for. Exclusive.
      * @param excludeReasonTypeId The logReasonTypeId to exclude from results (usually &quot;testing&quot;)
@@ -316,7 +310,7 @@ class LoggerService {
         log.debug("Summarising events by reason, with eventTypeId = ${eventTypeId}, entityUid = ${entityUid}, " +
                 "fromDate = ${fromDate} and toDate = ${toDate} and excludeReasonTypeId = ${excludeReasonTypeId}")
 
-        assert eventTypeId, "eventTypeId is a mandatory parameter"
+        assert eventTypeId && entityUid, "eventTypeId and entityUid are both mandatory parameters"
 
         def result = getBreakdown(eventTypeId,
                 entityUid,

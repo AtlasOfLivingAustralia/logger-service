@@ -152,7 +152,7 @@ class LoggerController {
      * @return breakdown of log events by reason in JSON format
      */
     def getSourceBreakdown() {
-        if (!params.eventId) {
+        if (!params.eventId || !params.entityUid) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             use(TimeCategory) {
@@ -231,8 +231,8 @@ class LoggerController {
      * @return all log events for the specified eventType and entity in CSV format
      */
     def getSourceBreakdownCSV() {
-        if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
+        if (!params.eventId || !params.entityUid) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             Map<Integer, String> sourceMap = getSourceMap()
             Map<Integer, String> reasonMap = getReasonMap()
@@ -240,7 +240,7 @@ class LoggerController {
             def results = loggerService.getLogEventsBySource(params.eventId, params.entityUid)
 
             response.contentType = "text/csv"
-            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-source-${params.entityUid?:'all'}.csv\"")
+            response.addHeader("Content-Disposition", "attachment; filename=\"downloads-by-source-${params.entityUid}.csv\"")
 
             if (results) {
                 def csv = new CSVWriter(response.writer, {
@@ -285,7 +285,7 @@ class LoggerController {
      */
     def getReasonBreakdownByMonth() {
         if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId and/or entityUid")
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId parameter")
         } else {
             def results
 
