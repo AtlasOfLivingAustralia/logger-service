@@ -1,11 +1,6 @@
 package au.org.ala.logger
 
-import groovy.transform.EqualsAndHashCode
-import groovy.transform.ToString
-
-@EqualsAndHashCode
-@ToString
-class LogDetail {
+class LogDetail implements Serializable {
 
     String entityType;
     String entityUid;
