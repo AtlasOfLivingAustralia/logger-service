@@ -18,6 +18,9 @@ import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.context.request.RequestContextHolder
 import spock.lang.Specification
 
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+
 /**
  * This test performs a simple 'happy scenario' test against each method of the LoggerController to ensure basic
  * end to end functionality is working
@@ -42,7 +45,6 @@ class BasicHealthCheckSpec extends Specification {
     private twoYearsAgo
 
     def setup() {
-
         MockHttpServletRequest request = new   GrailsMockHttpServletRequest(ctx.servletContext)
         MockHttpServletResponse response = new GrailsMockHttpServletResponse()
         GrailsWebMockUtil.bindMockWebRequest(ctx, request, response)
@@ -50,10 +52,10 @@ class BasicHealthCheckSpec extends Specification {
         currentRequestAttributes.setControllerName(controllerName)
 
         use(TimeCategory) {
-            thisMonth = new Date().format("yyyyMM")
-            twoMonthsAgo = (new Date() - 2.months).format("yyyyMM")
-            lastYear = (new Date() - 10.months).format("yyyyMM")
-            twoYearsAgo = (new Date() - 2.years).format("yyyyMM")
+            thisMonth = getYearnMonth(new Date())
+            twoMonthsAgo = getYearnMonth(new Date() - 2.months)
+            lastYear = getYearnMonth(new Date() - 10.months)
+            twoYearsAgo = getYearnMonth(new Date() - 2.years)
         }
     }
 
@@ -71,7 +73,7 @@ class BasicHealthCheckSpec extends Specification {
 
     def "POST to /logger with a valid request should create a record"() {
         new LogEventType(id: 1000, name: "event1").save(flush:true)
-        new LogReasonType(id: 10, name: "event1", rkey: "rkey1", defaultOrder: 10).save(flush:true)
+        new LogReasonType(id: 10, name: "reason1", rkey: "rkey1", defaultOrder: 10).save(flush:true)
         new LogSourceType(id: 1, name: "source1").save(flush:true)
 
         //def controller = new LoggerController()
@@ -325,5 +327,16 @@ class BasicHealthCheckSpec extends Specification {
         assert controller.response.json.last3Months.numberOfEvents == 14 && controller.response.json.last3Months.numberOfEventItems == 50
         assert controller.response.json.lastYear.numberOfEvents == 27 && controller.response.json.lastYear.numberOfEventItems == 105
         assert controller.response.json.all.numberOfEvents == 44 && controller.response.json.all.numberOfEventItems == 180
+    }
+
+    /**
+     * Returns year and month of a Date
+     * @param inDate Date passed in
+     * @return String of yyyyMM
+     */
+    private String getYearnMonth(Date inDate) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMM")
+        String outDate = inDate? dateFormat.format(inDate) : inDate
+        outDate
     }
 }

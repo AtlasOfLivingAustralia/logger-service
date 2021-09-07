@@ -5,6 +5,8 @@ import grails.gorm.transactions.Transactional
 import org.ala.client.model.LogEventVO
 
 import javax.persistence.PersistenceException
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 class LoggerService {
 
@@ -508,7 +510,8 @@ class LoggerService {
         if (month != null && month.trim().length() > 3 && month.isInteger()) {
             month.trim();
         } else {
-            new Date().format("yyyyMM")
+            DateFormat dateFormat = new SimpleDateFormat("yyyyMM")
+            dateFormat.format(new Date())
         }
     }
 

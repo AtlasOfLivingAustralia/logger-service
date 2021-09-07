@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus
 import spock.lang.Specification
 
 import javax.persistence.PersistenceException
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 class LoggerControllerSpec extends Specification implements ControllerUnitTest<LoggerController> {
 
@@ -33,10 +35,10 @@ class LoggerControllerSpec extends Specification implements ControllerUnitTest<L
         loggerService.getAllReasonTypes() >> reasonTypes
 
         use(TimeCategory) {
-            thisMonth = new Date().format("yyyyMM")
-            nextMonth = (new Date() + 1.month).format("yyyyMM")
-            last3Months = (new Date() - 2.months).format("yyyyMM")
-            last12Months = (new Date() - 11.months).format("yyyyMM")
+            thisMonth = getYearnMonth(new Date())
+            nextMonth = getYearnMonth(new Date() + 1.month)
+            last3Months = getYearnMonth(new Date() - 2.months)
+            last12Months = getYearnMonth(new Date() - 11.months)
         }
     }
 
@@ -616,5 +618,16 @@ class LoggerControllerSpec extends Specification implements ControllerUnitTest<L
 
         then:
         assert response.text == """[{"rkey":"key1","name":"reason1","id":1,"deprecated":false},{"rkey":"key2","name":"reason2","id":2,"deprecated":false},{"rkey":"key3","name":"reason3","id":3,"deprecated":false}]"""
+    }
+
+    /**
+     * Returns year and month of a Date
+     * @param inDate Date passed in
+     * @return String of yyyyMM
+     */
+    private String getYearnMonth(Date inDate) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMM")
+        String outDate = inDate? dateFormat.format(inDate) : inDate
+        outDate
     }
 }
