@@ -54,17 +54,6 @@ publishing {
                     it.replaceNode {}
                 }
             }
-            from components.web
-//            if (bootJar && bootJar.enabled && bootJar.classifier) {
-//                def repackagedFile = file("$libsDir/$project.name-$project.version-${bootJar.classifier}.jar")
-//                if (repackagedFile.exists()) {
-//                    artifact(repackagedFile) {
-//                        classifier bootRepackage.classifier
-//                    }
-//                } else {
-//                    logger.quiet("Spring Boot repackage with classifier specified but file is not present!")
-//                }
-//            }
         }
     }
 }
@@ -135,7 +124,7 @@ dependencies {
     // ALA deps
     compile "au.org.ala:ala-logger:1.4.1"
     compile "org.grails.plugins:ala-auth:3.2.3" //, noCache
-    compile "org.grails.plugins:ala-bootstrap3:3.2.3" //, noCache
+    compile "org.grails.plugins:ala-bootstrap3:3.2.4" //, noCache
     compile "org.grails.plugins:ala-admin-plugin:2.2" //, noCache
 }
 
