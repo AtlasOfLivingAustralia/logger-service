@@ -35,10 +35,10 @@ class LoggerControllerSpec extends Specification implements ControllerUnitTest<L
         loggerService.getAllReasonTypes() >> reasonTypes
 
         use(TimeCategory) {
-            thisMonth = getYearnMonth(new Date())
-            nextMonth = getYearnMonth(new Date() + 1.month)
-            last3Months = getYearnMonth(new Date() - 2.months)
-            last12Months = getYearnMonth(new Date() - 11.months)
+            thisMonth = getYearAndMonth(new Date())
+            nextMonth = getYearAndMonth(new Date() + 1.month)
+            last3Months = getYearAndMonth(new Date() - 2.months)
+            last12Months = getYearAndMonth(new Date() - 11.months)
         }
     }
 
@@ -625,7 +625,7 @@ class LoggerControllerSpec extends Specification implements ControllerUnitTest<L
      * @param inDate Date passed in
      * @return String of yyyyMM
      */
-    private String getYearnMonth(Date inDate) {
+    private String getYearAndMonth(Date inDate) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMM")
         String outDate = inDate? dateFormat.format(inDate) : inDate
         outDate

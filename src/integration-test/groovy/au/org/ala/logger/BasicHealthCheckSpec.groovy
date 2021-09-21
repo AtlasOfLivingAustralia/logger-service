@@ -52,10 +52,10 @@ class BasicHealthCheckSpec extends Specification {
         currentRequestAttributes.setControllerName(controllerName)
 
         use(TimeCategory) {
-            thisMonth = getYearnMonth(new Date())
-            twoMonthsAgo = getYearnMonth(new Date() - 2.months)
-            lastYear = getYearnMonth(new Date() - 10.months)
-            twoYearsAgo = getYearnMonth(new Date() - 2.years)
+            thisMonth = getYearAndMonth(new Date())
+            twoMonthsAgo = getYearAndMonth(new Date() - 2.months)
+            lastYear = getYearAndMonth(new Date() - 10.months)
+            twoYearsAgo = getYearAndMonth(new Date() - 2.years)
         }
     }
 
@@ -334,7 +334,7 @@ class BasicHealthCheckSpec extends Specification {
      * @param inDate Date passed in
      * @return String of yyyyMM
      */
-    private String getYearnMonth(Date inDate) {
+    private String getYearAndMonth(Date inDate) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMM")
         String outDate = inDate? dateFormat.format(inDate) : inDate
         outDate

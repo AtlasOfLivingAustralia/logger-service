@@ -511,7 +511,7 @@ class LoggerController {
 
     // returns a triple of [totalEvents | totalRecords | emailBreakdown] for the requested period.
     private def getEmailBreakdownForPeriod(eventTypeId, entityUid, from, to) {
-        def emailSummary = loggerService.getEventsEmailBreakdown(eventTypeId as int, entityUid, getYearnMonth(from), getYearnMonth(to))
+        def emailSummary = loggerService.getEventsEmailBreakdown(eventTypeId as int, entityUid, getYearAndMonth(from), getYearAndMonth(to))
 
         def grouped = EMAIL_CATEGORIES.collectEntries { v -> [(v): ["events": 0, "records": 0]] }
 
@@ -533,7 +533,7 @@ class LoggerController {
 
     // returns a triple of [totalEvents | totalRecords | reasonBreakdown] for the requested period.
     private def getReasonBreakdownForPeriod(eventTypeId, entityUid, from, to, reasonMap) {
-        def reasonSummary = loggerService.getEventsReasonBreakdown(eventTypeId as int, entityUid, getYearnMonth(from), getYearnMonth(to))
+        def reasonSummary = loggerService.getEventsReasonBreakdown(eventTypeId as int, entityUid, getYearAndMonth(from), getYearAndMonth(to))
 
         def grouped = reasonMap.collectEntries { k, v -> [(v): ["events": 0, "records": 0]] }
                 .withDefault { ["events": 0, "records": 0] }
@@ -556,7 +556,7 @@ class LoggerController {
 
     // returns a triple of [totalEvents | totalRecords | sourceBreakdown] for the requested period.
     private def getSourceBreakdownForPeriod(eventTypeId, entityUid, from, to, sourceMap, Integer excludeReasonTypeId ) {
-        def sourceSummary = loggerService.getEventsSourceBreakdown(eventTypeId as int, entityUid, getYearnMonth(from), getYearnMonth(to), excludeReasonTypeId)
+        def sourceSummary = loggerService.getEventsSourceBreakdown(eventTypeId as int, entityUid, getYearAndMonth(from), getYearAndMonth(to), excludeReasonTypeId)
 
         def grouped = sourceMap.collectEntries { k, v -> [(v): ["events": 0, "records": 0]] }
                 .withDefault { ["events": 0, "records": 0] }
@@ -579,7 +579,7 @@ class LoggerController {
 
     // returns a tuple of [totalEvents | totalRecords] for the requested period.
     private def getEntityBreakdownForPeriod(eventTypeId, entityUid, from, to, excludeReasonTypeId) {
-        def entitySummary = loggerService.getLogEventsByEntity(eventTypeId as int, entityUid, getYearnMonth(from), getYearnMonth(to), excludeReasonTypeId)
+        def entitySummary = loggerService.getLogEventsByEntity(eventTypeId as int, entityUid, getYearAndMonth(from), getYearAndMonth(to), excludeReasonTypeId)
 
         def totalEvents = 0
         def totalRecords = 0
@@ -630,7 +630,7 @@ class LoggerController {
      * @param inDate Date passed in
      * @return String of yyyyMM
      */
-    private String getYearnMonth(Date inDate) {
+    private String getYearAndMonth(Date inDate) {
         DateFormat dateFormat = new SimpleDateFormat("yyyyMM")
         String outDate = inDate? dateFormat.format(inDate) : inDate
         outDate
