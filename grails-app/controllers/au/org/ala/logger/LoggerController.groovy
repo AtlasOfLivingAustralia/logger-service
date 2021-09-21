@@ -111,7 +111,6 @@ class LoggerController {
      * <ul>
      * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.</li>
      * <li>entityUid - the entityUid to query on. Optional.</li>
-     * <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;)</li>
      * </ul>
      * <p/>
      * Example url: <pre>.../logger/getReasonBreakdown?eventId=1002&entityUid=in4</pre>
@@ -123,7 +122,6 @@ class LoggerController {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             use(TimeCategory) {
-                Integer excludeReasonTypeId = params.int("excludeReasonTypeId")
                 Date nextMonth = nextMonth()
 
                 Map<Integer, String> reasonMap = getReasonMap()
