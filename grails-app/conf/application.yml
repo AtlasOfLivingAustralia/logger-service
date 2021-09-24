@@ -28,20 +28,15 @@ spring:
             check-template-location: false
     jmx:
         unique-names: true
+    management:
+        endpoints:
+            enabled-by-default: false
     devtools:
         restart:
             exclude:
                 - grails-app/views/**
                 - grails-app/i18n/**
                 - grails-app/conf/**
-
-# Spring Actuator Endpoints are Disabled by Default
-endpoints:
-    enabled: true
-    jmx:
-        enabled: true
-        unique-names: true
-
 ---
 grails:
     mime:
