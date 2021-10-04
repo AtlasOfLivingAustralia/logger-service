@@ -1,6 +1,5 @@
 package au.org.ala.logger
 
-import grails.converters.JSON
 import grails.gorm.transactions.Transactional
 import org.ala.client.model.LogEventVO
 
