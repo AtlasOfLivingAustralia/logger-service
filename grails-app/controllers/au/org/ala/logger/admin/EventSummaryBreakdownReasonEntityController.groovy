@@ -8,4 +8,14 @@ class EventSummaryBreakdownReasonEntityController {
 
     static scaffold = EventSummaryBreakdownReasonEntity
 
+    def index() {
+        params.offset = params.offset ?: 0
+        params.max = params.max ?: 10
+        def model = [summarylList: EventSummaryBreakdownReasonEntity.list(params),
+                     summaryTotalCount: EventSummaryBreakdownReasonEntity.count(),
+                     columns: ["month", "logEventTypeId", "logReasonTypeId", "entityUid", "numberOfEvents", "recordCount"],
+                     entityName: "EventSummaryBreakdownReasonEntity"]
+        render(view: '/summaryIndex', model: model)
+    }
+
 }

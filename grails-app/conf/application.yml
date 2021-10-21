@@ -26,14 +26,17 @@ spring:
     groovy:
         template:
             check-template-location: false
-
-# Spring Actuator Endpoints are Disabled by Default
-endpoints:
-    enabled: true
     jmx:
-        enabled: true
         unique-names: true
-
+    devtools:
+        restart:
+            exclude:
+                - grails-app/views/**
+                - grails-app/i18n/**
+                - grails-app/conf/**
+management:
+    endpoints:
+        enabled-by-default: false
 ---
 grails:
     mime:
@@ -86,9 +89,25 @@ grails:
                 scriptlets: html
                 taglib: none
                 staticparts: none
-endpoints:
-    jmx:
-        unique-names: true
+---
+headerAndFooter:
+    baseURL: "https://www.ala.org.au/commonui-bs3-2019"
+    version: "2"
+
+skin:
+    layout: "main"
+    orgNameLong: "Atlas of Living Australia"
+    orgNameShort: "ALA"
+    orgSupportEmail: support@ala.org.au
+privacyPolicy: "https://www.ala.org.au/terms-of-use/privacy-policy/"
+siteDefaultLanguage: "en"
+
+security:
+    cas:
+        adminRole: ROLE_ADMIN
+        uriFilterPattern:
+            - "/admin/*"
+            - "/alaAdmin/*"
 
 ---
 hibernate:
@@ -99,33 +118,42 @@ hibernate:
 dataSource:
     pooled: true
     jmxExport: true
-    driverClassName: org.h2.Driver
-    username: sa
-    password: ''
+    driverClassName: com.mysql.cj.jdbc.Driver
+    dialect: org.hibernate.dialect.MySQL8Dialect
+    username: root
+    password: 'password'
 
 environments:
     development:
         grails:
-            serverURL: "http://dev.ala.org.au:8080/logger-service"
+            serverURL: "http://dev.ala.org.au:8080"
         dataSource:
-            #dialect: org.hibernate.dialect.H2Dialect
-            dbCreate: create-drop
-            url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
+            dbCreate: update
+            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
+            username: "logger"
+            password: "password"
         security:
             cas:
                 appServerName: "http://dev.ala.org.au"
-
     test:
+        grails:
+            serverURL: "https://logger-test.ala.org.au"
         dataSource:
             dialect: org.hibernate.dialect.H2Dialect
             dbCreate: create-drop
-            url: jdbc:h2:mem:devDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
-        security:
-                cas:
-                    appServerName: "http://dev.ala.org.au"
-    production:
+            driverClassName: org.h2.Driver
+            url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
         security:
             cas:
-                appServerName: "http://dev.ala.org.au"
+                appServerName: "https://logger-test.ala.org.au"
+    production:
+        grails:
+            serverURL: "https://logger.ala.org.au"
+        dataSource:
+            dbCreate: none
+            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
+        security:
+            cas:
+                appServerName: "https://logger.ala.org.au"
 
 

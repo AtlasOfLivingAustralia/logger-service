@@ -19,7 +19,6 @@
     <li><a href="${request.contextPath}/service/logger/events">/service/logger/events</a></li>
     <li><a href="${request.contextPath}/service/logger/sources">/service/logger/sources</a></li>
     <li><a href="${request.contextPath}/service/logger/1">/service/logger/1</a></li>
-%{--    <li><a href="${request.contextPath}/service/logger/logEvent/1">/service/logger/logEvent/1</a></li>--}%
     <li><a href="${request.contextPath}/service/logger/get.json?q=dr143&eventTypeId=1&year=2021">/service/logger/get.json?q=dr143&eventTypeId=1&year=2021</a></li>
     <li><a href="${request.contextPath}/service/reasonBreakdownCSV?entityUid=dr143&eventId=1">/service/reasonBreakdownCSV?entityUid=dr143&eventId=1</a></li>
     <li><a href="${request.contextPath}/service/reasonBreakdown?entityUid=dr143&eventId=1">/service/reasonBreakdown?entityUid=dr143&eventId=1</a></li>
@@ -45,24 +44,13 @@
     <li><a href="${request.contextPath}/admin/logReasonType">Log Reason Types</a></li>
     <li><a href="${request.contextPath}/admin/logSourceType">Log Source Types</a></li>
     <li><a href="${request.contextPath}/admin/remoteAddress">Remote Addresses</a></li>
+
+    <li><a href="${request.contextPath}/admin/eventSummaryTotal">Event Summary Totals</a></li>
+    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmail">Event Summary Breakdown by Email</a></li>
+    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmailEntity">Event Summary Breakdown by Email and Entity</a></li>
+    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReason">Event Summary Breakdown by Reason</a></li>
+    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReasonEntity">Event Summary Breakdown by Reason and Entity</a></li>
   </ul>
-
-  <p> Following are not working for now</p>
-  <ul>
-    <li>Event Summary Totals</li>
-    <li>Event Summary Breakdown by Email</li>
-    <li>Event Summary Breakdown by Email and Entity</li>
-    <li>Event Summary Breakdown by Reason</li>
-    <li>Event Summary Breakdown by Reason and Entity</li>
-
-%{--    <li><a href="${request.contextPath}/admin/eventSummaryTotal">Event Summary Totals</a></li>--}%
-%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmail">Event Summary Breakdown by Email</a></li>--}%
-%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownEmailEntity">Event Summary Breakdown by Email and Entity</a></li>--}%
-%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReason">Event Summary Breakdown by Reason</a></li>--}%
-%{--    <li><a href="${request.contextPath}/admin/eventSummaryBreakdownReasonEntity">Event Summary Breakdown by Reason and Entity</a></li>--}%
-  </ul>
-
-
 
 </div>
 </body>

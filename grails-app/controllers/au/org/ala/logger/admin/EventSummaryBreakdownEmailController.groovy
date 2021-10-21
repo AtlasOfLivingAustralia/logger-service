@@ -8,4 +8,13 @@ class EventSummaryBreakdownEmailController {
 
     static scaffold = EventSummaryBreakdownEmail
 
+    def index() {
+        params.offset = params.offset ?: 0
+        params.max = params.max ?: 10
+        def model = [summarylList: EventSummaryBreakdownEmail.list(params),
+                     summaryTotalCount: EventSummaryBreakdownEmail.count(),
+                     columns: ["month", "logEventTypeId", "userEmailCategory", "numberOfEvents", "recordCount"],
+                     entityName: "EventSummaryBreakdownEmail"]
+        render(view: '/summaryIndex', model: model)
+    }
 }
