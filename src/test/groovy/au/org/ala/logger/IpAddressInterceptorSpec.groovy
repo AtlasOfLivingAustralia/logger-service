@@ -17,7 +17,9 @@ import grails.testing.gorm.DataTest
 import grails.testing.web.interceptor.InterceptorUnitTest
 import org.springframework.http.HttpStatus
 import spock.lang.Specification
+import spock.lang.Unroll
 
+@Unroll
 class IpAddressInterceptorSpec2 extends Specification implements  InterceptorUnitTest<IpAddressInterceptor>, DataTest {
     def VALID_ADDRESS = "1.1.1.1"
     def INVALID_ADDRESS = "0.0.0.0"
@@ -65,7 +67,7 @@ class IpAddressInterceptorSpec2 extends Specification implements  InterceptorUni
     void "IpAddressFilter should reject unrecognised request.remoteAddr IP addresses for sensitive actions"() {
         when:
         request.remoteAddr = INVALID_ADDRESS
-        request.parameters = ["id": "1","eventId": "1"] // needed for getReasonBreakdown()
+        request.parameters = ["id": "1", "eventId": "1", "entityUid": "in4"] // needed for getReasonBreakdown()
         //withRequest(controller: controller, action: action)
         withInterceptors([controller: "logger"]) {
             controller."${action}"()
@@ -96,7 +98,7 @@ class IpAddressInterceptorSpec2 extends Specification implements  InterceptorUni
     def "IpAddressFilter should reject unrecognised X-Forwarded-For IP addresses for sensitive actions"() {
         when:
         request.addHeader("X-Forwarded-For", INVALID_ADDRESS)
-        request.parameters = ["id": "1","eventId": "1"] // needed for getReasonBreakdown()
+        request.parameters = ["id": "1", "eventId": "1", "entityUid": "in4"] // needed for getReasonBreakdown()
 
         withInterceptors([controller: "logger"]) {
             controller."${action}"()

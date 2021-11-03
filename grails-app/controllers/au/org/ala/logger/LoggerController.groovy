@@ -110,7 +110,7 @@ class LoggerController {
      * The request is expected to have the following parameters:
      * <ul>
      * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.</li>
-     * <li>entityUid - the entityUid to query on. Optional.</li>
+     * <li>entityUid - the entityUid to query on. Mandatory.</li>
      * </ul>
      * <p/>
      * Example url: <pre>.../logger/getReasonBreakdown?eventId=1002&entityUid=in4</pre>
@@ -118,7 +118,7 @@ class LoggerController {
      * @return breakdown of log events by reason in JSON format
      */
     def getReasonBreakdown() {
-        if (!params.eventId) {
+        if (!params.eventId || !params.entityUid) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             use(TimeCategory) {
@@ -143,7 +143,7 @@ class LoggerController {
      * The request is expected to have the following parameters:
      * <ul>
      * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.</li>
-     * <li>entityUid - the entityUid to query on. Optional.</li>
+     * <li>entityUid - the entityUid to query on. Mandatory.</li>
      * <li>excludeReasonTypeId - the <code>logReasonTypeId</code> to exclude from results (usually &quot;testing&quot;)</li>
      * </ul>
      * <p/>
@@ -185,8 +185,8 @@ class LoggerController {
      * @return all log events for the specified eventType and entity in CSV format
      */
     def getReasonBreakdownCSV() {
-        if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
+        if (!params.eventId || !params.entityUid) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             Map<Integer, String> reasonMap = getReasonMap()
 
@@ -283,8 +283,8 @@ class LoggerController {
      * @return breakdown of log events by month in JSON format
      */
     def getReasonBreakdownByMonth() {
-        if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId parameter")
+        if (!params.eventId || !params.entityUid) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             def results
 
@@ -317,8 +317,8 @@ class LoggerController {
      * @return all log events for the specified eventType and entity in CSV format
      */
     def getReasonBreakdownByMonthCSV() {
-        if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId and/or entityUid")
+        if (!params.eventId || !params.entityUid) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             def results
 
@@ -363,7 +363,7 @@ class LoggerController {
      * The request is expected to have the following parameters:
      * <ul>
      * <li>eventId - the event<strong>Type</strong>Id to query on. Mandatory.
-     * <li>entityUid - the entityUid to query on. Optional.
+     * <li>entityUid - the entityUid to query on. Mandatory.
      * </ul>
      * <p/>
      * Example url: <pre>.../logger/getReasonBreakdown?eventId=1002&entityUid=in4</pre>
@@ -371,8 +371,8 @@ class LoggerController {
      * @return breakdown of log events by reason in JSON format
      */
     def getEmailBreakdown() {
-        if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing the eventId")
+        if (!params.eventId || !params.entityUid) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             use(TimeCategory) {
                 Date nextMonth = nextMonth()
@@ -401,8 +401,8 @@ class LoggerController {
      * @return all log events for the specified eventType and entity in CSV format
      */
     def getEmailBreakdownCSV() {
-        if (!params.eventId) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
+        if (!params.eventId || !params.entityUid) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
         } else {
             def results = loggerService.getLogEventsByEmail(params.eventId, params.entityUid)
 
