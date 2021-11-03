@@ -25,12 +25,11 @@ import org.springframework.http.HttpStatus
 import spock.lang.Shared
 import spock.lang.Specification
 
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+
 /**
- * This is a Grails 3.3 replacement for the BasicHealthCheckSPec tests
- *
- * Note: All GORM data is created via Bootstrap.groovy and not via setup()
- * This is due to the integration and tomcat JVMs running separately and thus
- * not saving data between them.
+ * Test rest functions
  */
 @Log4j
 @Integration(applicationClass = Application.class)
@@ -52,11 +51,27 @@ class RestFunctionalTestSpec extends Specification {
     }
 
     def setup() {
+        new RemoteAddress(ip: "1.1.1.1", hostName: "Valid 1").save(flush: true)
+
+        new EventSummaryBreakdownReasonEntity(entityUid: "dp123", logEventTypeId: 1000, month: "202102", numberOfEvents: 2, recordCount: 1984, logReasonTypeId: 1).save(flush: true)
+        new LogEventType(id: 1000, name: "type1").save(flush: true)
+        new LogEventType(id: 1001, name: "OCCURRENCE_RECORDS_VIEWED_ON_MAP").save(flush: true)
+        new LogEventType(id: 1002, name: "OCCURRENCE_RECORDS_DOWNLOADED").save(flush: true)
+        new LogEventType(id: 2000, name: "IMAGE_VIEWED").save(flush: true)
+
+        new LogReasonType(id: 0, name: "conservation management/planning", rkey: "logger.download.reason.conservation", defaultOrder: 1).save(flush: true)
+        new LogReasonType(id: 1, name: "biosecurity management, planning", rkey: "logger.download.reason.biosecurity", defaultOrder: 10).save(flush: true)
+        new LogReasonType(id: 10, name: "testing", rkey: "logger.download.reason.testing", defaultOrder: 100).save(flush: true)
+
+        new LogSourceType(id: 0, name: "ALA").save(flush: true)
+        new LogSourceType(id: 1, name: "OZCAM").save(flush: true)
+        new LogSourceType(id: 2, name: "AVH").save(flush: true)
+
         use(TimeCategory) {
-            thisMonth = new Date().format("yyyyMM")
-            twoMonthsAgo = (new Date() - 2.months).format("yyyyMM")
-            lastYear = (new Date() - 10.months).format("yyyyMM")
-            twoYearsAgo = (new Date() - 2.years).format("yyyyMM")
+            thisMonth = getYearAndMonth(new Date())
+            twoMonthsAgo = getYearAndMonth(new Date() - 2.months)
+            lastYear = getYearAndMonth(new Date() - 10.months)
+            twoYearsAgo = getYearAndMonth(new Date() - 2.years)
         }
     }
 
@@ -149,5 +164,16 @@ class RestFunctionalTestSpec extends Specification {
 
         then:
         assert json == """[{"name":"ALA","id":0},{"name":"OZCAM","id":1},{"name":"AVH","id":2}]"""
+    }
+
+    /**
+     * Returns year and month of a Date
+     * @param inDate Date passed in
+     * @return String of yyyyMM
+     */
+    private String getYearAndMonth(Date inDate) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMM")
+        String outDate = inDate? dateFormat.format(inDate) : inDate
+        outDate
     }
 }

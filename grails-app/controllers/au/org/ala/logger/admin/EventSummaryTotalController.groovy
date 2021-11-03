@@ -8,5 +8,13 @@ class EventSummaryTotalController {
 
     static scaffold = EventSummaryTotal
 
-
+    def index() {
+        params.offset = params.offset ?: 0
+        params.max = params.max ?: 10
+        def model = [summarylList: EventSummaryTotal.list(params),
+                     summaryTotalCount: EventSummaryTotal.count(),
+                     columns: ["month", "logEventTypeId", "numberOfEvents", "recordCount"],
+                     entityName: "EventSummaryTotal"]
+        render(view: '/summaryIndex', model: model)
+    }
 }
