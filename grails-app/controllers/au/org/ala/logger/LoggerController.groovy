@@ -118,8 +118,8 @@ class LoggerController {
      * @return breakdown of log events by reason in JSON format
      */
     def getReasonBreakdown() {
-        if (!params.eventId || !params.entityUid) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
+        if (!params.eventId) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
         } else {
             use(TimeCategory) {
                 Date nextMonth = nextMonth()
@@ -371,8 +371,8 @@ class LoggerController {
      * @return breakdown of log events by reason in JSON format
      */
     def getEmailBreakdown() {
-        if (!params.eventId || !params.entityUid) {
-            handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
+        if (!params.eventId) {
+            handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
         } else {
             use(TimeCategory) {
                 Date nextMonth = nextMonth()
