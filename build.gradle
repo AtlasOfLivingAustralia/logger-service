@@ -16,7 +16,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.2.3"
 }
 
-version "4.0.2-SNAPSHOT"
+version "4.0.3-SNAPSHOT"
 
 group "au.org.ala"
 
@@ -124,8 +124,8 @@ dependencies {
 
     // ALA deps
     compile "au.org.ala:ala-logger:1.4.1"
-    compile "org.grails.plugins:ala-auth:3.2.3" //, noCache
-    compile "org.grails.plugins:ala-bootstrap3:3.2.3" //, noCache
+    compile "org.grails.plugins:ala-auth:5.0.0-SNAPSHOT" //, noCache
+    compile "org.grails.plugins:ala-bootstrap3:4.0.1-SNAPSHOT" //, noCache
     compile "org.grails.plugins:ala-admin-plugin:2.2" //, noCache
 }
 

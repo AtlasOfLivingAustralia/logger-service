@@ -105,9 +105,7 @@ siteDefaultLanguage: "en"
 security:
     cas:
         adminRole: ROLE_ADMIN
-        uriFilterPattern:
-            - "/admin/*"
-            - "/alaAdmin/*"
+        uriFilterPattern: ["/admin/*", "/alaAdmin/*"]
 
 ---
 hibernate:
@@ -126,7 +124,7 @@ dataSource:
 environments:
     development:
         grails:
-            serverURL: "http://dev.ala.org.au:8080"
+            serverURL: "http://localhost:8080"
         dataSource:
             dbCreate: update
             url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
@@ -134,7 +132,7 @@ environments:
             password: "password"
         security:
             cas:
-                appServerName: "http://dev.ala.org.au"
+                appServerName: "http://localhost:8080"
     test:
         grails:
             serverURL: "http://dev.ala.org.au"
@@ -157,3 +155,34 @@ environments:
                 appServerName: "https://logger.ala.org.au"
 
 
+security:
+    cas:
+        enabled: false
+    oidc:
+        enabled: true
+        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
+        clientId: auth-dev-oidc-client-id
+        secret: u85789gnghdfb765
+        scope: openid,profile,email,ala,roles,user_defined
+    #        allowUnsignedIdTokens: true
+    jwt:
+        enabled: true
+        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
+        requiredClaims: ["sub", "iat", "exp", "jti", "client_id"]
+        fallbackToLegacyBehaviour: true
+
+openapi:
+    title: Logger REST services
+    description: REST services for interacting with the logger webapp
+    terms: https://www.ala.org.au/terms
+    contact:
+        name: Support
+        email: support@ala.org.au
+    license:
+        name: Mozilla Public License 1.1
+        url: https://www.mozilla.org/en-US/MPL/1.1/
+    version: '@info.app.version@'
+    cachetimeoutms: 0
+
+webservice:
+    jwt: true
