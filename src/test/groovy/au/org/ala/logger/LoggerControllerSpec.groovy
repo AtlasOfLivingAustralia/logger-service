@@ -11,7 +11,7 @@ import java.text.SimpleDateFormat
 
 class LoggerControllerSpec extends Specification implements ControllerUnitTest<LoggerController> {
 
-    final VALID_JSON_REQUEST = """{ "eventTypeId": 1000, "comment":"test comment", "userEmail" : "fred@somewhere.gov.au", "userIP": "123.123.123.123", "recordCounts" : { "uid1": 100, "uid2": 200,} }""";
+    def VALID_JSON_REQUEST = """{ "eventTypeId": 1000, "comment":"test comment", "userEmail" : "fred@somewhere.gov.au", "userIP": "123.123.123.123", "recordCounts" : { "uid1": 100, "uid2": 200,} }""";
 
     private LoggerController controller
     private LoggerService loggerService
