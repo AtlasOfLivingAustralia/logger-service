@@ -20,5 +20,6 @@ after_success:
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
   global:
-  - secure: dEUGIV/VsORNT9kwqW3I7MOcA73cCQ6rD7QSJZCLcWSjZgiOxzuj0VWXw8d1hr8pO8Vq0ZEmy1FKvUQvLK40Xmx4OEIahcxRSe+mNH7UkaGYQsU2cjBt3TjFenVvhJbeAXPRWk21PlAoVtCyoROOV1o9h+ju+iWyb3IQpVil+Hw=
-  - secure: TVqWHrvy/myQ16dnZT78eryZqbkmStOPMlxUNt8i4a/oa5EbbAssWsDT8NQODG+yY2HAhlPpS5BX9qhndSZ8MHAbDK1a7wvBKaBqxnCXiCQpXq9rZT9k5SB3BXUX/UrxKX7G6clWveQVBqqSdixA6H1dusksEObv76G5bgbT6tk=
+    - JAVA_TOOL_OPTIONS=-Dhttps.protocols=TLSv1.2
+    - secure: dEUGIV/VsORNT9kwqW3I7MOcA73cCQ6rD7QSJZCLcWSjZgiOxzuj0VWXw8d1hr8pO8Vq0ZEmy1FKvUQvLK40Xmx4OEIahcxRSe+mNH7UkaGYQsU2cjBt3TjFenVvhJbeAXPRWk21PlAoVtCyoROOV1o9h+ju+iWyb3IQpVil+Hw=
+    - secure: TVqWHrvy/myQ16dnZT78eryZqbkmStOPMlxUNt8i4a/oa5EbbAssWsDT8NQODG+yY2HAhlPpS5BX9qhndSZ8MHAbDK1a7wvBKaBqxnCXiCQpXq9rZT9k5SB3BXUX/UrxKX7G6clWveQVBqqSdixA6H1dusksEObv76G5bgbT6tk=
