@@ -3,6 +3,8 @@ package au.org.ala.logger
 import grails.converters.JSON
 import grails.plugins.csv.CSVWriter
 import org.ala.client.model.LogEventVO
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import groovy.time.*
 import java.text.DateFormat
@@ -492,6 +494,19 @@ class LoggerController {
      *
      * @return all log reason types in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Reason Types",
+            summary = "Get Reason Types",
+            description = "Get Reason Types",
+            responses = [
+                    @ApiResponse(
+                            description = "Get Reason Types",
+                            responseCode = "200"
+                    )
+            ]
+    )
     def getReasonTypes() {
         def json = loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id, deprecated: k.isDeprecated]}) as JSON
         log.debug "getReasonTypes = ${json}"
