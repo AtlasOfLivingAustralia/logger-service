@@ -2,13 +2,24 @@ package au.org.ala.logger
 
 import grails.converters.JSON
 import grails.plugins.csv.CSVWriter
+import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.parameters.RequestBody
 import org.ala.client.model.LogEventVO
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import groovy.time.*
+
+import javax.ws.rs.Consumes
+import javax.ws.rs.Path
+import javax.ws.rs.Produces
 import java.text.DateFormat
 import java.text.SimpleDateFormat
+
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.PATH
+import static io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY
 
 
 class LoggerController {
@@ -35,6 +46,29 @@ class LoggerController {
      *
      * @return JSON representation of the new log record.
      */
+    @Operation(
+            method = "POST",
+            tags = "logger",
+            operationId = "Create a new Event log",
+            summary = "Create a new Event log",
+            description = "Create a new Event log",
+            requestBody = @RequestBody(
+                    description = "The created new Event log",
+                    required = true,
+                    content = @Content(
+                            mediaType = 'application/json'
+                    )
+            ),
+            responses = [
+                    @ApiResponse(
+                            description = "Create a new Event log",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Consumes("application/json")
+    @Produces("application/json")
+    @Path("/service/logger")
     def save() {
         String ip = request.getHeader(X_FORWARDED_FOR_HEADER) ?: request.getRemoteAddr()
         ip = ip.tokenize(", ")[0] // Sometimes see 2 IP addresses like '3.105.55.111, 3.105.55.111' - grab first value
@@ -67,6 +101,30 @@ class LoggerController {
      *
      * @return JSON representation of the specified event log, or HTTP 404 if no matching record is found
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Event log",
+            summary = "Get Event log",
+            description = "Get Event log",
+            parameters = [
+                    @Parameter(
+                            name = "id",
+                            in = PATH,
+                            description = "Event ID",
+                            schema = @Schema(implementation = Long),
+                            required = true
+                    )
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Get Event log",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/logger/{id}")
+    @Produces("application/json")
     def getEventLog() {
         def logEvent = loggerService.findLogEvent(params.id as long)
 
@@ -93,6 +151,44 @@ class LoggerController {
      *
      * @return monthly breakdown of log events in the form [month: recordCount]
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Monthly Breakdown",
+            summary = "Get Monthly Breakdown",
+            description = "Get Monthly Breakdown",
+            parameters = [
+                    @Parameter(
+                            name = "eventTypeId",
+                            in = QUERY,
+                            description = "Event Type ID",
+                            schema = @Schema(implementation = Integer),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "q",
+                            in = QUERY,
+                            description = "The entityUid to query on",
+                            schema = @Schema(implementation = String),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "year",
+                            in = QUERY,
+                            description = "year",
+                            schema = @Schema(implementation = String),
+                            required = false
+                    )
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Get Monthly Breakdown",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/logger/get.json")
+    @Produces("application/json")
     def monthlyBreakdown() {
         if (!params.q || !params.eventTypeId) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing either q (entityUid) or eventTypeId")
@@ -119,6 +215,37 @@ class LoggerController {
      *
      * @return breakdown of log events by reason in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Reason Breakdown",
+            summary = "Get Reason Breakdown",
+            description = "Get Reason Breakdown",
+            parameters = [
+                    @Parameter(
+                            name = "eventId",
+                            in = QUERY,
+                            description = "Event ID",
+                            schema = @Schema(implementation = Integer),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "entityUid",
+                            in = QUERY,
+                            description = "EntityUID",
+                            schema = @Schema(implementation = String),
+                            required = true
+                    )
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Get Reason Breakdown",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/reasonBreakdown")
+    @Produces("application/json")
     def getReasonBreakdown() {
         if (!params.eventId) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
@@ -153,6 +280,44 @@ class LoggerController {
      *
      * @return breakdown of log events by reason in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Source Breakdown",
+            summary = "Get Source Breakdown",
+            description = "Get Source Breakdown",
+            parameters = [
+                    @Parameter(
+                            name = "eventId",
+                            in = QUERY,
+                            description = "Event ID",
+                            schema = @Schema(implementation = Integer),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "entityUid",
+                            in = QUERY,
+                            description = "EntityUID",
+                            schema = @Schema(implementation = String),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "excludeReasonTypeId",
+                            in = QUERY,
+                            description = "Exclude Reason Type ID",
+                            schema = @Schema(implementation = Integer),
+                            required = false
+                    )
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Get Source Breakdown",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/sourceBreakdown")
+    @Produces("application/json")
     def getSourceBreakdown() {
         if (!params.eventId || !params.entityUid) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
@@ -284,6 +449,58 @@ class LoggerController {
      *
      * @return breakdown of log events by month in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Reason Breakdown by Month",
+            summary = "Get Reason Breakdown by Month",
+            description = "Get Reason Breakdown by Month",
+            parameters = [
+                    @Parameter(
+                            name = "eventId",
+                            in = QUERY,
+                            description = "Event ID",
+                            schema = @Schema(implementation = Integer),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "entityUid",
+                            in = QUERY,
+                            description = "EntityUID",
+                            schema = @Schema(implementation = String),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "reasonId",
+                            in = QUERY,
+                            description = "Reason ID",
+                            schema = @Schema(implementation = Integer),
+                            required = false
+                    ),
+                    @Parameter(
+                            name = "sourceId",
+                            in = QUERY,
+                            description = "Source ID",
+                            schema = @Schema(implementation = Integer),
+                            required = false
+                    ),
+                    @Parameter(
+                            name = "excludeReasonTypeId",
+                            in = QUERY,
+                            description = "Exclude Reason Type ID",
+                            schema = @Schema(implementation = Integer),
+                            required = false
+                    )
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Get Reason Breakdown by Month",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/reasonBreakdownMonthly")
+    @Produces("application/json")
     def getReasonBreakdownByMonth() {
         if (!params.eventId || !params.entityUid) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing entityUid and/or eventId")
@@ -372,6 +589,37 @@ class LoggerController {
      *
      * @return breakdown of log events by reason in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Email Breakdown",
+            summary = "Get Email Breakdown",
+            description = "Get Email Breakdown",
+            parameters = [
+                    @Parameter(
+                            name = "eventId",
+                            in = QUERY,
+                            description = "Event ID",
+                            schema = @Schema(implementation = Integer),
+                            required = true
+                    ),
+                    @Parameter(
+                            name = "entityUid",
+                            in = QUERY,
+                            description = "EntityUID",
+                            schema = @Schema(implementation = String),
+                            required = true
+                    )
+            ],
+            responses = [
+                    @ApiResponse(
+                            description = "Get Email Breakdown",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Produces("application/json")
+    @Path("/service/emailBreakdown")
     def getEmailBreakdown() {
         if (!params.eventId) {
             handleError(HttpStatus.BAD_REQUEST, "Request is missing eventId")
@@ -467,6 +715,21 @@ class LoggerController {
      *
      * @return breakdown of log events by event type in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Totals by Event Type",
+            summary = "Get Totals by Event Type",
+            description = "Get Totals by Event Type",
+            responses = [
+                    @ApiResponse(
+                            description = "Get Totals by Event Type",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/totalsByType")
+    @Produces("application/json")
     def getTotalsByEventType() {
         def results = loggerService.getEventTypeBreakdown()
 
@@ -483,6 +746,21 @@ class LoggerController {
      *
      * @return all log event types in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Event Types",
+            summary = "Get Event Types",
+            description = "Get Event Types",
+            responses = [
+                    @ApiResponse(
+                            description = "Get Event Types",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/logger/events")
+    @Produces("application/json")
     def getEventTypes() {
         render loggerService.getAllEventTypes().collect({k -> [name: k.name, id: k.id]}) as JSON
     }
@@ -507,6 +785,8 @@ class LoggerController {
                     )
             ]
     )
+    @Path("/service/logger/reasons")
+    @Produces("application/json")
     def getReasonTypes() {
         def json = loggerService.getAllReasonTypes().collect({k -> [rkey: k.rkey, name: k.name, id: k.id, deprecated: k.isDeprecated]}) as JSON
         log.debug "getReasonTypes = ${json}"
@@ -520,6 +800,21 @@ class LoggerController {
      *
      * @return all log source types in JSON format
      */
+    @Operation(
+            method = "GET",
+            tags = "logger",
+            operationId = "Get Source Types",
+            summary = "Get Source Types",
+            description = "Get Source Types",
+            responses = [
+                    @ApiResponse(
+                            description = "Get Source Types",
+                            responseCode = "200"
+                    )
+            ]
+    )
+    @Path("/service/logger/sources")
+    @Produces("application/json")
     def getSourceTypes() {
         render loggerService.getAllSourceTypes().collect({k -> [name: k.name, id: k.id]}) as JSON
     }

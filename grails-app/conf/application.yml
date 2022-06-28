@@ -160,15 +160,14 @@ security:
         enabled: false
     oidc:
         enabled: true
-        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
-        clientId: auth-dev-oidc-client-id
-        secret: u85789gnghdfb765
+        discoveryUri: https://auth-test.ala.org.au/cas/oidc/.well-known
+        clientId: oidc-test-client-id
+        secret: 12345678
         scope: openid,profile,email,ala,roles,user_defined
     #        allowUnsignedIdTokens: true
     jwt:
         enabled: true
-        discoveryUri: https://auth-dev.ala.org.au/cas/oidc/.well-known
-        requiredClaims: ["sub", "iat", "exp", "jti", "client_id"]
+        discoveryUri: https://auth-test.ala.org.au/cas/oidc/.well-known
         fallbackToLegacyBehaviour: true
 
 openapi:
