@@ -161,8 +161,6 @@ security:
     oidc:
         enabled: true
         discoveryUri: https://auth-test.ala.org.au/cas/oidc/.well-known
-        clientId: oidc-test-client-id
-        secret: 12345678
         scope: openid,profile,email,ala,roles,user_defined
     #        allowUnsignedIdTokens: true
     jwt:

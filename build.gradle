@@ -124,7 +124,7 @@ dependencies {
 
     // ALA deps
     compile "au.org.ala:ala-logger:1.4.1"
-    compile "org.grails.plugins:ala-auth:5.0.1" //, noCache
+    compile "org.grails.plugins:ala-auth:5.0.2-SNAPSHOT" //, noCache
     compile "org.grails.plugins:ala-bootstrap3:4.0.0" //, noCache
     compile "org.grails.plugins:ala-admin-plugin:2.2" //, noCache
 
