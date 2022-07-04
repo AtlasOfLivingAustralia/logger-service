@@ -1,9 +1,9 @@
 package au.org.ala.logger
 
-import groovy.util.logging.Log4j
+import groovy.util.logging.Slf4j
 import org.springframework.http.HttpStatus
 
-@Log4j
+@Slf4j
 class IpAddressInterceptor {
     def loggerService
     final String X_FORWARDED_FOR = "X-Forwarded-For"
@@ -18,6 +18,8 @@ class IpAddressInterceptor {
 
     boolean before() {
         String ip = request.getHeader(X_FORWARDED_FOR) ?: request.getRemoteAddr()
+        log.info("X_FORWARDED_FOR header: "+ request.getHeader(X_FORWARDED_FOR))
+        log.info("ip: "+ request.getRemoteAddr())
         ip = ip.tokenize(", ")[0] // Sometimes see an IP address = '3.105.55.111, 3.105.55.111' - grab first value
         log.debug "headers = ${request.getHeader('Accept')} | header(X_FORWARDED_FOR) = ${request.getHeader(X_FORWARDED_FOR)} | getRemoteAddr = ${request.getRemoteAddr()}"
         boolean result = true
