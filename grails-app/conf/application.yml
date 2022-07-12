@@ -129,7 +129,7 @@ environments:
             serverURL: "http://dev.ala.org.au:8080"
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
+            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
             username: "logger"
             password: "password"
         security:
@@ -151,7 +151,7 @@ environments:
             serverURL: "https://logger.ala.org.au"
         dataSource:
             dbCreate: none
-            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8
+            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
         security:
             cas:
                 appServerName: "https://logger.ala.org.au"
