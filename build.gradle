@@ -9,6 +9,7 @@ buildscript {
         classpath "org.grails.plugins:hibernate5:${gormVersion}"
         classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.2"
         classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
+        classpath 'org.grails.plugins:database-migration:3.1.0'
     }
 }
 
@@ -16,7 +17,7 @@ plugins {
     id "com.gorylenko.gradle-git-properties" version "2.2.3"
 }
 
-version "4.0.3-SNAPSHOT"
+version "4.0.2-SNAPSHOT"
 
 group "au.org.ala"
 
@@ -73,6 +74,14 @@ configurations {
     }
 }
 
+sourceSets {
+    main {
+        resources {
+            srcDir 'grails-app/migrations'
+        }
+    }
+}
+
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile "org.springframework.boot:spring-boot-starter-logging"
@@ -120,7 +129,7 @@ dependencies {
     // Third-party plugins
     compile "org.grails.plugins:external-config:2.0.0"
     compile 'org.grails.plugins:csv:1.0.1'
-    runtime "mysql:mysql-connector-java:8.0.23"
+    runtime "mysql:mysql-connector-java:8.0.22"
 
     // ALA deps
     compile "au.org.ala:ala-logger:1.4.1"
@@ -129,6 +138,10 @@ dependencies {
     compile "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
     compile 'au.org.ala.plugins:openapi:1.0.0'
+    // db-migration
+    // In newer versions use 'implementation'
+    compile 'org.liquibase:liquibase-core:3.10.3'
+    compile "org.grails.plugins:database-migration:3.1.0"
 }
 
 webdriverBinaries {
