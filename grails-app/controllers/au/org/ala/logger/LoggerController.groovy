@@ -56,7 +56,8 @@ class LoggerController {
                     description = "The created new Event log",
                     required = true,
                     content = @Content(
-                            mediaType = 'application/json'
+                            mediaType = 'application/json',
+                            schema = @Schema(implementation = LogEventVO)
                     )
             ),
             responses = [
