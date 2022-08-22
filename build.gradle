@@ -133,11 +133,11 @@ dependencies {
 
     // ALA deps
     compile "au.org.ala:ala-logger:1.4.1"
-    compile "org.grails.plugins:ala-auth:5.1.0" //, noCache
+    compile "org.grails.plugins:ala-auth:5.1.1" //, noCache
     compile "org.grails.plugins:ala-bootstrap3:4.1.0" //, noCache
     compile "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
-    compile 'au.org.ala.plugins:openapi:1.0.0'
+    compile 'au.org.ala.plugins:openapi:1.1.0'
     // db-migration
     // In newer versions use 'implementation'
     compile 'org.liquibase:liquibase-core:3.10.3'
