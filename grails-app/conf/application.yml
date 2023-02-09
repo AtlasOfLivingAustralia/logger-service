@@ -105,7 +105,7 @@ siteDefaultLanguage: "en"
 security:
     cas:
         adminRole: ROLE_ADMIN
-        uriFilterPattern: ["/admin/*", "/alaAdmin/*"]
+        uriFilterPattern: ["/admin","/admin/*", "/alaAdmin/*"]
 
 ---
 hibernate:
@@ -128,8 +128,8 @@ environments:
         dataSource:
             dbCreate: update
             url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
-            username: "logger"
-            password: "password"
+            username: "root"
+            password: "alerts"
         security:
             cas:
                 appServerName: "http://localhost:8080"
@@ -161,13 +161,15 @@ security:
     oidc:
         enabled: true
         discoveryUri: https://auth-test.ala.org.au/cas/oidc/.well-known
-        scope: openid,profile,email,ala,roles,user_defined
+        clientId: oidc-test-client-id
+        secret: 12345678efrv
+        scope: openid,profile,email,ala,roles, user_defined
     #        allowUnsignedIdTokens: true
     jwt:
         enabled: true
         discoveryUri: https://auth-test.ala.org.au/cas/oidc/.well-known
+        requiredClaims: ["sub", "iat", "exp", "jti", "client_id"]
         fallbackToLegacyBehaviour: true
-
 openapi:
     title: Logger REST services
     description: REST services for interacting with the logger webapp
