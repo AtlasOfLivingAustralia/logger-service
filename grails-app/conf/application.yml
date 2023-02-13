@@ -128,8 +128,8 @@ environments:
         dataSource:
             dbCreate: update
             url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
-            username: "root"
-            password: "alerts"
+            username: "logger"
+            password: "password"
         security:
             cas:
                 appServerName: "http://localhost:8080"
