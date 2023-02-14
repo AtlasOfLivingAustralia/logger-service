@@ -128,8 +128,8 @@ environments:
         dataSource:
             dbCreate: update
             url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
-            username: "logger"
-            password: "password"
+            username: "root"
+            password: "alerts"
         security:
             cas:
                 appServerName: "http://localhost:8080"
@@ -168,6 +168,15 @@ security:
         discoveryUri: https://auth-test.ala.org.au/cas/oidc/.well-known
         requiredClaims: ["sub", "iat", "exp", "jti", "client_id"]
         fallbackToLegacyBehaviour: true
+
+    apikey:
+        enabled: true
+        auth:
+            serviceUrl: https://auth.ala.org.au/apikey/ws/check/
+        check:
+            serviceUrl: https://auth.ala.org.au/apikey/ws/check?apikey=
+        userdetails:
+            serviceUrl: https://auth.ala.org.au/userdetails/userDetails/
 openapi:
     title: Logger REST services
     description: REST services for interacting with the logger webapp
