@@ -132,8 +132,11 @@ dependencies {
 
     implementation 'au.org.ala.plugins:openapi:1.1.0'
     // db-migration
-    implementation 'org.liquibase:liquibase-core:4.6.2'
-    implementation 'org.grails.plugins:database-migration:4.0.0'
+    implementation 'org.liquibase:liquibase-core:4.19.0'
+    implementation('org.grails.plugins:database-migration:4.2.0') {
+        // spring-boot-cli exclusion required since Grails5 upgrade to prevent NullPointerException Error:  https://github.com/grails/grails-database-migration/issues/268
+        exclude module: 'spring-boot-cli'
+    }
 }
 
 webdriverBinaries {
