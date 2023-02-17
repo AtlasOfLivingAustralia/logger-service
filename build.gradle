@@ -120,7 +120,7 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
 
     // Third-party plugins
-    implementation "org.grails.plugins:external-config:2.0.0"
+    implementation 'dk.glasius:external-config:3.1.1'
     implementation 'org.grails.plugins:csv:1.0.1'
     runtimeOnly "mysql:mysql-connector-java:8.0.22"
 
