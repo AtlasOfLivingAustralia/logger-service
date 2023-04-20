@@ -7,14 +7,14 @@ buildscript {
     dependencies {
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "org.grails.plugins:hibernate5:${gormVersion}"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.3.2"
+        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.4.6"
         classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
-        classpath 'org.grails.plugins:database-migration:3.1.0'
+        classpath 'org.grails.plugins:database-migration:4.2.0'
     }
 }
 
 plugins {
-    id "com.gorylenko.gradle-git-properties" version "2.2.3"
+    id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
 version "4.1.1-SNAPSHOT"
@@ -25,12 +25,13 @@ apply plugin:"eclipse"
 apply plugin:"idea"
 apply plugin:"war"
 apply plugin:"org.grails.grails-web"
-apply plugin:"asset-pipeline"
-apply plugin:"org.grails.grails-gsp"
 apply plugin:"com.github.erdi.webdriver-binaries"
+apply plugin:"com.bertramlabs.asset-pipeline"
+apply plugin:"org.grails.grails-gsp"
 apply plugin:"maven-publish"
 
 publishing {
+    targetCompatibility = 1.11
     repositories {
         maven {
             name 'Nexus'
@@ -43,22 +44,13 @@ publishing {
     }
     publications {
         mavenJar(MavenPublication) {
-            pom.withXml {
-                def pomNode = asNode()
-                pomNode.dependencyManagement.replaceNode {}
-
-                // simply remove dependencies without a version
-                // version-less dependencies are handled with dependencyManagement
-                // see https://github.com/spring-gradle-plugins/dependency-management-plugin/issues/8 for more complete solutions
-                pomNode.dependencies.dependency.findAll {
-                    it.version.text().isEmpty()
-                }.each {
-                    it.replaceNode {}
-                }
-            }
-            from components.web
+            artifact bootWar
         }
     }
+}
+
+bootWar {
+    launchScript()
 }
 
 repositories {
@@ -84,64 +76,67 @@ sourceSets {
 
 dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    compile "org.springframework.boot:spring-boot-starter-logging"
-    compile "org.springframework.boot:spring-boot-autoconfigure"
-    compile "org.grails:grails-core"
-    compile "org.springframework.boot:spring-boot-starter-actuator"
-    compile "org.springframework.boot:spring-boot-starter-tomcat"
-    compile "org.grails:grails-web-boot"
-    compile "org.grails:grails-logging"
-    compile "org.grails:grails-plugin-rest"
-    compile "org.grails:grails-plugin-databinding"
-    compile "org.grails:grails-plugin-i18n"
-    compile "org.grails:grails-plugin-services"
-    compile "org.grails:grails-plugin-url-mappings"
-    compile "org.grails:grails-plugin-interceptors"
-    compile "org.grails.plugins:cache"
-    compile "org.grails.plugins:async"
-    compile "org.grails.plugins:scaffolding"
-    compile "org.grails.plugins:events"
-    compile "org.grails.plugins:hibernate5"
-    compile "org.hibernate:hibernate-core:5.4.18.Final"
-    compile "org.grails.plugins:gsp"
+    implementation "org.springframework.boot:spring-boot-starter-logging"
+    implementation "org.springframework.boot:spring-boot-autoconfigure"
+    implementation "org.grails:grails-core"
+    implementation "org.springframework.boot:spring-boot-starter-actuator"
+    implementation "org.springframework.boot:spring-boot-starter-tomcat"
+    implementation "org.grails:grails-web-boot"
+    implementation "org.grails:grails-logging"
+    implementation "org.grails:grails-plugin-rest"
+    implementation "org.grails:grails-plugin-databinding"
+    implementation "org.grails:grails-plugin-i18n"
+    implementation "org.grails:grails-plugin-services"
+    implementation "org.grails:grails-plugin-url-mappings"
+    implementation "org.grails:grails-plugin-interceptors"
+    implementation "org.grails.plugins:cache"
+    implementation "org.grails.plugins:async"
+    implementation "org.grails.plugins:scaffolding"
+    implementation "org.grails.plugins:events"
+    implementation "org.grails.plugins:hibernate5"
+    implementation "org.hibernate:hibernate-core:5.4.18.Final"
+    implementation "org.grails.plugins:gsp"
+    compileOnly "io.micronaut:micronaut-inject-groovy"
     console "org.grails:grails-console"
-    compile "org.grails:grails-plugin-filters:3.0.12"
-    compile "org.grails:grails-datastore-rest-client:6.1.12.RELEASE"
+    implementation "org.grails:grails-plugin-filters:3.0.12"
+    implementation "org.grails:grails-datastore-rest-client:6.1.12.RELEASE"
     profile "org.grails.profiles:web"
-    runtime "org.glassfish.web:el-impl:2.1.2-b03"
-    runtime "com.h2database:h2"
-    runtime "org.apache.tomcat:tomcat-jdbc"
-    runtime "com.bertramlabs.plugins:asset-pipeline-grails:2.15.1"
+    runtimeOnly "org.glassfish.web:el-impl:2.1.2-b03"
+    runtimeOnly "com.h2database:h2"
+    runtimeOnly "org.apache.tomcat:tomcat-jdbc"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.6"
 
-    testCompile "org.grails:grails-gorm-testing-support"
-    testCompile "org.grails:grails-web-testing-support"
-    testCompile "org.grails.plugins:geb"
-    testCompile "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
-    testCompile "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
-    testCompile "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
-    testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-//    testRuntime "org.seleniumhq.selenium:selenium-htmlunit-driver:$seleniumVersion" ???
-    testCompile "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
-    testRuntime "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
-    testRuntime "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
-    testRuntime "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
+    testImplementation "io.micronaut:micronaut-inject-groovy"
+    testImplementation "org.grails:grails-gorm-testing-support"
+    testImplementation "org.grails:grails-web-testing-support"
+    testImplementation "org.grails.plugins:geb"
+    testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-api:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-support:$seleniumVersion"
+    runtimeOnly "net.sourceforge.htmlunit:htmlunit:2.18"
+    testImplementation "org.seleniumhq.selenium:selenium-htmlunit-driver:2.47.1"
+    testImplementation "org.seleniumhq.selenium:selenium-chrome-driver:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-firefox-driver:$seleniumVersion"
+    testImplementation "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
 
     // Third-party plugins
-    compile "org.grails.plugins:external-config:2.0.0"
-    compile 'org.grails.plugins:csv:1.0.1'
-    runtime "mysql:mysql-connector-java:8.0.22"
+    implementation 'dk.glasius:external-config:3.1.1'
+    implementation 'org.grails.plugins:csv:1.0.1'
+    runtimeOnly "mysql:mysql-connector-java:8.0.22"
 
     // ALA deps
-    compile "au.org.ala:ala-logger:1.4.1"
-    compile "org.grails.plugins:ala-auth:5.1.1" //, noCache
-    compile "org.grails.plugins:ala-bootstrap3:4.1.0" //, noCache
-    compile "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
+    implementation "au.org.ala:ala-logger:1.4.1"
+    implementation "org.grails.plugins:ala-auth:6.0.0-SNAPSHOT" //, noCache
+    implementation "org.grails.plugins:ala-bootstrap3:4.1.0" //, noCache
+    implementation "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
-    compile 'au.org.ala.plugins:openapi:1.1.0'
+    implementation 'au.org.ala.plugins:openapi:1.1.0'
     // db-migration
-    // In newer versions use 'implementation'
-    compile 'org.liquibase:liquibase-core:3.10.3'
-    compile "org.grails.plugins:database-migration:3.1.0"
+    implementation 'org.liquibase:liquibase-core:4.19.0'
+    implementation('org.grails.plugins:database-migration:4.2.0') {
+        // spring-boot-cli exclusion required since Grails5 upgrade to prevent NullPointerException Error:  https://github.com/grails/grails-database-migration/issues/268
+        exclude module: 'spring-boot-cli'
+    }
 }
 
 webdriverBinaries {
