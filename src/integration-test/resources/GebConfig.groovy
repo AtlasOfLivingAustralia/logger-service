@@ -38,7 +38,6 @@ environments {
     firefox {
         driver = { new FirefoxDriver() }
     }
-
     // run via “./gradlew -Dgeb.env=htmlUnit iT”
     htmlUnit {
         driver = { new HtmlUnitDriver() }
