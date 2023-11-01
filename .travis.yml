@@ -8,6 +8,7 @@ branches:
   - develop
   - grails4
   - feature/grails5
+  - feature/plugin-upgrade
 before_install:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
