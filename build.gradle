@@ -126,8 +126,8 @@ dependencies {
 
     // ALA deps
     implementation "au.org.ala:ala-logger:1.4.1"
-    implementation "org.grails.plugins:ala-auth:6.0.4" //, noCache
-    implementation "org.grails.plugins:ala-bootstrap3:4.1.0" //, noCache
+    implementation "org.grails.plugins:ala-auth:6.2.0" //, noCache
+    implementation "org.grails.plugins:ala-bootstrap3:4.4.0" //, noCache
     implementation "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
     implementation 'au.org.ala.plugins:openapi:1.1.0'
