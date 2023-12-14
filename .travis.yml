@@ -10,14 +10,22 @@ branches:
   - feature/grails5
   - feature/plugin-upgrade
   - feature/grails6-upgrade
+
 before_install:
+      - rm -fr $HOME/.gradle/caches
+      - sudo mkdir -p /data/logger-service/ehcache
+      - sudo chmod o+xw /data
+      - sudo chmod o+xw /data/logger-service
+      - sudo chmod o+xw /data/logger-service/ehcache
+
+before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
 - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
 cache:
   directories:
-  - "$HOME/.m2"
-  - "$HOME/.gradle/caches/"
-  - "$HOME/.gradle/wrapper/"
+  #- "$HOME/.m2"
+  #- "$HOME/.gradle/caches/"
+  - $HOME/.gradle/wrapper/
 after_success:
 - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 env:
