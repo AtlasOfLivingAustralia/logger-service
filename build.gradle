@@ -1,3 +1,8 @@
+buildscript {
+    version "4.3-SNAPSHOT"
+    group "au.org.ala"
+}
+
 plugins {
     id "groovy"
     id "org.grails.grails-web"
@@ -8,10 +13,6 @@ plugins {
     id "com.bertramlabs.asset-pipeline"
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
-
-version "4.3-SNAPSHOT"
-
-group "au.org.ala"
 
 publishing {
     repositories {
@@ -84,18 +85,13 @@ dependencies {
     implementation "org.grails:grails-plugin-url-mappings"
     implementation "org.grails:grails-plugin-interceptors"
     implementation "org.grails.plugins:cache"
-    implementation "org.grails.plugins:cache-ehcache:3.0.0"
     implementation "org.grails.plugins:async"
     implementation "org.grails.plugins:scaffolding"
     implementation "org.grails.plugins:events"
     implementation "org.grails.plugins:hibernate5:${gormVersion}"
     implementation "org.hibernate:hibernate-core:5.6.15.Final"
-    implementation "org.hibernate:hibernate-ehcache:5.4.9.Final"
     implementation "org.grails.plugins:scaffolding"
     implementation "org.grails.plugins:gsp"
-    implementation "org.codehaus.groovy:groovy-all:your-groovy-version"
-    implementation "io.micronaut:micronaut-core:3.10.2"
-    implementation "io.micronaut:micronaut-inject:3.10.2"
     compileOnly "io.micronaut:micronaut-inject-groovy"
     console "org.grails:grails-console"
     implementation "org.grails:grails-plugin-filters:3.0.12"
@@ -108,12 +104,8 @@ dependencies {
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.6"
     runtimeOnly "mysql:mysql-connector-java:8.0.28"
     implementation "org.codehaus.groovy.modules.http-builder:http-builder:0.7.2"
-    implementation "org.nibor.autolink:autolink:0.5.0"
     implementation "com.opencsv:opencsv:3.7"
 
-    runtimeOnly group: 'org.cache2k', name: 'cache2k-jcache', version: '1.2.0.Final'
-    runtimeOnly group: 'org.cache2k', name: 'cache2k-api', version: '1.2.0.Final'
-    runtimeOnly group: 'org.cache2k', name: 'cache2k-core', version: '1.2.0.Final'
 
     testImplementation "io.micronaut:micronaut-core:3.6.0"
     testImplementation "io.micronaut:micronaut-inject:3.10.2"
@@ -149,16 +141,8 @@ dependencies {
     }
 
 
-    implementation 'au.org.ala:ala-cas-client:3.0.0'
-    implementation ("au.org.ala.names:ala-namematching-client:1.8.1") {
-        exclude group: "com.squareup.okhttp3", module: "okhttp"
-        exclude module: "jsr250-api"
-        exclude module: "sisu-guava"
-        exclude module: "cache2k-api"
-    }
     implementation 'au.org.ala.plugins:openapi:1.1.0'
 
-    implementation 'org.gbif:gbif-common:0.37'
 }
 
 bootRun {
