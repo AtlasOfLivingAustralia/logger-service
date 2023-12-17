@@ -100,12 +100,8 @@ dependencies {
     runtimeOnly "org.glassfish.web:el-impl:2.2.1-b05"
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "javax.xml.bind:jaxb-api:2.3.1"
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.6"
     runtimeOnly "mysql:mysql-connector-java:8.0.28"
-    implementation "org.codehaus.groovy.modules.http-builder:http-builder:0.7.2"
-    implementation "com.opencsv:opencsv:3.7"
-
 
     testImplementation "io.micronaut:micronaut-core:3.6.0"
     testImplementation "io.micronaut:micronaut-inject:3.10.2"
@@ -125,7 +121,6 @@ dependencies {
     // Third-party plugins
     implementation 'dk.glasius:external-config:3.1.1'
     implementation 'org.grails.plugins:csv:1.0.1'
-    runtimeOnly "mysql:mysql-connector-java:8.0.22"
 
     // ALA deps
     implementation "au.org.ala:ala-logger:1.4.1"
@@ -173,8 +168,4 @@ test {
     testLogging.showStandardStreams = true
 }
 
-//webdriverBinaries {
-//    chromedriver '2.45.0'
-//    geckodriver '0.24.0'
-//}
 
