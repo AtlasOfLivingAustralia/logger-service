@@ -100,7 +100,7 @@ dependencies {
     runtimeOnly "org.glassfish.web:el-impl:2.2.1-b05"
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.6"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
     runtimeOnly "mysql:mysql-connector-java:8.0.28"
 
     testImplementation "io.micronaut:micronaut-core:3.6.0"
