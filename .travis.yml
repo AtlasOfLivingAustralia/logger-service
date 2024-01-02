@@ -12,6 +12,7 @@ branches:
   - feature/grails6-upgrade
 
 before_install:
+      - sudo mkdir -p /data/logger-service
       - sudo chmod o+xw /data
       - sudo chmod o+xw /data/logger-service
 
