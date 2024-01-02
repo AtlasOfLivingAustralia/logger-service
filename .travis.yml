@@ -12,11 +12,8 @@ branches:
   - feature/grails6-upgrade
 
 before_install:
-      - rm -fr $HOME/.gradle/caches
-      - sudo mkdir -p /data/logger-service/ehcache
       - sudo chmod o+xw /data
       - sudo chmod o+xw /data/logger-service
-      - sudo chmod o+xw /data/logger-service/ehcache
 
 before_cache:
 - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
@@ -31,7 +28,6 @@ install:
   - './gradlew assemble'
 
 after_success:
-  - './gradlew bootJar'
   - '[ "${TRAVIS_PULL_REQUEST}" = "false" ] && travis_retry ./gradlew publish'
 
 env:
