@@ -1,0 +1,20 @@
+pluginManagement {
+    repositories {
+        mavenLocal()
+        maven { url "https://nexus.ala.org.au/content/groups/public/" }
+        maven { url "https://repo.grails.org/grails/core" }
+        maven { url "https://repo.micronaut.io/snapshot" }
+        maven { url "https://repo.micronaut.io/releases" }
+        mavenCentral()
+    }
+
+    plugins {
+        id "org.grails.grails-web" version "6.0.0"
+        id "org.grails.grails-gsp" version "6.0.0"
+        id "com.bertramlabs.asset-pipeline" version "4.3.0"
+        id "org.grails.plugins.database-migration" version "4.2.1"
+
+    }
+}
+
+rootProject.name='logger-service'

@@ -1,37 +1,20 @@
 buildscript {
-    repositories {
-        mavenLocal()
-        maven { url "https://nexus.ala.org.au/content/groups/public/" }
-        maven { url "https://repo.grails.org/grails/core" }
-    }
-    dependencies {
-        classpath "org.grails:grails-gradle-plugin:$grailsVersion"
-        classpath "org.grails.plugins:hibernate5:${gormVersion}"
-        classpath "com.bertramlabs.plugins:asset-pipeline-gradle:3.4.6"
-        classpath "gradle.plugin.com.github.erdi.webdriver-binaries:webdriver-binaries-gradle-plugin:$webdriverBinariesVersion"
-        classpath 'org.grails.plugins:database-migration:4.2.0'
-    }
+    version "4.3-SNAPSHOT"
+    group "au.org.ala"
 }
 
 plugins {
+    id "groovy"
+    id "org.grails.grails-web"
+    id "org.grails.grails-gsp"
+    id "application"
+    id "war"
+    id "maven-publish"
+    id "com.bertramlabs.asset-pipeline"
     id "com.gorylenko.gradle-git-properties" version "2.4.1"
 }
 
-version "4.2.2-SNAPSHOT"
-
-group "au.org.ala"
-
-apply plugin:"eclipse"
-apply plugin:"idea"
-apply plugin:"war"
-apply plugin:"org.grails.grails-web"
-apply plugin:"com.github.erdi.webdriver-binaries"
-apply plugin:"com.bertramlabs.asset-pipeline"
-apply plugin:"org.grails.grails-gsp"
-apply plugin:"maven-publish"
-
 publishing {
-    targetCompatibility = 1.11
     repositories {
         maven {
             name 'Nexus'
@@ -51,12 +34,17 @@ publishing {
 
 bootWar {
     launchScript()
+    dependsOn(compileGroovyPages)
+}
+
+war {
+    dependsOn(compileGroovyPages)
 }
 
 repositories {
     mavenLocal()
     maven { url "https://nexus.ala.org.au/content/groups/public/" }
-    maven { url "https://repo.grails.org/grails/core" }
+    mavenCentral()
 }
 
 configurations {
@@ -71,6 +59,13 @@ sourceSets {
         resources {
             srcDir 'grails-app/migrations'
         }
+    }
+}
+
+configurations.all {
+    resolutionStrategy {
+        cacheDynamicVersionsFor 0, 'seconds'
+        cacheChangingModulesFor 0, 'seconds'
     }
 }
 
@@ -93,19 +88,23 @@ dependencies {
     implementation "org.grails.plugins:async"
     implementation "org.grails.plugins:scaffolding"
     implementation "org.grails.plugins:events"
-    implementation "org.grails.plugins:hibernate5"
-    implementation "org.hibernate:hibernate-core:5.4.18.Final"
+    implementation "org.grails.plugins:hibernate5:${gormVersion}"
+    implementation "org.hibernate:hibernate-core:5.6.15.Final"
+    implementation "org.grails.plugins:scaffolding"
     implementation "org.grails.plugins:gsp"
     compileOnly "io.micronaut:micronaut-inject-groovy"
     console "org.grails:grails-console"
     implementation "org.grails:grails-plugin-filters:3.0.12"
     implementation "org.grails:grails-datastore-rest-client:6.1.12.RELEASE"
     profile "org.grails.profiles:web"
-    runtimeOnly "org.glassfish.web:el-impl:2.1.2-b03"
+    runtimeOnly "org.glassfish.web:el-impl:2.2.1-b05"
     runtimeOnly "com.h2database:h2"
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
-    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:3.4.6"
+    runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
+    runtimeOnly "mysql:mysql-connector-java:8.0.28"
 
+    testImplementation "io.micronaut:micronaut-core:3.6.0"
+    testImplementation "io.micronaut:micronaut-inject:3.10.2"
     testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
     testImplementation "org.grails:grails-web-testing-support"
@@ -122,7 +121,6 @@ dependencies {
     // Third-party plugins
     implementation 'dk.glasius:external-config:3.1.1'
     implementation 'org.grails.plugins:csv:1.0.1'
-    runtimeOnly "mysql:mysql-connector-java:8.0.22"
 
     // ALA deps
     implementation "au.org.ala:ala-logger:1.4.1"
@@ -130,18 +128,16 @@ dependencies {
     implementation "org.grails.plugins:ala-bootstrap3:4.4.0" //, noCache
     implementation "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
-    implementation 'au.org.ala.plugins:openapi:1.1.0'
     // db-migration
     implementation 'org.liquibase:liquibase-core:4.19.0'
     implementation('org.grails.plugins:database-migration:4.2.0') {
         // spring-boot-cli exclusion required since Grails5 upgrade to prevent NullPointerException Error:  https://github.com/grails/grails-database-migration/issues/268
         exclude module: 'spring-boot-cli'
     }
-}
 
-webdriverBinaries {
-    chromedriver "$chromeDriverVersion"
-    geckodriver "$geckodriverVersion"
+
+    implementation 'au.org.ala.plugins:openapi:1.1.0'
+
 }
 
 bootRun {
@@ -171,3 +167,5 @@ assets {
 test {
     testLogging.showStandardStreams = true
 }
+
+
