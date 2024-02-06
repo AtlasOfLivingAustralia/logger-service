@@ -1,5 +1,5 @@
 buildscript {
-    version "4.3-SNAPSHOT"
+    version "4.3"
     group "au.org.ala"
 }
 
