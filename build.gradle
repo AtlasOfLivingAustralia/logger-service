@@ -1,5 +1,5 @@
 buildscript {
-    version "4.4-SNAPSHOT"
+    version "4.4.0-SNAPSHOT"
     group "au.org.ala"
 }
 
@@ -124,7 +124,7 @@ dependencies {
 
     // ALA deps
     implementation "au.org.ala:ala-logger:1.4.1"
-    implementation "org.grails.plugins:ala-auth:6.2.0" //, noCache
+    implementation "org.grails.plugins:ala-auth:7.0.0" //, noCache
     implementation "org.grails.plugins:ala-bootstrap3:4.4.0" //, noCache
     implementation "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
@@ -150,6 +150,11 @@ bootRun {
     sourceResources sourceSets.main
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("17")
+    targetCompatibility = JavaVersion.toVersion("17")
 }
 
 tasks.withType(Test) {
