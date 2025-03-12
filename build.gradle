@@ -27,18 +27,19 @@ publishing {
     }
     publications {
         mavenJar(MavenPublication) {
-            artifact bootWar
+            artifact bootJar
         }
     }
 }
 
-bootWar {
+bootJar {
+    enabled = true
+    classifier = 'exec'
     launchScript()
-    dependsOn(compileGroovyPages)
 }
 
-war {
-    dependsOn(compileGroovyPages)
+bootWar {
+    enabled = false
 }
 
 repositories {
