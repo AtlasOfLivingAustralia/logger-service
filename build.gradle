@@ -1,5 +1,5 @@
 buildscript {
-    version "4.4-SNAPSHOT"
+    version "4.4.0-SNAPSHOT"
     group "au.org.ala"
 }
 
@@ -27,18 +27,19 @@ publishing {
     }
     publications {
         mavenJar(MavenPublication) {
-            artifact bootWar
+            artifact bootJar
         }
     }
 }
 
-bootWar {
+bootJar {
+    enabled = true
+    classifier = 'exec'
     launchScript()
-    dependsOn(compileGroovyPages)
 }
 
-war {
-    dependsOn(compileGroovyPages)
+bootWar {
+    enabled = false
 }
 
 repositories {
@@ -124,12 +125,13 @@ dependencies {
 
     // ALA deps
     implementation "au.org.ala:ala-logger:1.4.1"
-    implementation "org.grails.plugins:ala-auth:6.2.0" //, noCache
+    implementation "org.grails.plugins:ala-auth:7.0.0" //, noCache
     implementation "org.grails.plugins:ala-bootstrap3:4.4.0" //, noCache
     implementation "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
     // db-migration
     implementation 'org.liquibase:liquibase-core:4.19.0'
+    implementation "org.grails:grails-shell:6.2.1"
     implementation('org.grails.plugins:database-migration:4.2.0') {
         // spring-boot-cli exclusion required since Grails5 upgrade to prevent NullPointerException Error:  https://github.com/grails/grails-database-migration/issues/268
         exclude module: 'spring-boot-cli'
@@ -150,6 +152,11 @@ bootRun {
     sourceResources sourceSets.main
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
+
+java {
+    sourceCompatibility = JavaVersion.toVersion("17")
+    targetCompatibility = JavaVersion.toVersion("17")
 }
 
 tasks.withType(Test) {
