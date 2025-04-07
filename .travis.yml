@@ -1,15 +1,13 @@
 language: groovy
 jdk:
-  - openjdk11
+  - openjdk17
 sudo: false
 branches:
   only:
   - master
   - develop
   - grails4
-  - feature/grails5
-  - feature/plugin-upgrade
-  - feature/grails6-upgrade
+  - /^feature.*$/
 
 before_install:
       - sudo mkdir -p /data/logger-service
