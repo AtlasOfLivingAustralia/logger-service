@@ -47,7 +47,7 @@ phases:
       - echo Post-build phase...
       - echo Build completed on $(date)
       - ls -lh build/libs
-      - rm -rf build/libs/*-plain.war
+#      - rm -rf build/libs/*-plain.war
       - ls -lh build/libs
       - echo Building the Docker image...
       - docker build -t ala-logger .
