@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set JAVA_HOME environment variable
-RUN export JAVA_HOME=$(readlink -f /usr/bin/java | sed 's/\/bin\/java//')
+ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH=$JAVA_HOME/bin:$PATH
 
 WORKDIR /app
