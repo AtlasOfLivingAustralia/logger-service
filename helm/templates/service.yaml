@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-{{ include "ala-logger.fullname" . }}
+  labels:
+    {{- include "ala-logger.labels" . | nindent 4 }}
+spec:
+  type: LoadBalancer
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort}}
+      protocol: TCP
+  selector:
+    {{- include "ala-logger.selectorLabels" . | nindent 4 }}

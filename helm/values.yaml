@@ -1,0 +1,165 @@
+# Default values for helm.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: ""
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+secret:
+  name: "logger-config-secret"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  automount: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  port: 80
+  targetPort: 8000
+
+ingress:
+  enabled: true
+  className: "alb"
+  certificateArn: ""
+  hostname: ""
+  tls: []
+  accessLogsBucket: ""
+  accessLogsPrefix: ""
+
+resources:
+  requests:
+    cpu: "1"          # 1 vCPU
+    memory: "4096Mi"  # 4GB
+  limits:
+    cpu: "1"          # 1 vCPU
+    memory: "4096Mi"  # 4GB
+
+livenessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health
+    port: 8000
+    scheme: HTTP
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+startupProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health
+    port: 8000
+    scheme: HTTP
+  initialDelaySeconds: 90
+  periodSeconds: 5
+  timeoutSeconds: 15
+  successThreshold: 1
+  failureThreshold: 40 # 40 failures + initial delay of 90 seconds = 290 seconds
+
+readinessProbe:
+  enabled: true
+  httpGet:
+    path: /actuator/health
+    port: 8000
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 5
+  successThreshold: 1
+  failureThreshold: 3
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+# Additional volumes on the output Deployment definition.
+volumes: []
+
+# Additional volumeMounts on the output Deployment definition.
+volumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+rds:
+  name: "mysql-rds"
+  externalName: "mysql-rds"
+
+# Config file properties
+
+logger_base_url: "https://logger.ala.org.au"
+logger_context_path: ""
+cas:
+  server_name: "https://auth.ala.org.au"
+db:
+  driver_class_name: "com.mysql.jdbc.Driver"
+  database_name: ""
+  username: ""
+  password: ""
+ala:
+  baseURL: "https://www.ala.org.au"
+bie:
+  baseURL: "https://bie.ala.org.au"
+collections:
+  baseURL: "https://collections.ala.org.au"
+headerAndFooter:
+  baseURL: "https://www.ala.org.au/commonui-bs3-2019"
+  version: "2"
+oidc:
+  clientId: ""
+  secret: ""
+  discoveryUri: ""
+  logoutUrl: ""
+  alaUseridClaim: ""
+  logout_action: ""
+  scope: ""
+core:
+  roleAttribute: ""
+cookie:
+  enabled: true
+  domain: ".ala.org.au"
+jwt:
+  rolesFromAccessToken: ""
+  userIdClaim: ""
+  roleClaims: ""
+authCookieName: "ALA-Auth"
+affiliation:
+  enabled: true
+apikey:
+  apikey_check_enabled: true
+webservice:
+  webservice_jwt: true
+  jwt_scopes: ""
+  client_id: ""
+  client_secret: ""
+userdetails_api_url: "https://api.ala.org.au/userdetails/"
+userdetails_url: "https://auth.ala.org.au/userdetails/"
+oauth2:
+  baseUrl: ""
+podEnvironment: "production"
+xmx: ""
+xms: ""
