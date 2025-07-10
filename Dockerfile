@@ -3,9 +3,9 @@ FROM ubuntu:24.04
 # Set environment variables for non-interactive installations
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Update package list and install OpenJDK 11
+# Update package list and install OpenJDK 17
 RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
+    openjdk-17-jdk \
     && rm -rf /var/lib/apt/lists/*
 
 # Set JAVA_HOME environment variable
