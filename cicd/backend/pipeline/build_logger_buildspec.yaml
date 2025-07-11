@@ -40,15 +40,11 @@ phases:
       - echo Building the project...
       - ./gradlew build --stacktrace
       - ./gradlew bootWar
-      - ls -lh build/libs
 
   post_build:
     commands:
       - echo Post-build phase...
       - echo Build completed on $(date)
-      - ls -lh build/libs
-#      - rm -rf build/libs/*-plain.war
-      - ls -lh build/libs
       - echo Building the Docker image...
       - docker build -t ala-logger .
       - echo Tagging the Docker image...
