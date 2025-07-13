@@ -162,7 +162,7 @@ phases:
           limits:
             cpu: "${CPU_LIMIT}"      
             memory: "${MEMORY_LIMIT}"" > helm-values.yaml
-
+      - cat helm-values.yaml
     finally:
       - #echo This always runs
 
