@@ -45,7 +45,7 @@ phases:
           --set ingress.certificateArn=$CERTIFICATE_ARN \
           --set secret.name=logger-config-secret-$CLEAN_BRANCH \
           --set serviceAccount.name=logger-service-account-$CLEAN_BRANCH \
-          --set rds.name=mysql-rds-$CLEAN_BRANCH \
+          --set rds.name=mysql-rds-logger-$CLEAN_BRANCH \
           -f $CODEBUILD_SRC_DIR_ExportConfigArtifact/helm-values.yaml
       - kubectl rollout restart deployment $HELM_RELEASE_NAME
   post_build:
