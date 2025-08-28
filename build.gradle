@@ -39,7 +39,7 @@ bootJar {
 }
 
 bootWar {
-    enabled = false
+    launchScript()
 }
 
 repositories {

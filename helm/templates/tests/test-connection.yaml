@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ include "ala-logger.fullname" . }}-test-connection"
+  labels:
+    {{- include "ala-logger.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": test
+spec:
+  containers:
+    - name: wget
+      image: busybox
+      command: ['wget']
+      args: ['{{ include "ala-logger.fullname" . }}:{{ .Values.service.port }}']
+  restartPolicy: Never
