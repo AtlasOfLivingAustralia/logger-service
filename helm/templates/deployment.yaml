@@ -34,13 +34,13 @@ spec:
             - name: TZ
               value: "Australia/Sydney"
           volumeMounts:
-            - name: config-volume
+            - name: logger-config-volume
               mountPath: /data/logger/config/logger-config.properties
               subPath: logger-config.properties
-            - name: logback-volume
+            - name: logger-logback-volume
               mountPath: /data/logger/config/logback.xml
               subPath: logback.xml
-            - name: system-message-volume
+            - name: logger-system-message-volume
               mountPath: /data/logger/config/system-message.json
               subPath: system-message.json
           {{- if .Values.livenessProbe.enabled }}
@@ -80,14 +80,14 @@ spec:
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           {{- end }}
       volumes:
-        - name: config-volume
+        - name: logger-config-volume
           secret:
             secretName: {{ .Values.secret.name }}
-        - name: logback-volume
+        - name: logger-logback-volume
           configMap:
             name: logback-config
             optional: true
-        - name: system-message-volume
+        - name: logger-system-message-volume
           configMap:
             name: system-message-config
             optional: true
