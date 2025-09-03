@@ -2,7 +2,10 @@
 -- It approved that the current tigger will double count the record_count in event_summary_totals table.
 
 -- Step 1: Delete log_detail records linked to log_event entries from month 202509
-SET @target_month = 202509;
+SET @target_month = 202601;
+
+delete FROM logger.event_summary_totals where month= @target_month;
+delete FROM logger.event_summary_breakdown_reason where month= @target_month;
 
 DELETE FROM log_detail
 WHERE log_event_id IN (
@@ -28,7 +31,7 @@ INSERT INTO `log_event` (
     `log_source_type_id`,
     `source_url`
 ) VALUES (
-             'Summary account test-BAI',
+             '1 test-BAI',
              '2025-09-01 09:51:41',
              1002,
              @target_month,
@@ -105,9 +108,55 @@ INSERT INTO `log_detail` (
              30,
              @last_log_event_id
          );
-       
--- Aggragation      
+         
+-- New Event insert again         
+--
+--       
+INSERT INTO `log_event` (
+    `comment`,
+    `created`,
+    `log_event_type_id`,
+    `month`,
+    `user_email`,
+    `user_ip`,
+    `source`,
+    `user_agent`,
+    `log_reason_type_id`,
+    `log_source_type_id`,
+    `source_url`
+) VALUES (
+             '2 test -BAI',
+             '2025-09-01 09:51:41',
+             2000,
+             @target_month,
+             'qifeng.bai@anu.edu.au',
+             '127.0.0.1',
+             'aws-biocache-service-test-2025.test.ala.org.au',
+             'ala-hub/8.1.0-SNAPSHOT',
+             1,
+             0,
+             'https://biocache-ws.test.ala.org.au/...'
+         );
 
+-- 2. Capture the generated ID
+SET @last_log_event_id = LAST_INSERT_ID();
+
+-- 3. Insert into log_detail using the generated ID
+-- insert dr
+INSERT INTO `log_detail` (
+    `entity_type`,
+    `entity_uid`,
+    `record_count`,
+    `log_event_id`
+) VALUES (
+             2000,
+             'dr1000',
+             25,
+             @last_log_event_id
+         );
+--
+-- Aggragation for event_summary_totals      
+--
 SELECT
 	le.month AS month,
 				le.log_event_type_id AS log_event_type_id,
@@ -117,6 +166,23 @@ SELECT
 FROM log_event le
 	LEFT JOIN log_detail ld
 ON ld.log_event_id = le.id
-WHERE le.id >= @last_log_event_id
+WHERE le.month = @target_month
 GROUP BY le.month, le.log_event_type_id, LEFT(ld.entity_uid, 2)
+ORDER BY le.log_event_type_id, le.month;
+
+--
+-- Aggragation for event_summary_breakdown_reason
+--
+SELECT
+	le.month AS month,
+				le.log_event_type_id AS log_event_type_id,
+                le.log_reason_type_id AS log_reason_type_id,
+				LEFT(ld.entity_uid, 2) AS entity_prefix,
+				COUNT(ld.id) AS num_log_details,
+				COALESCE(SUM(ld.record_count), 0) AS total_record_count
+FROM log_event le
+	LEFT JOIN log_detail ld
+ON ld.log_event_id = le.id
+WHERE le.month = @target_month
+GROUP BY le.month, le.log_event_type_id, le.log_reason_type_id,LEFT(ld.entity_uid, 2)
 ORDER BY le.log_event_type_id, le.month;

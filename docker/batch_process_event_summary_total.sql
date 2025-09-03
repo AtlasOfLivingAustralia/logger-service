@@ -40,7 +40,7 @@ BEGIN
 		FROM log_event le
 			LEFT JOIN log_detail ld
 		ON ld.log_event_id = le.id
-		WHERE le.id > p_start_id
+		WHERE le.id >= p_start_id
 		  AND le.id <= p_end_id
 		GROUP BY le.month, le.log_event_type_id, entity_prefix
 		ORDER BY le.log_event_type_id, le.month;
