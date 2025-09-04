@@ -6,6 +6,8 @@ SET @target_month = 202601;
 
 delete FROM logger.event_summary_totals where month= @target_month;
 delete FROM logger.event_summary_breakdown_reason where month= @target_month;
+delete FROM logger.event_summary_breakdown_reason_entity where month= @target_month;
+delete FROM logger.event_summary_breakdown_email where month= @target_month;
 
 DELETE FROM log_detail
 WHERE log_event_id IN (
@@ -104,7 +106,7 @@ INSERT INTO `log_detail` (
     `log_event_id`
 ) VALUES (
              1002,
-             'co100',
+             'co101',
              30,
              @last_log_event_id
          );
