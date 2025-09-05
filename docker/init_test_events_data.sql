@@ -1,12 +1,11 @@
--- Insert a new log event and corresponding log detail for testing - TARGETTING 202509
--- It approved that the current tigger will double count the record_count in event_summary_totals table.
-
--- Step 1: Delete log_detail records linked to log_event entries from month 202509
+-- Insert new log events and corresponding log detail for testing
+-- Step 1: Delete log_detail records linked to log_event entries from the target month
 SET @target_month = 202601;
 
 delete FROM logger.event_summary_totals where month= @target_month;
 delete FROM logger.event_summary_breakdown_reason where month= @target_month;
 delete FROM logger.event_summary_breakdown_reason_entity where month= @target_month;
+delete FROM logger.event_summary_breakdown_reason_entity_source where month= @target_month;
 delete FROM logger.event_summary_breakdown_email where month= @target_month;
 
 DELETE FROM log_detail
@@ -136,7 +135,7 @@ INSERT INTO `log_event` (
              'aws-biocache-service-test-2025.test.ala.org.au',
              'ala-hub/8.1.0-SNAPSHOT',
              1,
-             0,
+             1,
              'https://biocache-ws.test.ala.org.au/...'
          );
 
@@ -157,7 +156,7 @@ INSERT INTO `log_detail` (
              @last_log_event_id
          );
 --
--- Aggragation for event_summary_totals      
+-- Aggregation for event_summary_totals
 --
 SELECT
 	le.month AS month,
@@ -173,7 +172,7 @@ GROUP BY le.month, le.log_event_type_id, LEFT(ld.entity_uid, 2)
 ORDER BY le.log_event_type_id, le.month;
 
 --
--- Aggragation for event_summary_breakdown_reason
+-- Aggregation for event_summary_breakdown_reason
 --
 SELECT
 	le.month AS month,

@@ -16,9 +16,6 @@ BEGIN
     SELECT MIN(id) INTO start_id FROM log_event WHERE month = target_month;
     SELECT MAX(id) INTO end_id FROM log_event WHERE month = target_month;
 
-    -- Debug output
-    SELECT 'debug:' AS label, start_id AS start_id, end_id AS end_id;
-
     -- Loop through process_list
     WHILE pos <= CHAR_LENGTH(process_list) DO
         SET proc_index = SUBSTRING(process_list, pos, 1);
