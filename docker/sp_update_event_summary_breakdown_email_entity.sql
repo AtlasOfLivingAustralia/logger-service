@@ -1,4 +1,4 @@
-CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_reason_entity`(
+CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_email_entity`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
 )
@@ -7,7 +7,7 @@ BEGIN
     -- v_ variables are written into the temporary table
     DECLARE v_month INT;
     DECLARE v_event_type_id INT;
-    DECLARE v_reason_type_id INT;
+    DECLARE v_user_email_category VARCHAR(5);
     DECLARE v_entity_uid VARCHAR(10); -- e.g. 'dr1000'
     DECLARE v_num_events INT;
     DECLARE v_total_records INT;
@@ -20,12 +20,12 @@ BEGIN
 
     -- Declare cursor for iterating over a temporary database stored the aggregated results
     DECLARE cur CURSOR FOR
-        SELECT month, log_event_type_id, log_reason_type_id, entity_uid, num_log_details, total_record_count
+        SELECT month, log_event_type_id, user_email_category, entity_uid, num_log_details, total_record_count
         FROM tmp_aggregated_results;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
-   SELECT "DEBUG: event_summary_breakdown_reason_entity", p_start_id, p_end_id;
+    SELECT "DEBUG: processing event_summary_breakdown_email_entity", p_start_id, p_end_id;
 
     -- Drop temporary table if it already exists
     DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
@@ -37,7 +37,14 @@ BEGIN
         SELECT
 			le.month AS month,
 			le.log_event_type_id AS log_event_type_id,
-			le.log_reason_type_id AS log_reason_type_id,
+            CASE
+                WHEN le.user_email IS NULL OR le.user_email = '' THEN 'unspecified'
+                WHEN le.user_email LIKE '%.edu%' THEN 'edu'
+                WHEN le.user_email LIKE '%.ac.%' THEN 'edu'
+                WHEN le.user_email LIKE '%.gov%' THEN 'gov'
+                WHEN le.user_email LIKE '%csiro.au' THEN 'gov'
+                ELSE 'other'
+            END AS user_email_category,
 			ld.entity_uid AS entity_uid,
 			COUNT(ld.id) AS num_log_details,
 			COALESCE(SUM(ld.record_count), 0) AS total_record_count
@@ -46,61 +53,64 @@ BEGIN
         ON ld.log_event_id = le.id
         WHERE le.id >= p_start_id
           AND le.id <= p_end_id
-        GROUP BY le.month, log_event_type_id, log_reason_type_id, entity_uid
+        GROUP BY le.month,
+              le.log_event_type_id,
+              user_email_category,
+              entity_uid
         ORDER BY le.log_event_type_id, le.month;
 
     -- 3. Open cursor and loop through each row
     OPEN cur;
         read_loop: LOOP
                 SET done = 0; -- IMPORTANT: reset done flag for each loop, otherwise it will stop after the last iteration
-                FETCH cur INTO v_month, v_event_type_id, v_reason_type_id, v_entity_uid, v_num_events, v_total_records;
+                FETCH cur INTO v_month, v_event_type_id, v_user_email_category, v_entity_uid, v_num_events, v_total_records;
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
 
                 SELECT number_of_events, record_count into current_number_of_events, current_record_count
-                FROM event_summary_breakdown_reason_entity
+                FROM event_summary_breakdown_email_entity
                 WHERE month = v_month
                   AND log_event_type_id = v_event_type_id
-                  AND log_reason_type_id = v_reason_type_id
-                  AND entity_uid = v_entity_uid;
+                  AND user_email_category = v_user_email_category
+                  AnD entity_uid = v_entity_uid;
 
                 -- Update the summary table
                 IF EXISTS (
                     SELECT 1
-                    FROM event_summary_breakdown_reason_entity
+                    FROM event_summary_breakdown_email_entity
                     WHERE month = v_month
                       AND log_event_type_id = v_event_type_id
-                      AND log_reason_type_id = v_reason_type_id
+                      AND user_email_category = v_user_email_category
                       AND entity_uid = v_entity_uid
                 ) THEN
-                    UPDATE event_summary_breakdown_reason_entity
-                    SET number_of_events = number_of_events + v_num_events,
-                        record_count = record_count + v_total_records
+                    UPDATE event_summary_breakdown_email_entity
+                    SET number_of_events = number_of_events + v_num_events
                     WHERE month = v_month
                       AND log_event_type_id = v_event_type_id
-                      AND log_reason_type_id = v_reason_type_id
+                      AND user_email_category = v_user_email_category
                       AND entity_uid = v_entity_uid;
                 ELSE
-                    INSERT INTO event_summary_breakdown_reason_entity (
-                        month, log_event_type_id, log_reason_type_id, entity_uid, number_of_events,record_count
+                    INSERT INTO event_summary_breakdown_email_entity (
+                        month, log_event_type_id, user_email_category,entity_uid, number_of_events,record_count
                     )
-                    VALUES (v_month, v_event_type_id, v_reason_type_id, v_entity_uid, v_num_events,v_total_records);
+                    VALUES (v_month, v_event_type_id, v_user_email_category, v_entity_uid, v_num_events, v_total_records);
                 END IF;
 
+                
                 -- Print the current event summary
                 SELECT number_of_events, record_count into updated_number_of_events, updated_record_count
-                FROM event_summary_breakdown_reason_entity
+                FROM event_summary_breakdown_email_entity
                 WHERE month = v_month
                   AND log_event_type_id = v_event_type_id
-                  AND log_reason_type_id = v_reason_type_id
+                  AND user_email_category = v_user_email_category
                   AND entity_uid = v_entity_uid;
 
                 SELECT
                     'Debug:' AS message,
                     v_month AS month,
                     v_event_type_id AS log_event_type_id,
-                    v_reason_type_id AS log_reason_type_id,
+                    v_user_email_category AS user_email_category,
                     v_entity_uid AS entity_uid,
                     current_number_of_events As previoius_of_events,
                     current_record_count As previous_record_count,

@@ -1,3 +1,4 @@
+--Note: it only updates the total number of events and record counts for 'dr' entity only as per the existing trigger logic
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_email`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -24,6 +25,8 @@ BEGIN
         FROM tmp_aggregated_results;
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
+
+    SELECT "DEBUG: event_summary_breakdown_email", p_start_id, p_end_id;
 
     -- Drop temporary table if it already exists
     DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;

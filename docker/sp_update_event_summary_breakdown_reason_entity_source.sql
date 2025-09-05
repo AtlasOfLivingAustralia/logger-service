@@ -26,7 +26,7 @@ BEGIN
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
-   SELECT "DEBUG: event_summary_breakdown_reason_entity_source with range:", p_start_id, p_end_id;
+   SELECT "DEBUG: event_summary_breakdown_reason_entity_source", p_start_id, p_end_id;
 
     -- Drop temporary table if it already exists
     DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
