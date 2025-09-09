@@ -65,12 +65,7 @@ BEGIN
 						--                             UPDATE event_summary_totals est SET record_count = record_count + NEW.record_count
 						--                      WHERE est.month = new_month AND est.log_event_type_id = new_log_event_type_id;
 						--                        END IF;
-					-- Print the current event summary
-					SELECT number_of_events, record_count into current_number_of_events, current_record_count
-					FROM event_summary_totals
-					WHERE month = v_month
-					  AND log_event_type_id = v_event_type_id;
-                   
+
 					-- Update the number of event to the summary table
 					IF EXISTS (
 							SELECT 1
@@ -95,26 +90,13 @@ BEGIN
 						UPDATE event_summary_totals est SET record_count = record_count + v_total_records
 							WHERE est.month = v_month AND est.log_event_type_id = v_event_type_id;
 					END IF;
-
-					-- Print the current event summary
-					SELECT number_of_events, record_count into updated_number_of_events, updated_record_count
-					FROM event_summary_totals
-					WHERE month = v_month
-					  AND log_event_type_id = v_event_type_id;
-
-					SELECT
-						'Debug:' AS message,
-						v_month AS month,
-						v_event_type_id AS log_event_type_id,
-						current_number_of_events As previoius_of_events,
-						current_record_count As previous_record_count,
-						updated_number_of_events AS updated_number_of_events,
-						updated_record_count AS updated_record_count;
-					END
-				LOOP;
-
+                END
+			LOOP;
 CLOSE cur;
 
--- Optional: drop temporary table at the end
+-- drop temporary table at the end
 DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
+
+SELECT "COMPLETED: event_summary_breakdown_total", p_start_id, p_end_id;
+
 END

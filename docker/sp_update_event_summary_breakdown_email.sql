@@ -1,4 +1,4 @@
---Note: it only updates the total number of events and record counts for 'dr' entity only as per the existing trigger logic
+-- Note: it only updates the total number of events and record counts for 'dr' entity only as per the existing trigger logic
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_email`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -69,12 +69,6 @@ BEGIN
                     LEAVE read_loop;
                 END IF;
 
-                SELECT number_of_events, record_count into current_number_of_events, current_record_count
-                FROM event_summary_breakdown_email
-                WHERE month = v_month
-                  AND log_event_type_id = v_event_type_id
-                  AND user_email_category = v_user_email_category;
-
                 -- Update the summary table
                 IF EXISTS (
                     SELECT 1
@@ -108,17 +102,7 @@ BEGIN
                 WHERE month = v_month
                   AND log_event_type_id = v_event_type_id
                   AND user_email_category = v_user_email_category;
-
-                SELECT
-                    'Debug:' AS message,
-                    v_month AS month,
-                    v_event_type_id AS log_event_type_id,
-                    v_user_email_category AS user_email_category,
-                    current_number_of_events As previoius_of_events,
-                    current_record_count As previous_record_count,
-                    updated_number_of_events AS updated_number_of_events,
-                    updated_record_count AS updated_record_count;
-                END
+            END
         LOOP;
 
     CLOSE cur;

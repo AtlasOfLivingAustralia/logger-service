@@ -7,6 +7,7 @@ delete FROM logger.event_summary_breakdown_reason where month= @target_month;
 delete FROM logger.event_summary_breakdown_reason_entity where month= @target_month;
 delete FROM logger.event_summary_breakdown_reason_entity_source where month= @target_month;
 delete FROM logger.event_summary_breakdown_email where month= @target_month;
+delete FROM logger.event_summary_breakdown_email_entity where month= @target_month;
 
 DELETE FROM log_detail
 WHERE log_event_id IN (
@@ -61,6 +62,7 @@ INSERT INTO `log_detail` (
              100,
              @last_log_event_id
          );
+
 INSERT INTO `log_detail` (
     `entity_type`,
     `entity_uid`,
@@ -80,7 +82,7 @@ INSERT INTO `log_detail` (
     `log_event_id`
 ) VALUES (
              1002,
-             'dr1002',
+             'dr1001',
              100,
              @last_log_event_id
          );
@@ -155,6 +157,97 @@ INSERT INTO `log_detail` (
              25,
              @last_log_event_id
          );
+
+-- 3rd Event insert again
+INSERT INTO `log_event` (
+    `comment`,
+    `created`,
+    `log_event_type_id`,
+    `month`,
+    `user_email`,
+    `user_ip`,
+    `source`,
+    `user_agent`,
+    `log_reason_type_id`,
+    `log_source_type_id`,
+    `source_url`
+) VALUES (
+             '3 test -BAI',
+             '2025-09-01 09:51:41',
+             2000,
+             @target_month,
+             'qifeng.bai@anu.edu.au',
+             '127.0.0.1',
+             'aws-biocache-service-test-2025.test.ala.org.au',
+             'ala-hub/8.1.0-SNAPSHOT',
+             10,
+             5,
+             'https://biocache-ws.test.ala.org.au/...'
+         );
+
+-- 2. Capture the generated ID
+SET @last_log_event_id = LAST_INSERT_ID();
+
+-- 3. Insert into log_detail using the generated ID
+-- insert dr
+INSERT INTO `log_detail` (
+    `entity_type`,
+    `entity_uid`,
+    `record_count`,
+    `log_event_id`
+) VALUES (
+             2000,
+             'dr1000',
+             35,
+             @last_log_event_id
+         );
+
+
+-- 4th Event insert again
+INSERT INTO `log_event` (
+    `comment`,
+    `created`,
+    `log_event_type_id`,
+    `month`,
+    `user_email`,
+    `user_ip`,
+    `source`,
+    `user_agent`,
+    `log_reason_type_id`,
+    `log_source_type_id`,
+    `source_url`
+) VALUES (
+             '4 test-BAI',
+             '2025-09-01 09:51:41',
+             1002,
+             @target_month,
+             'qifeng.bai@csiro.au',
+             '127.0.0.1',
+             'aws-biocache-service-test-2025.test.ala.org.au',
+             'ala-hub/8.1.0-SNAPSHOT',
+             10,
+             1,
+             'https://biocache-ws.test.ala.org.au/...'
+         );
+
+-- 2. Capture the generated ID
+SET @last_log_event_id = LAST_INSERT_ID();
+
+-- 3. Insert into log_detail using the generated ID
+-- insert dr
+
+INSERT INTO `log_detail` (
+    `entity_type`,
+    `entity_uid`,
+    `record_count`,
+    `log_event_id`
+) VALUES (
+             1002,
+             'dr1001',
+             100,
+             @last_log_event_id
+         );
+
 --
 -- Aggregation for event_summary_totals
 --
@@ -172,18 +265,19 @@ GROUP BY le.month, le.log_event_type_id, LEFT(ld.entity_uid, 2)
 ORDER BY le.log_event_type_id, le.month;
 
 --
--- Aggregation for event_summary_breakdown_reason
+-- List
 --
 SELECT
-	le.month AS month,
-				le.log_event_type_id AS log_event_type_id,
-                le.log_reason_type_id AS log_reason_type_id,
-				LEFT(ld.entity_uid, 2) AS entity_prefix,
-				COUNT(ld.id) AS num_log_details,
-				COALESCE(SUM(ld.record_count), 0) AS total_record_count
+    le.month AS month,
+    le.comment,
+    le.log_event_type_id AS log_event_type_id,
+    ld.entity_uid,
+    le.log_reason_type_id AS log_reason_type_id,
+    le.log_source_type_id as log_source_type_id,
+    substring(le.user_email,11) as email_category,
+    ld.record_count
 FROM log_event le
-	LEFT JOIN log_detail ld
+    LEFT JOIN log_detail ld
 ON ld.log_event_id = le.id
-WHERE le.month = @target_month
-GROUP BY le.month, le.log_event_type_id, le.log_reason_type_id,LEFT(ld.entity_uid, 2)
-ORDER BY le.log_event_type_id, le.month;
+WHERE le.month = 202601
+order by le.comment, ld.entity_uid;

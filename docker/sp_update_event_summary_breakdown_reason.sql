@@ -25,7 +25,7 @@ BEGIN
 
     DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
 
-    SELECT "DEBUG: event_summary_breakdown_breakdown_reason", p_start_id, p_end_id;
+    SELECT "DEBUG: event_summary_breakdown_reason", p_start_id, p_end_id;
     -- Drop temporary table if it already exists
     DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
 
@@ -56,12 +56,6 @@ BEGIN
                 IF done THEN
                     LEAVE read_loop;
                 END IF;
-
-                SELECT number_of_events, record_count into current_number_of_events, current_record_count
-                FROM event_summary_breakdown_reason
-                WHERE month = v_month
-                  AND log_event_type_id = v_event_type_id
-                  AND log_reason_type_id = v_reason_type_id;
 
                 -- Update the summary table
                 IF EXISTS (
@@ -96,17 +90,7 @@ BEGIN
                 WHERE month = v_month
                   AND log_event_type_id = v_event_type_id
                   AND log_reason_type_id = v_reason_type_id;
-
-                SELECT
-                    'Debug:' AS message,
-                    v_month AS month,
-                    v_event_type_id AS log_event_type_id,
-                    v_reason_type_id AS log_reason_type_id,
-                    current_number_of_events As previoius_of_events,
-                    current_record_count As previous_record_count,
-                    updated_number_of_events AS updated_number_of_events,
-                    updated_record_count AS updated_record_count;
-                END
+            END
         LOOP;
 
     CLOSE cur;

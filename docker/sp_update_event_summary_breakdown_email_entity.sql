@@ -68,13 +68,6 @@ BEGIN
                     LEAVE read_loop;
                 END IF;
 
-                SELECT number_of_events, record_count into current_number_of_events, current_record_count
-                FROM event_summary_breakdown_email_entity
-                WHERE month = v_month
-                  AND log_event_type_id = v_event_type_id
-                  AND user_email_category = v_user_email_category
-                  AnD entity_uid = v_entity_uid;
-
                 -- Update the summary table
                 IF EXISTS (
                     SELECT 1
@@ -105,18 +98,7 @@ BEGIN
                   AND log_event_type_id = v_event_type_id
                   AND user_email_category = v_user_email_category
                   AND entity_uid = v_entity_uid;
-
-                SELECT
-                    'Debug:' AS message,
-                    v_month AS month,
-                    v_event_type_id AS log_event_type_id,
-                    v_user_email_category AS user_email_category,
-                    v_entity_uid AS entity_uid,
-                    current_number_of_events As previoius_of_events,
-                    current_record_count As previous_record_count,
-                    updated_number_of_events AS updated_number_of_events,
-                    updated_record_count AS updated_record_count;
-                END
+            END
         LOOP;
 
     CLOSE cur;
