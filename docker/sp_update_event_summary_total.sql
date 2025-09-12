@@ -1,4 +1,8 @@
+
 -- NOTE： It only updates the record_count for 'dr' entity, as per the existing trigger logic
+-- It splits two processes. one for counting number_of_events, another for record_count of 'dr' entity only
+-- They cannot combine into one process
+-- When we count by event_id group by event_type_id, since an event_id may have multiple event_type_id, the count may be duplicated
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_totals`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -19,17 +23,20 @@ BEGIN
 --     DECLARE updated_number_of_events INT DEFAULT 0;
 --     DECLARE updated_record_count INT DEFAULT 0;
 
-    -- Declare cursor for iterating over a temporary database stored the aggregated results for total_records of 'dr' entity only
-    DECLARE cur CURSOR FOR
+     -- Declare cur_summary for count events
+     DECLARE cur_summary CURSOR FOR
+         SELECT month, log_event_type_id, num_log_event FROM tmp_log_event_summary;
+     -- Declare cursor for iterating over a temporary database stored the aggregated results for total_records of 'dr' entity only
+     DECLARE cur CURSOR FOR
 		SELECT month, log_event_type_id,entity_prefix, num_log_event, total_record_count
 		FROM tmp_aggregated_results;
-    DECLARE cur_summary CURSOR FOR
-        SELECT month, log_event_type_id, num_log_event FROM tmp_log_event_summary;
+
 
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
     -- Drop temporary table if it already exists
+	DROP TEMPORARY TABLE IF EXISTS tmp_log_event_summary;
     DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
-    DROP TEMPORARY TABLE IF EXISTS tmp_log_event_summary;
+
 
     -- START: Count log_event (excludes those without log_details) based on month and event type(e.g 1002)
     CREATE TEMPORARY TABLE tmp_log_event_summary (
@@ -52,13 +59,13 @@ BEGIN
             WHERE ld.log_event_id = le.id
             )
         GROUP BY le.month, le.log_event_type_id
-        ORDER BY le.log_event_type_id, le.month;
+        ORDER BY le.month, le.log_event_type_id;
 
     OPEN cur_summary;
 
     read_loop: LOOP
-             SET done = 0;
-             FETCH cur_summary INTO v_month, v_event_type_id, v_num_events;
+        SET done = 0;
+        FETCH cur_summary INTO v_month, v_event_type_id, v_num_events;
         IF done THEN
             LEAVE read_loop;
         END IF;

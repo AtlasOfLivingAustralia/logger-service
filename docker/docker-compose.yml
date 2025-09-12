@@ -7,7 +7,7 @@ services:
       MYSQL_USER:  'logger'
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
-    command: --default-authentication-plugin=mysql_native_password
+    command: --default-authentication-plugin=mysql_native_password --connect_timeout=1200
     ports:
       - "3306:3306"
     expose:
