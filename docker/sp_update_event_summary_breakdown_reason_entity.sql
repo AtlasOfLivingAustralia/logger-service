@@ -31,7 +31,7 @@ BEGIN
             le.log_event_type_id AS log_event_type_id,
             COALESCE(le.log_reason_type_id, -1) AS log_reason_type_id,
             ld.entity_uid AS entity_uid,
-            COUNT(le.id) AS num_log_event
+            COUNT(DISTINCT le.id) AS num_log_event
     FROM log_event le
         LEFT JOIN log_detail ld
         ON ld.log_event_id = le.id
@@ -112,7 +112,6 @@ BEGIN
         -- 3. Open cursor and loop through each row
         OPEN cur;
             read_loop: LOOP
---                     SET done = 0; -- IMPORTANT: reset done flag for each loop, otherwise it will stop after the last iteration
                     FETCH cur INTO v_month, v_event_type_id, v_reason_type_id, v_entity_uid, v_total_records;
                     IF done THEN
                         LEAVE read_loop;

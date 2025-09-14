@@ -41,7 +41,7 @@ BEGIN
 			le.log_reason_type_id AS log_reason_type_id,
 			ld.entity_uid AS entity_uid,
 			le.log_source_type_id AS log_source_type_id,
-			COUNT(ld.id) AS num_log_details,
+			COUNT(DISTINCT ld.id) AS num_log_details,
 			COALESCE(SUM(ld.record_count), 0) AS total_record_count
         FROM log_event le
             LEFT JOIN log_detail ld
