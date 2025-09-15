@@ -1,4 +1,4 @@
--- NOTE: Assure an unique key of the event_summary_breakdown_reason_entity table has been created before running this procedure
+-- NOTE: Assure a unique key of the event_summary_breakdown_reason_entity table has been created before running this procedure
 --
 -- ALTER TABLE event_summary_breakdown_reason_entity
 --     ADD UNIQUE KEY uq_summary_entity (
