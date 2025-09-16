@@ -8,8 +8,7 @@
 --     entity_uid
 --     );
 
-
-
+DELIMITER $$
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_reason_entity`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -109,4 +108,5 @@ BEGIN
         DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
     END;
     SELECT "COMPLETED: event_summary_breakdown_reason_entity", p_start_id, p_end_id;
-END
+END $$
+DELIMITER ;

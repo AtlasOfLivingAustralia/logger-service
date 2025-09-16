@@ -6,6 +6,7 @@
 -- It splits two processes. one for counting number_of_events, another for record_count of 'dr' entity only
 -- They cannot combine into one process
 -- When we count by event_id group by event_type_id, since an event_id may have multiple event_type_id, the count may be duplicated
+DELIMITER $$
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_totals`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -74,7 +75,8 @@ BEGIN
 
     -- Cleanup
     DROP TEMPORARY TABLE IF EXISTS tmp_log_event_summary;
-            DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
+    DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
 
     SELECT "COMPLETED: event_summary_breakdown_total", p_start_id, p_end_id;
-END
+END $$
+DELIMITER ;

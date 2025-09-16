@@ -5,7 +5,7 @@
 --     log_event_type_id,
 --     log_reason_type_id
 --     );
-
+DELIMITER $$
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_reason`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -15,15 +15,15 @@ BEGIN
 
     -- Cleanup any previous temp tables
     DROP TEMPORARY TABLE IF EXISTS tmp_log_event_summary;
-        DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
+    DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
 
-        -- Phase 1: Count number_of_events per (month, event_type, reason_type)
-        CREATE TEMPORARY TABLE tmp_log_event_summary (
-            month INT,
-            log_event_type_id INT,
-            log_reason_type_id INT,
-            num_log_event BIGINT
-        );
+    -- Phase 1: Count number_of_events per (month, event_type, reason_type)
+    CREATE TEMPORARY TABLE tmp_log_event_summary (
+        month INT,
+        log_event_type_id INT,
+        log_reason_type_id INT,
+        num_log_event BIGINT
+    );
 
     INSERT INTO tmp_log_event_summary (month, log_event_type_id, log_reason_type_id, num_log_event)
         SELECT
@@ -74,4 +74,5 @@ BEGIN
     DROP TEMPORARY TABLE IF EXISTS tmp_aggregated_results;
 
     SELECT "COMPLETED: event_summary_breakdown_reason", p_start_id, p_end_id;
-END;
+END $$
+DELIMITER ;

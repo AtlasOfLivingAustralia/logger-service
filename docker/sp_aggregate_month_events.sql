@@ -1,7 +1,7 @@
 --
 -- Designed for debug and test purposes
 --
-
+DELIMITER $$
 CREATE DEFINER=`logger`@`%` PROCEDURE `process_month_events`(
     IN target_month INT,
     IN process_list VARCHAR(20) -- e.g. '0,2,4'
@@ -58,4 +58,6 @@ BEGIN
 
         SET pos = pos + 2; -- Skip comma
     END WHILE;
-END
+END $$
+
+DELIMITER ;
