@@ -15,13 +15,6 @@ CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_rea
     IN p_end_id BIGINT
 )
 BEGIN
-    -- v_ variables are written into the temporary table
-    DECLARE v_month INT;
-    DECLARE v_event_type_id INT;
-    DECLARE v_reason_type_id INT;
-    DECLARE v_entity_uid VARCHAR(10); -- e.g. 'dr1000'
-    DECLARE v_num_events BIGINT;
-    DECLARE v_total_records BIGINT;
 
     SELECT "STARTED: event_summary_breakdown_reason_entity", p_start_id, p_end_id;
     -- Drop temporary table if it already exists

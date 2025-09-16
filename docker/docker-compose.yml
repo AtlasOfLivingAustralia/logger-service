@@ -8,8 +8,6 @@ services:
       MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'password'
     command: --default-authentication-plugin=mysql_native_password --wait_timeout=1200 --interactive_timeout=600 --net_read_timeout=600 --net_write_timeout=600 --connect_timeout=600
-    volumes:
-      - ./docker/init:/docker-entrypoint-initdb.d
     ports:
       - "3306:3306"
     expose:
