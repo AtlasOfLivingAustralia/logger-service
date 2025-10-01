@@ -104,6 +104,9 @@ dependencies {
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
     runtimeOnly "mysql:mysql-connector-java:8.0.28"
 
+    implementation 'io.micronaut.flyway:micronaut-flyway:4.0.0'
+    runtimeOnly 'org.flywaydb:flyway-mysql:10.0.0'
+
     testImplementation "io.micronaut:micronaut-core:3.6.0"
     testImplementation "io.micronaut:micronaut-inject:3.10.2"
     testImplementation "io.micronaut:micronaut-inject-groovy"

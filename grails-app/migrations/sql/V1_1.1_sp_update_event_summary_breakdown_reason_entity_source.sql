@@ -8,7 +8,6 @@
 --     log_source_type_id
 --     );
 
-DELIMITER $$
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_reason_entity_source`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -62,5 +61,4 @@ BEGIN
 
     -- Cleanup
     DROP TABLE tmp_aggregated_results;
-END $$
-DELIMITER ;
+END;

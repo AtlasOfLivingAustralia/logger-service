@@ -5,7 +5,7 @@
 --     log_event_type_id,
 --     user_email_category
 --     );
-DELIMITER $$
+
 CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_email`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
@@ -89,5 +89,4 @@ BEGIN
     End;
 
     SELECT 'COMPLETED: event_summary_breakdown_email', p_start_id, p_end_id;
-END $$
-DELIMITER ;
+END;
