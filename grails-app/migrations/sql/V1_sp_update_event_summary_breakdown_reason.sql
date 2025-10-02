@@ -6,7 +6,7 @@
 --     log_reason_type_id
 --     );
 
-CREATE DEFINER=`logger`@`%` PROCEDURE `process_event_summary_breakdown_reason`(
+CREATE PROCEDURE `process_event_summary_breakdown_reason`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
 )

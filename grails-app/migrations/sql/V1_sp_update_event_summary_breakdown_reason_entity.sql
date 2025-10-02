@@ -8,7 +8,7 @@
 --     entity_uid
 --     );
 
-CREATE DEFINER=`logger`@`%` PROCEDURE `process_event_summary_breakdown_reason_entity`(
+CREATE PROCEDURE `process_event_summary_breakdown_reason_entity`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
 )
