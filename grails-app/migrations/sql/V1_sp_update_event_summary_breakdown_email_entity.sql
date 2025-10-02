@@ -7,7 +7,7 @@
 --     entity_uid
 --     );
 
-CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_email_entity`(
+CREATE DEFINER=`logger`@`%` PROCEDURE `process_event_summary_breakdown_email_entity`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
 )

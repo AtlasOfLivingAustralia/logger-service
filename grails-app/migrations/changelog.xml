@@ -104,68 +104,53 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="10.1-prerequisite-index-uq_month_email_eventTypeId" author="Qifeng Bai">
+    <changeSet id="10-prerequisite-index-for-summary-aggregation" author="Qifeng Bai">
         <addUniqueConstraint
                 tableName="event_summary_breakdown_email"
                 columnNames="month, log_event_type_id, user_email_category"
-                constraintName="uq_month_email_eventTypeId"/>
-    </changeSet>
-
-    <changeSet id="10.2-prerequisite-index-uq_email_entity" author="Qifeng Bai">
+                constraintName="uq_month_event_email"/>
         <addUniqueConstraint
                 tableName="event_summary_breakdown_email_entity"
                 columnNames="month, log_event_type_id, user_email_category, entity_uid"
-                constraintName="uq_email_entity"/>
-    </changeSet>
-
-    <changeSet id="10.3-prerequisite-index-uq_breakdown_reason" author="Qifeng Bai">
+                constraintName="uq_month_event_email_entity"/>
         <addUniqueConstraint
                 tableName="event_summary_breakdown_reason"
                 columnNames="month, log_event_type_id, log_reason_type_id"
-                constraintName="uq_breakdown_reason"/>
-    </changeSet>
-
-    <changeSet id="10.4-prerequisite-index-uq_summary_entity" author="Qifeng Bai">
+                constraintName="uq_month_event_reason"/>
         <addUniqueConstraint
                 tableName="event_summary_breakdown_reason_entity"
                 columnNames="month, log_event_type_id, log_reason_type_id, entity_uid"
-                constraintName="uq_summary_entity"/>
-    </changeSet>
-
-    <changeSet id="10.5-prerequisite-index-uq_reason_entity_source" author="Qifeng Bai">
+                constraintName="uq_month_event_reason_entity"/>
         <addUniqueConstraint
                 tableName="event_summary_breakdown_reason_entity_source"
                 columnNames="month, log_event_type_id, log_reason_type_id, entity_uid, log_source_type_id"
-                constraintName="uq_reason_entity_source"/>
-    </changeSet>
-
-    <changeSet id="10.6-prerequisite-index-uq_summary_totals" author="Qifeng Bai">
+                constraintName="uq_month_event_reason_entity_source"/>
         <addUniqueConstraint
                 tableName="event_summary_totals"
                 columnNames="month, log_event_type_id"
-                constraintName="uq_summary_totals"/>
+                constraintName="uq_month_event"/>
     </changeSet>
 
-    <changeSet id="10.7-add-summary-stored-procedures" author="Qifeng Bai">
-        <sqlFile path="./sql/V1_1.1_sp_update_event_summary_total.sql"
+    <changeSet id="10-add-stored-procedures-to-summary-tables" author="Qifeng Bai">
+        <sqlFile path="./sql/V1_sp_update_event_summary_total.sql"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_1.1_sp_update_event_summary_breakdown_email.sql" splitStatements="false"
+        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_email.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_1.1_sp_update_event_summary_breakdown_email_entity.sql" splitStatements="false"
+        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_email_entity.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_1.1_sp_update_event_summary_breakdown_reason.sql" splitStatements="false"
+        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_reason.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_1.1_sp_update_event_summary_breakdown_reason_entity.sql" splitStatements="false"
+        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_reason_entity.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_1.1_sp_update_event_summary_breakdown_reason_entity_source.sql" splitStatements="false"
+        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_reason_entity_source.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_1.1_sp_aggregate_month_events.sql" splitStatements="false"
+        <sqlFile path="sql/V1_sp_process_month_events.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
     </changeSet>

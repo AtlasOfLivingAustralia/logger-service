@@ -6,7 +6,7 @@
 --     user_email_category
 --     );
 
-CREATE DEFINER=`logger`@`%` PROCEDURE `batch_process_event_summary_breakdown_email`(
+CREATE DEFINER=`logger`@`%` PROCEDURE `process_event_summary_breakdown_email`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
 )
