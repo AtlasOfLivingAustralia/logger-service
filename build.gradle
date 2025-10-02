@@ -55,13 +55,13 @@ configurations {
     }
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDir 'grails-app/migrations'
-        }
-    }
-}
+//sourceSets {
+//    main {
+//        resources {
+//            srcDir 'grails-app/migrations'
+//        }
+//    }
+//}
 
 configurations.all {
     resolutionStrategy {
