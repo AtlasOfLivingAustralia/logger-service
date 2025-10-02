@@ -150,7 +150,7 @@
         <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_reason_entity_source.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="sql/V1_sp_process_month_events.sql" splitStatements="false"
+        <sqlFile path="./sql/V1_sp_process_month_events.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
     </changeSet>
