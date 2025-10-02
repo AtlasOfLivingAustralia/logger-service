@@ -132,25 +132,25 @@
     </changeSet>
 
     <changeSet id="10-add-stored-procedures-to-summary-tables" author="Qifeng Bai">
-        <sqlFile path="./sql/V1_sp_update_event_summary_total.sql"
+        <sqlFile path="classpath:sql/V1_sp_update_event_summary_total.sql"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_email.sql" splitStatements="false"
+        <sqlFile path="classpath:sql/V1_sp_update_event_summary_breakdown_email.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_email_entity.sql" splitStatements="false"
+        <sqlFile path="classpath:sql/V1_sp_update_event_summary_breakdown_email_entity.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_reason.sql" splitStatements="false"
+        <sqlFile path="classpath:sql/V1_sp_update_event_summary_breakdown_reason.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_reason_entity.sql" splitStatements="false"
+        <sqlFile path="classpath:sql/V1_sp_update_event_summary_breakdown_reason_entity.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_sp_update_event_summary_breakdown_reason_entity_source.sql" splitStatements="false"
+        <sqlFile path="classpath:sql/V1_sp_update_event_summary_breakdown_reason_entity_source.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
-        <sqlFile path="./sql/V1_sp_process_month_events.sql" splitStatements="false"
+        <sqlFile path="classpath:sql/V1_sp_process_month_events.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
     </changeSet>
