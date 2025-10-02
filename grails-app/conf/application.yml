@@ -135,7 +135,7 @@ environments:
                 appServerName: "http://localhost:8080"
     test:
         grails:
-            serverURL: "http://dev.ala.org.au"
+            serverURL: "http://logger.test.ala.org.au"
         dataSource:
             dialect: org.hibernate.dialect.H2Dialect
             dbCreate: create-drop
@@ -143,7 +143,7 @@ environments:
             url: jdbc:h2:mem:testDb;MVCC=TRUE;LOCK_TIMEOUT=10000;DB_CLOSE_ON_EXIT=FALSE
         security:
             cas:
-                appServerName: "http://dev.ala.org.au"
+                appServerName: "http://logger.test.ala.org.au"
     production:
         grails:
             serverURL: "https://logger.ala.org.au"

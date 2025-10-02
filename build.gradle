@@ -1,5 +1,5 @@
 buildscript {
-    version "4.6.0-SNAPSHOT"
+    version "4.6.1-SNAPSHOT"
     group "au.org.ala"
 }
 
@@ -103,7 +103,6 @@ dependencies {
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
     runtimeOnly "mysql:mysql-connector-java:8.0.28"
-
     testImplementation "io.micronaut:micronaut-core:3.6.0"
     testImplementation "io.micronaut:micronaut-inject:3.10.2"
     testImplementation "io.micronaut:micronaut-inject-groovy"

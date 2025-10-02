@@ -1,0 +1,15 @@
+services:
+  mysql:
+    container_name: logger-mysql
+    image: "mysql:8.1.0"
+    environment:
+      MYSQL_DATABASE: 'logger'
+      MYSQL_USER:  'logger'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    command: --default-authentication-plugin=mysql_native_password --wait_timeout=1200 --interactive_timeout=600 --net_read_timeout=600 --net_write_timeout=600 --connect_timeout=600
+    ports:
+      - "3306:3306"
+    expose:
+      - '3306'
+version: "2"
