@@ -6,7 +6,7 @@
 -- It splits two processes. one for counting number_of_events, another for record_count of 'dr' entity only
 -- They cannot combine into one process
 -- When we count by event_id group by event_type_id, since an event_id may have multiple event_type_id, the count may be duplicated
-DROP PROCEDURE IF EXISTS `logger`.`batch_process_event_summary_totals`;
+DROP PROCEDURE IF EXISTS `logger`.`process_event_summary_totals`;
 CREATE DEFINER=`logger`@`%` PROCEDURE `process_event_summary_totals`(
     IN p_start_id BIGINT,
     IN p_end_id BIGINT
