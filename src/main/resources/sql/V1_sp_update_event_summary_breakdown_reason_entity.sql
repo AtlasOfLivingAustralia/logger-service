@@ -25,7 +25,7 @@ BEGIN
             month INT,
             log_event_type_id INT,
             log_reason_type_id INT,
-            entity_uid VARCHAR(10),
+            entity_uid VARCHAR(255),
             num_log_event BIGINT
         );
 
