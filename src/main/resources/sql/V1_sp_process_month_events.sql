@@ -24,37 +24,37 @@ BEGIN
             WHEN '0' THEN
                 BEGIN
                     DELETE FROM event_summary_totals WHERE month = target_month;
-                    CALL logger.process_event_summary_totals(start_id, end_id);
+                    CALL process_event_summary_totals(start_id, end_id);
 --                     SELECT * FROM event_summary_totals WHERE month = target_month;
                 END;
             WHEN '1' THEN
                 BEGIN
                     DELETE FROM event_summary_breakdown_reason WHERE month = target_month;
-                    CALL logger.process_event_summary_breakdown_reason(start_id, end_id);
+                    CALL process_event_summary_breakdown_reason(start_id, end_id);
 --                     SELECT * FROM event_summary_breakdown_reason WHERE month = target_month;
                 END;
             WHEN '2' THEN
                 BEGIN
                     DELETE FROM event_summary_breakdown_reason_entity WHERE month = target_month;
-                    CALL logger.process_event_summary_breakdown_reason_entity(start_id, end_id);
+                    CALL process_event_summary_breakdown_reason_entity(start_id, end_id);
 --                     SELECT * FROM event_summary_breakdown_reason_entity WHERE month = target_month;
                 END;
             WHEN '3' THEN
                 BEGIN
                     DELETE FROM event_summary_breakdown_reason_entity_source WHERE month = target_month;
-                    CALL logger.process_event_summary_breakdown_reason_entity_source(start_id, end_id);
+                    CALL process_event_summary_breakdown_reason_entity_source(start_id, end_id);
 --                     SELECT * FROM event_summary_breakdown_reason_entity_source WHERE month = target_month;
                 END;
             WHEN '4' THEN
                 BEGIN
                     DELETE FROM event_summary_breakdown_email WHERE month = target_month;
-                    CALL logger.process_event_summary_breakdown_email(start_id, end_id);
+                    CALL process_event_summary_breakdown_email(start_id, end_id);
 --                     SELECT * FROM event_summary_breakdown_email WHERE month = target_month;
                 END;
             WHEN '5' THEN
                 BEGIN
                     DELETE FROM event_summary_breakdown_email_entity WHERE month = target_month;
-                    CALL logger.process_event_summary_breakdown_email_entity(start_id, end_id);
+                    CALL process_event_summary_breakdown_email_entity(start_id, end_id);
 --                     SELECT * FROM event_summary_breakdown_email_entity WHERE month = target_month;
                 END;
             ELSE
