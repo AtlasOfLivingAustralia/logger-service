@@ -44,6 +44,10 @@ spec:
             - name: logger-system-message-volume
               mountPath: /data/logger/config/system-message.json
               subPath: system-message.json
+          lifecycle:
+            preStop:
+              exec:
+                command: [ "/bin/sh", "-c", "sleep 20" ]
           {{- if .Values.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
