@@ -105,9 +105,9 @@ Conditions:
   IsProvisioned: !Equals 
                    - !Ref pEngineMode
                    - provisioned
-  DatabaseInsights: !Equals 
-                   - !Ref pDatabaseInsightsMode
-                   - advanced
+  DatabaseInsights: !And
+    - !Equals [!Ref pDatabaseInsightsMode, "advanced"]
+    - !Equals [!Ref pPerformanceInsights, "true"]
   IsServerlessV2: !Equals
                     - !Ref pEngineMode
                     - serverlessv2
@@ -231,7 +231,7 @@ Resources:
       PerformanceInsightsRetentionPeriod: !If
                                             - DatabaseInsights
                                             - 465
-                                            - 7
+                                            - !Ref "AWS::NoValue"
       Port: 3306
       PreferredBackupWindow: 16:00-17:00
       PreferredMaintenanceWindow: tue:17:00-tue:19:00
