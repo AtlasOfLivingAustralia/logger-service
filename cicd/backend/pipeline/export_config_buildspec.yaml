@@ -155,6 +155,13 @@ phases:
         ingress:
           accessLogsPrefix: "logs"
           accessLogsBucket: "${ACCESS_LOGS_S3_BUCKET_NAME}"
+        tags:
+          product: "${PRODUCT_NAME}"
+          branch: "${CLEAN_BRANCH}"
+          component: "${PRODUCT_COMPONENT}"
+          environment: "${ENVIRONMENT}"
+          version: "${COMMIT_ID}"
+          Name: "${HELM_RELEASE_NAME}"
         resources:
           requests:
             cpu: "${CPU_REQUEST}"      
