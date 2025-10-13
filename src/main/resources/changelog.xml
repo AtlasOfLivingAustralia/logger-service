@@ -161,12 +161,7 @@
         </sql>
     </changeSet>
 
-    <changeSet id="10-enable-event-scheduler" author="Qifeng Bai" runOnChange="true">
-        <sql>
-            SET GLOBAL event_scheduler = ON;
-        </sql>
-    </changeSet>
-
+    <!--    Make sure DB has already SET GLOBAL event_scheduler = ON;-->
     <changeSet id="10-schedule-process-month-events" author="Qifeng Bai">
         <sql>
             CREATE EVENT IF NOT EXISTS process_month_events_hourly
