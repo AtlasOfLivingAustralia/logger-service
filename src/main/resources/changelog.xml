@@ -155,4 +155,25 @@
                  endDelimiter=";"/>
     </changeSet>
 
+    <changeSet id="10-remove-trigger-on-log-detail" author="Qifeng Bai">
+        <sql>
+            DROP TRIGGER IF EXISTS update_breakdown_summary_information;
+        </sql>
+    </changeSet>
+
+    <changeSet id="10-enable-event-scheduler" author="Qifeng Bai" runOnChange="true">
+        <sql>
+            SET GLOBAL event_scheduler = ON;
+        </sql>
+    </changeSet>
+
+    <changeSet id="10-schedule-process-month-events" author="Qifeng Bai">
+        <sql>
+            CREATE EVENT IF NOT EXISTS process_month_events_hourly
+            ON SCHEDULE EVERY 1 HOUR
+            STARTS CURRENT_TIMESTAMP
+            DO
+            CALL process_month_events(CAST(DATE_FORMAT(CURRENT_DATE, '%Y%m') AS UNSIGNED), '0,1,2,3,4,5');
+        </sql>
+    </changeSet>
 </databaseChangeLog>
