@@ -105,6 +105,14 @@
     </changeSet>
 
     <changeSet id="10-prerequisite-index-for-summary-aggregation" author="Qifeng Bai">
+        <preConditions onFail="MARK_RAN">
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*) FROM information_schema.table_constraints
+                WHERE table_name = 'event_summary_breakdown_email'
+                  AND constraint_name = 'uq_month_event_email'
+                  AND constraint_type = 'UNIQUE';
+            </sqlCheck>
+        </preConditions>
         <addUniqueConstraint
                 tableName="event_summary_breakdown_email"
                 columnNames="month, log_event_type_id, user_email_category"
@@ -131,6 +139,43 @@
                 constraintName="uq_month_event"/>
     </changeSet>
 
+<!--    Adding those statements to the stored procedure SQL files may cause liquibase to fail to parse them. -->
+<!--    So we put them here to drop existing stored procedures first.-->
+    <changeSet id="10-drop-stored-procedures-if-exist" author="Qifeng Bai">
+        <sql>
+            DROP PROCEDURE IF EXISTS process_new_events;
+            DROP PROCEDURE IF EXISTS process_month_events;
+            DROP PROCEDURE IF EXISTS process_year_events;
+            DROP PROCEDURE IF EXISTS process_event_summary_totals;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_reason;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_reason_entity;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_reason_entity_source;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_email;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_email_entity;
+        </sql>
+    </changeSet>
+
+    <!-- keep track of the last processed event ID for summary procedures -->
+    <changeSet id="10-create-event-processing-checkpoint" author="bai">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="event_processing_checkpoint"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="event_processing_checkpoint">
+            <column name="id" type="INT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="last_processed_event_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <comment>Tracks the last processed event ID for summary procedures. Only one row (id=1) is expected.</comment>
+    </changeSet>
+
     <changeSet id="10-add-stored-procedures-to-summary-tables" author="Qifeng Bai">
         <sqlFile path="sql/V1_sp_update_event_summary_total.sql"
                  relativeToChangelogFile="true"
@@ -153,6 +198,13 @@
         <sqlFile path="sql/V1_sp_process_month_events.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
+        <sqlFile path="sql/V1_sp_process_year_events.sql" splitStatements="false"
+                 relativeToChangelogFile="true"
+                 endDelimiter=";"/>
+        <sqlFile path="sql/V1_sp_process_new_events.sql" splitStatements="false"
+                 relativeToChangelogFile="true"
+                 endDelimiter=";"/>
+
     </changeSet>
 
     <changeSet id="10-remove-trigger-on-log-detail" author="Qifeng Bai">
@@ -161,14 +213,14 @@
         </sql>
     </changeSet>
 
-    <!--    Make sure DB has already SET GLOBAL event_scheduler = ON;-->
+    <!--Make sure DB has already SET GLOBAL event_scheduler = ON;-->
     <changeSet id="10-schedule-process-month-events" author="Qifeng Bai">
         <sql>
             CREATE EVENT IF NOT EXISTS process_month_events_hourly
             ON SCHEDULE EVERY 1 HOUR
             STARTS CURRENT_TIMESTAMP
             DO
-            CALL process_month_events(CAST(DATE_FORMAT(CURRENT_DATE, '%Y%m') AS UNSIGNED), '0,1,2,3,4,5');
+            CALL process_new_events();
         </sql>
     </changeSet>
 </databaseChangeLog>
