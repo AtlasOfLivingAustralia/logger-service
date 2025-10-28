@@ -173,7 +173,11 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
         </createTable>
 
-        <comment>Tracks the last processed event ID for summary procedures. Only one row (id=1) is expected.</comment>
+        <comment>Tracks the last processed event ID for summary procedures. Only one row (id=1) is expected. Event ID:62313 is the last record of July 2025</comment>
+        <insert tableName="event_processing_checkpoint">
+            <column name="id" valueNumeric="1"/>
+            <column name="last_processed_event_id" valueNumeric="62313"/>
+        </insert>
     </changeSet>
 
     <changeSet id="10-add-stored-procedures-to-summary-tables" author="Qifeng Bai">
@@ -216,7 +220,7 @@
     <!--Make sure DB has already SET GLOBAL event_scheduler = ON;-->
     <changeSet id="10-schedule-process-month-events" author="Qifeng Bai">
         <sql>
-            CREATE EVENT IF NOT EXISTS process_month_events_hourly
+            CREATE EVENT IF NOT EXISTS process_new_events_hourly
             ON SCHEDULE EVERY 1 HOUR
             STARTS CURRENT_TIMESTAMP
             DO
