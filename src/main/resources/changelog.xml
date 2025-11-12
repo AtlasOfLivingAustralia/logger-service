@@ -138,11 +138,20 @@
             <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
         </createTable>
 
-        <comment>Tracks the last processed event ID for summary procedures. Only one row (id=1) is expected. Event ID:62313 is the last record of July 2025</comment>
+        <comment>Tracks the last processed event ID for summary procedures. Only one row (id=1) is expected</comment>
         <insert tableName="event_processing_checkpoint">
             <column name="id" valueNumeric="1"/>
-            <column name="last_processed_event_id" valueNumeric="62313"/>
+            <column name="last_processed_event_id" valueNumeric="0"/>
         </insert>
+
+        <comment>Initialize the last_processed_event_id to the current max ID in log_event to avoid processing old events.
+            e.g. Event ID:62313 is the last record of July 2025 in ALA Logger prod, if we set last_processed_event_id=62313, the aggregation will start for the first event of Aug 2025
+        </comment>
+        <sql>
+            UPDATE event_processing_checkpoint
+            SET last_processed_event_id = (SELECT MAX(id) FROM log_event)
+            WHERE id = 1;
+        </sql>
     </changeSet>
 
     <changeSet id="10-add-stored-procedures-to-summary-tables" author="Qifeng Bai">
