@@ -104,41 +104,6 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="10-prerequisite-index-for-summary-aggregation" author="Qifeng Bai">
-        <preConditions onFail="MARK_RAN">
-            <sqlCheck expectedResult="0">
-                SELECT COUNT(*) FROM information_schema.table_constraints
-                WHERE table_name = 'event_summary_breakdown_email'
-                  AND constraint_name = 'uq_month_event_email'
-                  AND constraint_type = 'UNIQUE';
-            </sqlCheck>
-        </preConditions>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_email"
-                columnNames="month, log_event_type_id, user_email_category"
-                constraintName="uq_month_event_email"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_email_entity"
-                columnNames="month, log_event_type_id, user_email_category, entity_uid"
-                constraintName="uq_month_event_email_entity"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_reason"
-                columnNames="month, log_event_type_id, log_reason_type_id"
-                constraintName="uq_month_event_reason"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_reason_entity"
-                columnNames="month, log_event_type_id, log_reason_type_id, entity_uid"
-                constraintName="uq_month_event_reason_entity"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_reason_entity_source"
-                columnNames="month, log_event_type_id, log_reason_type_id, entity_uid, log_source_type_id"
-                constraintName="uq_month_event_reason_entity_source"/>
-        <addUniqueConstraint
-                tableName="event_summary_totals"
-                columnNames="month, log_event_type_id"
-                constraintName="uq_month_event"/>
-    </changeSet>
-
 <!--    Adding those statements to the stored procedure SQL files may cause liquibase to fail to parse them. -->
 <!--    So we put them here to drop existing stored procedures first.-->
     <changeSet id="10-drop-stored-procedures-if-exist" author="Qifeng Bai">

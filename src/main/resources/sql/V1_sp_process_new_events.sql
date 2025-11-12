@@ -1,6 +1,6 @@
 -- Incrementally process new event summaries based on the last processed event ID.
 -- The ID stored in event_processing_checkpoint table is 1 due to a single-row design with a conventional, non-zero primary key
-CREATE DEFINER=`logger`@`%` PROCEDURE `process_new_events`()
+CREATE PROCEDURE `process_new_events`()
 BEGIN
     DECLARE start_id INT;
     DECLARE end_id INT;
