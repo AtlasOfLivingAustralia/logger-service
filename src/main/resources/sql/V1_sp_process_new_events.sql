@@ -15,7 +15,8 @@ BEGIN
          -- Get last processed ID (default to 0 if not set)
         SELECT COALESCE(last_processed_event_id, 0) INTO start_id
         FROM event_processing_checkpoint
-        WHERE id = 1;
+        WHERE id = 1
+        FOR UPDATE;
 
         -- Get latest event ID
         SELECT MAX(id) INTO end_id FROM log_event;
