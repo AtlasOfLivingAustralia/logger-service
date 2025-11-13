@@ -12,6 +12,16 @@ BEGIN
     DECLARE pos INT DEFAULT 1;
     DECLARE proc_index CHAR(1);
 
+        -- Error handler for rollback
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        ROLLBACK;
+        RESIGNAL;
+    END;
+
+    START TRANSACTION;
+
+
     -- Get ID range
     SELECT MIN(id) INTO start_id FROM log_event WHERE month = target_month;
     SELECT MAX(id) INTO end_id FROM log_event WHERE month = target_month;
@@ -64,4 +74,6 @@ BEGIN
 
         SET pos = pos + 2; -- Skip comma
     END WHILE;
+
+    COMMIT;
 END;
