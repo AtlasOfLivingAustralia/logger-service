@@ -104,31 +104,82 @@
         </createIndex>
     </changeSet>
 
-    <changeSet id="10-prerequisite-index-for-summary-aggregation" author="Qifeng Bai">
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_email"
-                columnNames="month, log_event_type_id, user_email_category"
-                constraintName="uq_month_event_email"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_email_entity"
-                columnNames="month, log_event_type_id, user_email_category, entity_uid"
-                constraintName="uq_month_event_email_entity"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_reason"
-                columnNames="month, log_event_type_id, log_reason_type_id"
-                constraintName="uq_month_event_reason"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_reason_entity"
-                columnNames="month, log_event_type_id, log_reason_type_id, entity_uid"
-                constraintName="uq_month_event_reason_entity"/>
-        <addUniqueConstraint
-                tableName="event_summary_breakdown_reason_entity_source"
-                columnNames="month, log_event_type_id, log_reason_type_id, entity_uid, log_source_type_id"
-                constraintName="uq_month_event_reason_entity_source"/>
-        <addUniqueConstraint
-                tableName="event_summary_totals"
-                columnNames="month, log_event_type_id"
-                constraintName="uq_month_event"/>
+<!--    <changeSet id="10-prerequisite-index-for-summary-aggregation" author="Qifeng Bai">-->
+<!--        <comment>The indexes were created by Ansible. Keep them in case someone needs to use their local MySQL instance.-->
+<!--        </comment>-->
+<!--        <addUniqueConstraint-->
+<!--                tableName="event_summary_breakdown_email"-->
+<!--                columnNames="month, log_event_type_id, user_email_category"-->
+<!--                constraintName="uq_month_event_email"/>-->
+<!--        <addUniqueConstraint-->
+<!--                tableName="event_summary_breakdown_email_entity"-->
+<!--                columnNames="month, log_event_type_id, user_email_category, entity_uid"-->
+<!--                constraintName="uq_month_event_email_entity"/>-->
+<!--        <addUniqueConstraint-->
+<!--                tableName="event_summary_breakdown_reason"-->
+<!--                columnNames="month, log_event_type_id, log_reason_type_id"-->
+<!--                constraintName="uq_month_event_reason"/>-->
+<!--        <addUniqueConstraint-->
+<!--                tableName="event_summary_breakdown_reason_entity"-->
+<!--                columnNames="month, log_event_type_id, log_reason_type_id, entity_uid"-->
+<!--                constraintName="uq_month_event_reason_entity"/>-->
+<!--        <addUniqueConstraint-->
+<!--                tableName="event_summary_breakdown_reason_entity_source"-->
+<!--                columnNames="month, log_event_type_id, log_reason_type_id, entity_uid, log_source_type_id"-->
+<!--                constraintName="uq_month_event_reason_entity_source"/>-->
+<!--        <addUniqueConstraint-->
+<!--                tableName="event_summary_totals"-->
+<!--                columnNames="month, log_event_type_id"-->
+<!--                constraintName="uq_month_event"/>-->
+<!--    </changeSet>-->
+<!--    Adding those statements to the stored procedure SQL files may cause liquibase to fail to parse them. -->
+<!--    So we put them here to drop existing stored procedures first.-->
+    <changeSet id="10-drop-stored-procedures-if-exist" author="Qifeng Bai">
+        <sql>
+            DROP PROCEDURE IF EXISTS process_new_events;
+            DROP PROCEDURE IF EXISTS process_month_events;
+            DROP PROCEDURE IF EXISTS process_year_events;
+            DROP PROCEDURE IF EXISTS process_event_summary_totals;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_reason;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_reason_entity;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_reason_entity_source;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_email;
+            DROP PROCEDURE IF EXISTS process_event_summary_breakdown_email_entity;
+        </sql>
+    </changeSet>
+
+    <!-- keep track of the last processed event ID for summary procedures -->
+    <changeSet id="10-create-event-processing-checkpoint" author="bai">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="event_processing_checkpoint"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="event_processing_checkpoint">
+            <column name="id" type="INT">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="last_processed_event_id" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="TIMESTAMP" defaultValueComputed="CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP"/>
+        </createTable>
+
+        <comment>Tracks the last processed event ID for summary procedures. Only one row (id=1) is expected</comment>
+        <insert tableName="event_processing_checkpoint">
+            <column name="id" valueNumeric="1"/>
+            <column name="last_processed_event_id" valueNumeric="0"/>
+        </insert>
+
+        <comment>Initialize the last_processed_event_id to the current max ID in log_event to avoid processing old events.
+            e.g. Event ID:62313 is the last record of July 2025 in ALA Logger prod, if we set last_processed_event_id=62313, the aggregation will start for the first event of Aug 2025
+        </comment>
+        <sql>
+            UPDATE event_processing_checkpoint
+            SET last_processed_event_id = (SELECT MAX(id) FROM log_event)
+            WHERE id = 1;
+        </sql>
     </changeSet>
 
     <changeSet id="10-add-stored-procedures-to-summary-tables" author="Qifeng Bai">
@@ -153,6 +204,13 @@
         <sqlFile path="sql/V1_sp_process_month_events.sql" splitStatements="false"
                  relativeToChangelogFile="true"
                  endDelimiter=";"/>
+        <sqlFile path="sql/V1_sp_process_year_events.sql" splitStatements="false"
+                 relativeToChangelogFile="true"
+                 endDelimiter=";"/>
+        <sqlFile path="sql/V1_sp_process_new_events.sql" splitStatements="false"
+                 relativeToChangelogFile="true"
+                 endDelimiter=";"/>
+
     </changeSet>
 
     <changeSet id="10-remove-trigger-on-log-detail" author="Qifeng Bai">
@@ -161,14 +219,14 @@
         </sql>
     </changeSet>
 
-    <!--    Make sure DB has already SET GLOBAL event_scheduler = ON;-->
+    <!--Make sure DB has already SET GLOBAL event_scheduler = ON;-->
     <changeSet id="10-schedule-process-month-events" author="Qifeng Bai">
         <sql>
-            CREATE EVENT IF NOT EXISTS process_month_events_hourly
+            CREATE EVENT IF NOT EXISTS process_new_events_hourly
             ON SCHEDULE EVERY 1 HOUR
             STARTS CURRENT_TIMESTAMP
             DO
-            CALL process_month_events(CAST(DATE_FORMAT(CURRENT_DATE, '%Y%m') AS UNSIGNED), '0,1,2,3,4,5');
+            CALL process_new_events();
         </sql>
     </changeSet>
 </databaseChangeLog>

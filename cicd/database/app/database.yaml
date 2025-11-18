@@ -232,7 +232,7 @@ Resources:
                            - !GetAtt EnhancedMonitoringRole.Arn
                            - !Ref AWS::NoValue
       PerformanceInsightsEnabled: !Ref pPerformanceInsights
-      PerformanceInsightsRetentionPeriod: !If 
+      PerformanceInsightsRetentionPeriod: !If
                                              - PerformanceInsights
                                              - !If
                                                 - DatabaseInsights
