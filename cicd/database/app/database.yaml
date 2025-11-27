@@ -237,7 +237,7 @@ Resources:
       PreferredMaintenanceWindow: tue:17:00-tue:19:00
       ServerlessV2ScalingConfiguration: !If
         - IsServerlessV2
-        - MinCapacity: 0
+        - MinCapacity: 1
           MaxCapacity: 10
         - !Ref "AWS::NoValue"
       SnapshotIdentifier: !If [ RestoreFromSnapshot, !Ref pRdsSnapshotRestore, !Ref AWS::NoValue ]
