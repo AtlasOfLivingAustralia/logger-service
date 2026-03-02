@@ -71,7 +71,7 @@ configurations.all {
 }
 
 dependencies {
-    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    //developmentOnly("org.springframework.boot:spring-boot-devtools")
     implementation "org.springframework.boot:spring-boot-starter-logging"
     implementation "org.springframework.boot:spring-boot-autoconfigure"
     implementation "org.grails:grails-core"
@@ -125,7 +125,7 @@ dependencies {
     // ALA deps
     implementation "au.org.ala:ala-logger:2.0.0"
     implementation "org.grails.plugins:ala-auth:7.0.0" //, noCache
-    implementation "org.grails.plugins:ala-bootstrap3:4.4.0" //, noCache
+    implementation "org.grails.plugins:ala-bootstrap5:1.0.0-SNAPSHOT"
     implementation "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
 
     // db-migration
