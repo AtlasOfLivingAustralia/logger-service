@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="layout" content="${grailsApplication.config.skin.layout}"/>
+    <g:set var="layoutName"
+           value="${grailsApplication.config.getProperty('skin.layout', String, 'main')}"/>
+    <meta name="layout" content="${layoutName}"/>
     <g:set var="entityName" value="${message(code: 'logEvent.label', default: 'LogEvent')}"/>
     <title><g:message code="default.list.label" args="[entityName]"/></title>
     <meta name="breadcrumb" content="${entityName}" />
