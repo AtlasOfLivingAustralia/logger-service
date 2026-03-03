@@ -93,7 +93,7 @@ dependencies {
     implementation "org.hibernate:hibernate-core:5.6.15.Final"
     implementation "org.grails.plugins:scaffolding"
     implementation "org.grails.plugins:gsp"
-    compileOnly "io.micronaut:micronaut-inject-groovy"
+    //compileOnly "io.micronaut:micronaut-inject-groovy"
     console "org.grails:grails-console"
     implementation "org.grails:grails-plugin-filters:3.0.12"
     implementation "org.grails:grails-datastore-rest-client:6.1.12.RELEASE"
@@ -103,10 +103,11 @@ dependencies {
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
     runtimeOnly "mysql:mysql-connector-java:8.0.28"
-    testImplementation "io.micronaut:micronaut-core:3.6.0"
-    testImplementation "io.micronaut:micronaut-inject:3.10.2"
-    testImplementation "io.micronaut:micronaut-inject-groovy"
+//    testImplementation "io.micronaut:micronaut-core:3.6.0"
+//    testImplementation "io.micronaut:micronaut-inject:3.10.2"
+//    testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
+
     testImplementation "org.grails:grails-web-testing-support"
     testImplementation "org.grails.plugins:geb"
     testImplementation "org.seleniumhq.selenium:selenium-remote-driver:$seleniumVersion"
@@ -119,14 +120,14 @@ dependencies {
     testImplementation "org.seleniumhq.selenium:selenium-safari-driver:$seleniumSafariDriverVersion"
 
     // Third-party plugins
-    implementation 'dk.glasius:external-config:3.1.1'
+    implementation 'dk.glasius:external-config:4.0.0'
     implementation 'org.grails.plugins:csv:1.0.1'
 
     // ALA deps
     implementation "au.org.ala:ala-logger:2.0.0"
     implementation "org.grails.plugins:ala-auth:7.0.0" //, noCache
     implementation "org.grails.plugins:ala-bootstrap5:1.0.0-SNAPSHOT"
-    implementation "org.grails.plugins:ala-admin-plugin:2.3.0" //, noCache
+    implementation "org.grails.plugins:ala-admin-plugin:2.4.0-SNAPSHOT" //, noCache
 
     // db-migration
     implementation 'org.liquibase:liquibase-core:4.19.0'
@@ -141,6 +142,10 @@ dependencies {
 
 }
 
+springBoot {
+    mainClass = 'au.org.ala.logger.Application' // replace with your actual Application class
+}
+
 bootRun {
     ignoreExitValue true
     jvmArgs(
@@ -151,6 +156,14 @@ bootRun {
     sourceResources sourceSets.main
     String springProfilesActive = 'spring.profiles.active'
     systemProperty springProfilesActive, System.getProperty(springProfilesActive)
+}
+
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'org.codehaus.groovy') {
+            details.useVersion '3.0.21'
+        }
+    }
 }
 
 java {
