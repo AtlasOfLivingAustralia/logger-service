@@ -91,6 +91,10 @@ dependencies {
     runtimeOnly "org.apache.tomcat:tomcat-jdbc"
     runtimeOnly "com.bertramlabs.plugins:asset-pipeline-grails:4.3.0"
     runtimeOnly 'com.mysql:mysql-connector-j:8.4.0'
+    runtimeOnly "mysql:mysql-connector-java:8.0.28"
+//    testImplementation "io.micronaut:micronaut-core:3.6.0"
+//    testImplementation "io.micronaut:micronaut-inject:3.10.2"
+//    testImplementation "io.micronaut:micronaut-inject-groovy"
     testImplementation "org.grails:grails-gorm-testing-support"
     testImplementation "org.grails:grails-web-testing-support"
     testImplementation "org.grails.plugins:geb"
