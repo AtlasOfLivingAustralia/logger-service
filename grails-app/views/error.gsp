@@ -2,7 +2,9 @@
 <html>
 <head>
 	<title><g:if env="development">Grails Runtime Exception II</g:if><g:else>Error</g:else></title>
-	<meta name="layout" content="${grailsApplication.config.skin.layout}" />
+	<g:set var="layoutName"
+		   value="${grailsApplication.config.getProperty('skin.layout', String, 'main')}"/>
+	<meta name="layout" content="${layoutName}"/>
 </head>
 <body>
 <div class="container">

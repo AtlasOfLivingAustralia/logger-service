@@ -37,6 +37,26 @@ spring:
 management:
     endpoints:
         enabled-by-default: true
+
+dataSource:
+    pooled: true
+    jmxExport: true
+
+    properties:
+        # --- Pool sizing ---
+        initialSize: 5
+        maxActive: 50
+        minIdle: 5
+        maxIdle: 20
+
+        # --- CRITICAL: stale connection protection ---
+        testOnBorrow: true
+        validationQuery: SELECT 1
+
+        testWhileIdle: true
+        timeBetweenEvictionRunsMillis: 300000   # 5 min
+        minEvictableIdleTimeMillis: 600000      # 10 min
+
 ---
 grails:
     mime:
@@ -91,8 +111,8 @@ grails:
                 staticparts: none
 ---
 headerAndFooter:
-    baseURL: "https://www.ala.org.au/commonui-bs3-2019"
-    version: "2"
+    baseURL: https://www.ala.org.au/commonui-bs5-2019
+    version: 2
 
 skin:
     layout: "main"
@@ -123,11 +143,14 @@ dataSource:
 
 environments:
     development:
+        headerAndFooter:
+            baseURL: https://www.test.ala.org.au/commonui-bs5-2019
+            version: 2
         grails:
             serverURL: "http://localhost:8080"
         dataSource:
             dbCreate: update
-            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
+            url: jdbc:mysql://localhost/logger?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
             username: "logger"
             password: "password"
         security:
@@ -149,7 +172,7 @@ environments:
             serverURL: "https://logger.ala.org.au"
         dataSource:
             dbCreate: none
-            url: jdbc:mysql://localhost/logger?autoReconnect=true&connectTimeout=0&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
+            url: jdbc:mysql://localhost/logger?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Australia/Sydney
         security:
             cas:
                 appServerName: "https://logger.ala.org.au"
