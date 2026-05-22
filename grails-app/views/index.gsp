@@ -77,7 +77,7 @@
 			<a href="${request.contextPath}/service/sourceBreakdown?eventId=1002&entityUid=in4"
 			   title="${jsonTitle}"
 			   data-bs-toggle="tooltip">
-				<strong>Source</strong> breakdown
+				<strong>Source</strong> breakdown breakdown (last month, 3 month, 1 year, all, example for downloads from Australian Museum)
 			</a>
 			<span class="badge bg-secondary ms-2">json</span>
 		</div>
@@ -86,7 +86,7 @@
 			<a href="${request.contextPath}/service/reasonBreakdownMonthly?eventId=1002&sourceId=2001&entityUid=in4"
 			   title="${jsonTitle}"
 			   data-bs-toggle="tooltip">
-				<strong>Reason Monthly</strong> breakdown
+				<strong>Reason Monthly</strong> breakdown (event and record counts only) with optional <code>reasonId</code> and <code>sourceId</code> filters (example for downloads from source ALA4R)
 			</a>
 			<span class="badge bg-secondary ms-2">json</span>
 		</div>
@@ -95,7 +95,7 @@
 			<a href="${request.contextPath}/service/reasonBreakdownCSV?eventId=1002&entityUid=in4"
 			   title="${csvTitle}"
 			   data-bs-toggle="tooltip">
-				<strong>Reason</strong> breakdown by month
+				<strong>Reason</strong> breakdown by month (all records, example for Australian Museum)
 			</a>
 			<span class="badge bg-success ms-2">csv</span>
 		</div>
@@ -104,7 +104,7 @@
 			<a href="${request.contextPath}/service/emailBreakdownCSV?eventId=1002&entityUid=in4"
 			   title="${csvTitle}"
 			   data-bs-toggle="tooltip">
-				<strong>User category</strong> breakdown by month
+				<strong>User category</strong> breakdown by month (all records, example for downloads from Australian Museum)
 			</a>
 			<span class="badge bg-success ms-2">csv</span>
 		</div>
@@ -113,7 +113,7 @@
 			<a href="${request.contextPath}/service/sourceBreakdownCSV?eventId=1002&entityUid=in4"
 			   title="${csvTitle}"
 			   data-bs-toggle="tooltip">
-				<strong>Source and reason</strong> breakdown by month
+				<strong>Source and reason</strong> breakdown by month (all records, example for downloads from Australian Museum)
 			</a>
 			<span class="badge bg-success ms-2">csv</span>
 		</div>
