@@ -68,7 +68,7 @@
 			<a href="${request.contextPath}/service/reasonBreakdown?eventId=1002&entityUid=in4"
 			   title="${jsonTitle}"
 			   data-bs-toggle="tooltip">
-				<strong>Reason</strong> breakdown
+				<strong>Reason</strong> breakdown (last month, 3 month, 1 year, all, example for downloads from Australian Museum)
 			</a>
 			<span class="badge bg-secondary ms-2">json</span>
 		</div>
@@ -77,7 +77,7 @@
 			<a href="${request.contextPath}/service/sourceBreakdown?eventId=1002&entityUid=in4"
 			   title="${jsonTitle}"
 			   data-bs-toggle="tooltip">
-				<strong>Source</strong> breakdown breakdown (last month, 3 month, 1 year, all, example for downloads from Australian Museum)
+				<strong>Source</strong> breakdown (last month, 3 month, 1 year, all, example for downloads from Australian Museum)
 			</a>
 			<span class="badge bg-secondary ms-2">json</span>
 		</div>
