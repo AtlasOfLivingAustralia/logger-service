@@ -171,8 +171,9 @@ assets {
     minifyCss = true
 }
 
-test {
+tasks.withType(Test) {
+    useJUnitPlatform()
     testLogging.showStandardStreams = true
+    systemProperty "spring.profiles.active", "test"
+    systemProperty "grails.env", "test"
 }
-
-
