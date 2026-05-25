@@ -37,9 +37,9 @@
         </g:each>
         </tbody>
     </table>
-
-    <g:paginate total="${logEventTypeCount ?: 0}" />
-
+    <div class="d-flex justify-content-center gap-2">
+        <g:paginate total="${logEventTypeCount ?: 0}" class="pagination"/>
+    </div>
 </div>
 </body>
 </html>

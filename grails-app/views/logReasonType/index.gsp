@@ -36,11 +36,6 @@
                     <td class="text-center">${type.isDeprecated ? 'Yes' : 'No'}</td>
                     <td>
                         <g:link action="edit" id="${type.id}" class="btn btn-sm btn-outline-primary">Edit</g:link>
-                        <g:form action="delete" method="POST" style="display:inline;">
-                            <g:hiddenField name="id" value="${type.id}"/>
-                            <g:submitButton name="delete" value="Delete" class="btn btn-sm btn-primary"
-                                            onclick="return confirm('Are you sure you want to delete this Log Reason Type?');"/>
-                        </g:form>
                     </td>
                 </tr>
             </g:each>

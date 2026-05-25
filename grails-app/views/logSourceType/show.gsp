@@ -16,11 +16,6 @@
 
     <div class="mb-3">
         <g:link action="edit" id="${logSourceType.id}" class="btn btn-outline-primary">Edit</g:link>
-        <g:form action="delete" method="POST" style="display:inline;">
-            <g:hiddenField name="id" value="${logSourceType.id}"/>
-            <g:submitButton value="Delete" name="delete" class="btn btn-danger"
-                            onclick="return confirm('Are you sure you want to delete this Log Source Type?');"/>
-        </g:form>
     </div>
 </div>
 </body>

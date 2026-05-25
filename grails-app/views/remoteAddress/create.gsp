@@ -12,6 +12,10 @@
     <h1>Create Remote Address</h1>
 
     <g:form action="save">
+%{--        <div class="mb-3">--}%
+%{--            <label>ID</label>--}%
+%{--            <g:textField name="id" value="${remoteAddress?.id}" class="form-control"/>--}%
+%{--        </div>--}%
 
         <div class="mb-3">
             <label>IP</label>

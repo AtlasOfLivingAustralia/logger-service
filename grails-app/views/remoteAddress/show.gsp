@@ -17,11 +17,6 @@
 
     <div class="mb-3">
         <g:link action="edit" id="${remoteAddress.id}" class="btn btn-outline-primary">Edit</g:link>
-        <g:form action="delete" method="POST" style="display:inline;">
-            <g:hiddenField name="id" value="${remoteAddress.id}"/>
-            <g:submitButton name="delete" value="Delete" class="btn btn-danger"
-                            onclick="return confirm('Are you sure you want to delete this Remote Address?');"/>
-        </g:form>
     </div>
 </div>
 </body>
