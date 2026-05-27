@@ -11,9 +11,6 @@
 <div class="container py-4">
 
     <h1>Log Event Types</h1>
-
-    <g:link action="create" class="btn btn-primary mb-3">Create New</g:link>
-
     <table class="table table-striped table-bordered align-middle">
         <thead>
         <tr>
@@ -32,6 +29,12 @@
                 <td>${type.name}</td>
                 <td>
                     <g:link action="edit" id="${type.id}" class="btn btn-sm btn-primary">Edit</g:link>
+                    <g:form action="delete" method="POST" style="display:inline;">
+                        <g:hiddenField name="id" value="${type.id}"/>
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <g:submitButton name="delete" value="Delete" class="btn btn-sm btn-primary"
+                                        onclick="return confirm('Are you sure?');"/>
+                    </g:form>
                 </td>
             </tr>
         </g:each>
@@ -40,6 +43,7 @@
     <div class="d-flex justify-content-center gap-2">
         <g:paginate total="${logEventTypeCount ?: 0}" class="pagination"/>
     </div>
+    <g:link action="create" class="btn btn-primary mb-3">Create New Event Type</g:link>
 </div>
 </body>
 </html>
