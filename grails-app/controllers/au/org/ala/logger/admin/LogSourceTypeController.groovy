@@ -13,9 +13,7 @@ class LogSourceTypeController {
     def save() {
         def logSourceType = new LogSourceType(params)
         logSourceType.id = params["id"] as Long
-
         logSourceType.save(flush: true)
-
         redirect logSourceType
     }
 }

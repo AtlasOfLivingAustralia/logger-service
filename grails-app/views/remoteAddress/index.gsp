@@ -30,7 +30,9 @@
                 <td>${addr.hostName}</td>
                 <td>
                     <g:link action="edit" id="${addr.id}" class="btn btn-sm btn-outline-primary">Edit</g:link>
-                    <g:form controller="remoteAddress" action="delete" id="${addr.id}" method="POST" style="display:inline;">
+                    <g:form  action="delete"  method="POST" style="display:inline;">
+                        <g:hiddenField name="id" value="${addr.id}"/>
+                        <input type="hidden" name="_method" value="DELETE"/>
                         <g:submitButton name="delete" value="Delete" class="btn btn-sm btn-primary"
                                         onclick="return confirm('Are you sure?');"/>
                     </g:form>

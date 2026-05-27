@@ -28,6 +28,12 @@
                 <td>${type.name}</td>
                 <td>
                     <g:link action="edit" id="${type.id}" class="btn btn-sm btn-outline-primary">Edit</g:link>
+                    <g:form action="delete" method="POST" style="display:inline;">
+                        <g:hiddenField name="id" value="${type.id}"/>
+                        <input type="hidden" name="_method" value="DELETE"/>
+                        <g:submitButton name="delete" value="Delete" class="btn btn-sm btn-primary"
+                                        onclick="return confirm('Are you sure?');"/>
+                    </g:form>
                 </td>
             </tr>
         </g:each>
