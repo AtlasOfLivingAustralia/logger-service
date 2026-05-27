@@ -11,12 +11,14 @@
 <div class="container py-4">
     <h1>Create Remote Address</h1>
 
-    <g:form action="save">
-%{--        <div class="mb-3">--}%
-%{--            <label>ID</label>--}%
-%{--            <g:textField name="id" value="${remoteAddress?.id}" class="form-control"/>--}%
-%{--        </div>--}%
+    <g:if test="${flash.error}">
+        <div class="alert alert-danger">${flash.error}</div>
+    </g:if>
+    <g:if test="${flash.message}">
+        <div class="alert alert-success">${flash.message}</div>
+    </g:if>
 
+    <g:form action="save" method="POST">
         <div class="mb-3">
             <label>IP</label>
             <g:textField name="ip" value="${remoteAddress?.ip}" class="form-control"/>
