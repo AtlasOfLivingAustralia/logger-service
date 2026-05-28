@@ -28,7 +28,7 @@
                 <td>${type.name}</td>
                 <td>
                     <g:link action="edit" id="${type.id}" class="btn btn-sm btn-outline-primary">Edit</g:link>
-                    <g:form action="delete" method="POST" style="display:inline;">
+                    <g:form action="delete" method="DELETE" style="display:inline;">
                         <g:hiddenField name="id" value="${type.id}"/>
                         <g:submitButton name="delete" value="Delete" class="btn btn-sm btn-primary"
                                         onclick="return confirm('Are you sure?');"/>
@@ -38,6 +38,10 @@
         </g:each>
         </tbody>
     </table>
+
+    <div class="d-flex justify-content-center gap-2">
+        <g:paginate total="${logSourceTypeCount ?: 0}" class="pagination"/>
+    </div>
 
     <g:link action="create" class="btn btn-primary">Create New Log Source Type</g:link>
 </div>

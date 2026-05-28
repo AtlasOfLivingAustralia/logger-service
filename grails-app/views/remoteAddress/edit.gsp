@@ -11,7 +11,14 @@
 <div class="container py-4">
     <h1>Edit Remote Address</h1>
 
-    <g:form action="update">
+    <g:if test="${flash.error}">
+        <div class="alert alert-danger">${flash.error}</div>
+    </g:if>
+    <g:if test="${flash.message}">
+        <div class="alert alert-success">${flash.message}</div>
+    </g:if>
+
+    <g:form action="update" method="POST">
         <g:hiddenField name="id" value="${remoteAddress?.id}"/>
 
         <div class="mb-3">

@@ -7,71 +7,23 @@ import grails.gorm.transactions.Transactional
 @AlaSecured(value = "ROLE_ADMIN", redirectController = 'logger', redirectAction = 'notAuthorised')
 class LogSourceTypeController {
 
-    static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+    static scaffold = LogSourceType
 
-    def index(Integer max) {
-        params.max = Math.min(max ?: 10, 100)
-        params.sort = 'id'
-        params.order = 'asc'
-
-        [logSourceTypeList: LogSourceType.list(params),
-         logSourceTypeCount: LogSourceType.count()]
-    }
-
-    def show(Long id) {
-        def logSourceType = LogSourceType.get(id)
-        if (!logSourceType) {
-            flash.message = "Log Source Type not found"
-            redirect action: "index"
-            return
-        }
-        [logSourceType: logSourceType]
-    }
-
-    def edit(Long id) {
-        def logSourceType = LogSourceType.get(id)
-        if (!logSourceType) {
-            flash.message = "Log Source Type not found"
-            redirect action: "index"
-            return
-        }
-        [logSourceType: logSourceType]
-    }
-
-    @Transactional
-    def update() {
-        def logSourceType = LogSourceType.get(params.id as Long)
-        if (!logSourceType) {
-            flash.message = "Log Source Type not found"
-            redirect action: "index"
-            return
-        }
-        logSourceType.properties = params
-        logSourceType.save(flush: true)
-        redirect action: "show", id: logSourceType.id
-    }
-
-    def create() {
-        [logSourceType: new LogSourceType()]
-    }
-
+    /**
+     * todo
+     * The id field in the domain class and the other three: LogReasonType, LogEventType, LogReasonType is defined as "id:assigned"
+     * This means that when saving an instance of the domain class, the id must be explicitly set before calling the save() method.
+     * And also affect the 'delete' method, as the id must be provided to identify which instance to delete.
+     *
+     * "id:assigned" should be removed
+     *
+     * @return
+     */
     @Transactional
     def save() {
         def logSourceType = new LogSourceType(params)
-        logSourceType.id = params.id as Long   // allow custom ID
+        logSourceType.id = params["id"] as Long
         logSourceType.save(flush: true)
-        redirect action: "show", id: logSourceType.id
-    }
-
-    @Transactional
-    def delete() {
-        def logSourceType = LogSourceType.get(params.id as Long)
-        if (logSourceType) {
-            logSourceType.delete(flush: true)
-            flash.message = "Log Source Type deleted"
-        } else {
-            flash.message = "Log Source Type not found"
-        }
-        redirect action: "index"
+        redirect logSourceType
     }
 }

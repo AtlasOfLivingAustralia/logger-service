@@ -12,6 +12,10 @@
     <h1>Create Log Source Type</h1>
 
     <g:form action="save">
+        <div class="mb-3">
+            <label>ID</label>
+            <g:textField name="id" value="${logSourceType?.id}" class="form-control"/>
+        </div>
 
         <div class="mb-3">
             <label>Name</label>

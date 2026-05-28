@@ -15,6 +15,11 @@
     <g:form action="save" method="POST">
 
         <div class="mb-3">
+            <label for="id" class="form-label">ID</label>
+            <g:textField name="id" id="id" value="${logEventType?.id}" class="form-control"/>
+        </div>
+
+        <div class="mb-3">
             <label for="name" class="form-label">Name</label>
             <g:textField name="name" id="name" value="${logEventType?.name}" class="form-control"/>
         </div>
