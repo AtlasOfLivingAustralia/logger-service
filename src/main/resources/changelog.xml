@@ -1,6 +1,56 @@
 <?xml version="1.1" encoding="UTF-8" standalone="no"?>
 <databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.6.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.6.xsd">
 
+    <!-- Base schema creation -->
+    <changeSet id="0.0-create-base-schema" author="ALA Dev Team">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <tableExists tableName="log_event" />
+            </not>
+        </preConditions>
+        <comment>Create base database schema for logger service</comment>
+        <sqlFile path="sql/V0_base_schema.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 endDelimiter=";"/>
+    </changeSet>
+
+    <!-- Seed data for lookup tables -->
+    <changeSet id="0.1-seed-lookup-tables" author="ALA Dev Team" runAlways="false">
+        <preConditions onFail="HALT">
+            <and>
+                <tableExists tableName="log_event_type" />
+                <tableExists tableName="log_reason_type" />
+                <tableExists tableName="log_source_type" />
+            </and>
+        </preConditions>
+        <comment>Insert/update seed data for event types, reason types, and source types</comment>
+        <sqlFile path="sql/V0_seed_data.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="true"
+                 endDelimiter=";"/>
+    </changeSet>
+
+    <!-- Trigger for real-time summary table updates -->
+    <changeSet id="0.2-drop-old-trigger" author="ALA Dev Team">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="log_detail" />
+        </preConditions>
+        <comment>Drop old trigger if exists</comment>
+        <sql>DROP TRIGGER IF EXISTS `update_breakdown_summary_information`</sql>
+    </changeSet>
+
+    <changeSet id="0.3-create-summary-update-trigger" author="ALA Dev Team">
+        <preConditions onFail="MARK_RAN">
+            <tableExists tableName="log_detail" />
+            <tableExists tableName="event_summary_totals" />
+        </preConditions>
+        <comment>Create trigger to automatically update summary tables when log_detail records are inserted</comment>
+        <sqlFile path="sql/V0_trigger_update_summary.sql"
+                 relativeToChangelogFile="true"
+                 splitStatements="false"/>
+    </changeSet>
+
     <!-- required indexes for log_event to allow faster/more efficient sorting. -->
 
     <changeSet author="ALA Dev Team" id="1">
