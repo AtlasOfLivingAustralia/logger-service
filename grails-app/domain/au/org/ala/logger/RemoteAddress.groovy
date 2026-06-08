@@ -11,12 +11,12 @@ class RemoteAddress implements Serializable {
     String hostName
 
     static constraints = {
-        id bindable: true
         ip maxSize: 255, nullable: false
         hostName maxSize: 255, nullable: false
     }
 
     static mapping = {
+        id bindable: true
         table "remote_address"
         version false
 

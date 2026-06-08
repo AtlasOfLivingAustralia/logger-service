@@ -14,18 +14,14 @@
 package au.org.ala.logger
 
 import grails.core.GrailsApplication
+import grails.plugins.rest.client.RestResponse
 import grails.testing.mixin.integration.Integration
 import grails.gorm.transactions.*
+import grails.plugins.rest.client.RestBuilder
 import groovy.json.JsonSlurper
 import groovy.time.TimeCategory
 import groovy.util.logging.Log4j
-
 import org.springframework.http.HttpStatus
-import org.springframework.web.client.RestTemplate
-import org.springframework.http.ResponseEntity
-import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpEntity
-import org.springframework.http.MediaType
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -40,7 +36,7 @@ import java.text.SimpleDateFormat
 @Rollback
 class RestFunctionalTestSpec extends Specification {
 
-    @Shared RestTemplate rest = new RestTemplate()
+    @Shared RestBuilder rest = new RestBuilder()
 
     GrailsApplication grailsApplication
 
@@ -84,31 +80,49 @@ class RestFunctionalTestSpec extends Specification {
 
     def "POST to /logger with a valid request should create a record"() {
         when:
-        String ipAddress = "1.1.1.1"
-        HttpHeaders headers = new HttpHeaders()
-        headers.setContentType(MediaType.APPLICATION_JSON)
-        headers.set("X-Forwarded-For", ipAddress)
-        headers.set("user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1)")
+        String IpAddress = "1.1.1.1"
 
-        def body = """{"eventTypeId":1000,"reasonTypeId":10,"sourceTypeId":1,"sourceUrl":"https://ala.org.au/example.json","comment":"For doing some research with..","month":"2","userEmail":"fred.smith@bla.gov.au","userIP":"1.1.1.1","recordCounts":{"dp123":32,"dr143":22,"ins322":55}}"""
+        RestResponse resp = rest.post("${baseUrl}/service/logger", {
+            header "X-Forwarded-For", IpAddress
+            header "user-agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_1) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.2 Safari/605.1.15"
+            header "Accept", "application/json"
+            contentType("application/json")
+            json {
+                [
+                        "eventTypeId": 1000,
+                        "reasonTypeId": 10,
+                        "sourceTypeId": 1,
+                        "sourceUrl": "https://ala.org.au/example.json",
+                        "comment": "For doing some research with..",
+                        "month": "2",
+                        "userEmail": "fred.smith@bla.gov.au",
+                        "userIP": "1.1.1.1",
+                        "recordCounts": [ "dp123": 32, "dr143": 22,"ins322": 55 ]
+                ]
+            }
+        })
 
-        HttpEntity<String> entity = new HttpEntity<>(body, headers)
-        ResponseEntity<String> resp = rest.postForEntity("${baseUrl}/service/logger", entity, String)
-        def jsonResponse = new JsonSlurper().parseText(resp.body ?: "{}")
+        def jsonResponse
+
+        if (resp.status == HttpStatus.OK.value()) {
+            jsonResponse = new JsonSlurper().parseText(resp.body?:"{}")
+        } else {
+            jsonResponse = [error: resp.body]
+        }
 
         then:
-        resp.statusCode.value() == HttpStatus.OK.value()
+        resp.status == HttpStatus.OK.value()
         jsonResponse.logEvent?.id != null
         jsonResponse.logEvent?.logDetails?.size() == 3
     }
 
     def "GET to /service/logger/events should show eventTypes"() {
         when:
-        ResponseEntity<String> resp = rest.getForEntity("${baseUrl}/service/logger/events", String)
+        RestResponse resp = rest.get("${baseUrl}/service/logger/events")
         def json = new JsonSlurper().parseText(resp.body?:"{}")
 
         then:
-        resp.statusCode.value() == HttpStatus.OK.value()
+        resp.status == HttpStatus.OK.value()
         json.logEvent?.size() > 0
         json.logEvent?.id != null
 
@@ -118,7 +132,7 @@ class RestFunctionalTestSpec extends Specification {
         when:
         def params = [q: "dp123", eventTypeId: 1000, year: "2021"]
         def paramsString = params.collect { k,v -> "$k=$v" }.join("&")
-        ResponseEntity<String> resp = rest.getForEntity("${baseUrl}/service/logger/get.json?${paramsString}", String)
+        RestResponse resp = rest.get("${baseUrl}/service/logger/get.json?${paramsString}")
         def json = resp.body
 
         then:
@@ -127,7 +141,7 @@ class RestFunctionalTestSpec extends Specification {
 
     def "Get event types should return a result"() {
         when:
-        ResponseEntity<String> resp = rest.getForEntity("${baseUrl}/service/logger/events", String)
+        RestResponse resp = rest.get("${baseUrl}/service/logger/events")
         def json = resp.body
 
         then:
@@ -136,7 +150,7 @@ class RestFunctionalTestSpec extends Specification {
 
     def "Get reason types should return a result"() {
         when:
-        ResponseEntity<String> resp = rest.getForEntity("${baseUrl}/service/logger/reasons", String)
+        RestResponse resp = rest.get("${baseUrl}/service/logger/reasons")
         def json = resp.body
 
         then:
@@ -145,7 +159,7 @@ class RestFunctionalTestSpec extends Specification {
 
     def "Get source types should return a result"() {
         when:
-        ResponseEntity<String> resp = rest.getForEntity("${baseUrl}/service/logger/sources", String)
+        RestResponse resp = rest.get("${baseUrl}/service/logger/sources")
         def json = resp.body
 
         then:
