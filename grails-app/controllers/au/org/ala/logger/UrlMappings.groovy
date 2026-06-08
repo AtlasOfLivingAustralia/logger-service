@@ -41,7 +41,6 @@ class UrlMappings {
         "/service/userBreakdown"(resource: "logger", includes: ["userBreakdown"])
 
         "403"(view: '/error')
-        "405"(view: '/error')
         "404"(view: '/notFound')
         "500"(view: '/error')
 
