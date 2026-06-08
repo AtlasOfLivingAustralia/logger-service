@@ -19,4 +19,3 @@ class LogEventTypeController {
         redirect logEventType
     }
 }
-

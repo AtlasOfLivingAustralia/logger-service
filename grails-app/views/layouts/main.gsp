@@ -17,4 +17,15 @@
   Date: 5/3/21
   Time: 3:11 pm
 --%>
-<g:render template="/layouts/main" />
+<g:applyLayout name="logger-main">
+    <html>
+    <head>
+        <title><g:layoutTitle /></title>
+        <asset:stylesheet src="scaffolding.css" />
+        <g:layoutHead />
+    </head>
+    <body>
+        <g:layoutBody />
+    </body>
+    </html>
+</g:applyLayout>

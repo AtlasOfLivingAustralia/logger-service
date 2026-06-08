@@ -19,4 +19,3 @@ class LogReasonTypeController {
         redirect logReasonType
     }
 }
-
