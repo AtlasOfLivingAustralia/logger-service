@@ -71,9 +71,12 @@ grails.hibernate.osiv.readonly = false
 // We need to override the System message data dir path (assumes it will be logger-service via ${Metadata.current.getApplicationName()})
 ala.admin.systemMessage.path = "/data/logger/config"
 
-grails.plugin.databasemigration.changelogFileName = 'changelog.xml'
-grails.plugin.databasemigration.updateOnStart = true
-grails.plugin.databasemigration.updateOnStartFileName = 'changelog.xml'
+// Liquibase runs for MySQL environments only. Disabled for postgres (Flyway handles it instead).
+if (System.getProperty('grails.env') != 'postgres') {
+    grails.plugin.databasemigration.changelogFileName = 'changelog.xml'
+    grails.plugin.databasemigration.updateOnStart = true
+    grails.plugin.databasemigration.updateOnStartFileName = 'changelog.xml'
+}
 
 // We can limit the context where the db migration run
 // https://liquibase.org/blog/contexts-vs-labels

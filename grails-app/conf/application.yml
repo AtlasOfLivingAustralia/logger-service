@@ -176,7 +176,19 @@ environments:
         security:
             cas:
                 appServerName: "https://logger.ala.org.au"
-
+    postgres:
+        grails:
+            serverURL: "http://localhost:8080"
+        dataSource:
+            dbCreate: none
+            driverClassName: org.postgresql.Driver
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+            url: jdbc:postgresql://localhost:5433/logger
+            username: logger
+            password: password
+        security:
+            cas:
+                appServerName: "http://localhost:8080"
 
 security:
     cas:

@@ -1,5 +1,5 @@
 buildscript {
-    version "4.7.0-SNAPSHOT"
+    version "5.0.0-SNAPSHOT"
     group "au.org.ala"
 }
 
@@ -121,6 +121,11 @@ dependencies {
     // db-migration
     implementation 'org.liquibase:liquibase-core:4.19.0'
     // Todo check if it is safe to remove when next DB update is needed, Db updates should only need liquibase
+
+    // Flyway for PostgreSQL support
+    implementation 'org.flywaydb:flyway-core:10.15.0'
+    implementation 'org.flywaydb:flyway-database-postgresql:10.15.0'
+    runtimeOnly 'org.postgresql:postgresql:42.7.3'
     //    implementation('org.grails.plugins:database-migration:4.2.0') {
     //        // spring-boot-cli exclusion required since Grails5 upgrade to prevent NullPointerException Error:  https://github.com/grails/grails-database-migration/issues/268
     //        exclude module: 'spring-boot-cli'

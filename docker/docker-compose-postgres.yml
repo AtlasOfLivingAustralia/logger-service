@@ -1,0 +1,14 @@
+version: "2"
+services:
+  postgres:
+    container_name: logger-postgres
+    image: "postgres:16"
+    environment:
+      POSTGRES_DB: 'logger'
+      POSTGRES_USER: 'logger'
+      POSTGRES_PASSWORD: 'password'
+    ports:
+      - "5433:5432"
+    expose:
+      - '5432'
+
