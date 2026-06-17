@@ -31,26 +31,6 @@
                  endDelimiter=";"/>
     </changeSet>
 
-    <!-- Trigger for real-time summary table updates -->
-    <changeSet id="0.2-drop-old-trigger" author="ALA Dev Team">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="log_detail" />
-        </preConditions>
-        <comment>Drop old trigger if exists</comment>
-        <sql>DROP TRIGGER IF EXISTS `update_breakdown_summary_information`</sql>
-    </changeSet>
-
-    <changeSet id="0.3-create-summary-update-trigger" author="ALA Dev Team">
-        <preConditions onFail="MARK_RAN">
-            <tableExists tableName="log_detail" />
-            <tableExists tableName="event_summary_totals" />
-        </preConditions>
-        <comment>Create trigger to automatically update summary tables when log_detail records are inserted</comment>
-        <sqlFile path="sql/V0_trigger_update_summary.sql"
-                 relativeToChangelogFile="true"
-                 splitStatements="false"/>
-    </changeSet>
-
     <!-- required indexes for log_event to allow faster/more efficient sorting. -->
 
     <changeSet author="ALA Dev Team" id="1">
