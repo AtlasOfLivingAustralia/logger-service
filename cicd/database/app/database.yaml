@@ -105,9 +105,12 @@ Conditions:
   IsProvisioned: !Equals 
                    - !Ref pEngineMode
                    - provisioned
-  DatabaseInsights: !And
-    - !Equals [!Ref pDatabaseInsightsMode, "advanced"]
-    - !Equals [!Ref pPerformanceInsights, "true"]
+  DatabaseInsights: !Equals 
+                   - !Ref pDatabaseInsightsMode
+                   - advanced
+  PerformanceInsights: !Equals
+                   - !Ref pPerformanceInsights
+                   - true
   IsServerlessV2: !Equals
                     - !Ref pEngineMode
                     - serverlessv2
@@ -157,6 +160,7 @@ Resources:
         collation_connection: utf8mb4_unicode_ci
         collation_server: utf8mb4_unicode_ci
         time_zone: Australia/Sydney
+        event_scheduler: "ON"
 
   DbSubnetGrp:
     Type: AWS::RDS::DBSubnetGroup
@@ -229,15 +233,18 @@ Resources:
                            - !Ref AWS::NoValue
       PerformanceInsightsEnabled: !Ref pPerformanceInsights
       PerformanceInsightsRetentionPeriod: !If
-                                            - DatabaseInsights
-                                            - 465
-                                            - !Ref "AWS::NoValue"
+                                             - PerformanceInsights
+                                             - !If
+                                                - DatabaseInsights
+                                                - 465
+                                                - 7
+                                             - !Ref AWS::NoValue
       Port: 3306
       PreferredBackupWindow: 16:00-17:00
       PreferredMaintenanceWindow: tue:17:00-tue:19:00
       ServerlessV2ScalingConfiguration: !If
         - IsServerlessV2
-        - MinCapacity: 0
+        - MinCapacity: 1
           MaxCapacity: 10
         - !Ref "AWS::NoValue"
       SnapshotIdentifier: !If [ RestoreFromSnapshot, !Ref pRdsSnapshotRestore, !Ref AWS::NoValue ]

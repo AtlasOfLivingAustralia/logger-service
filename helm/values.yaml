@@ -135,7 +135,7 @@ bie:
 collections:
   baseURL: "https://collections.ala.org.au"
 headerAndFooter:
-  baseURL: "https://www.ala.org.au/commonui-bs3-2019"
+  baseURL: "https://www.ala.org.au/commonui-bs5-2019"
   version: "2"
 oidc:
   clientId: ""

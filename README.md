@@ -1,5 +1,9 @@
 # logger-service   [![Build Status](https://travis-ci.com/AtlasOfLivingAustralia/logger-service.svg?branch=master)](https://travis-ci.com/github/AtlasOfLivingAustralia/logger-service)
 
+# Versions
+
+ 4.7.0 uses bootstrap 5
+
 # Installation
 
 The logger service is deployed using Ansible. Scripts reside in the [ala-install](https://github.com/AtlasOfLivingAustralia/ala-install) repository: ansible/logger-standalone.yml and ansible/roles/logger-service. For testing, there is a vagrant inventory in ansible/inventories/vagrant/logger-service-vagrant

@@ -17,4 +17,4 @@
   Date: 5/3/21
   Time: 3:42 pm
 --%>
-<g:render template="/layouts/main" plugin="alaBootstrap3"/>
+<g:render template="/layouts/main" plugin="alaBootstrap5"/>
