@@ -14,7 +14,8 @@ repos:
         types: [text]
       - id: rain-format
         name: CloudFormation Formatter (rain)
-        entry: bash -c 'for file in "$@"; do rain fmt -w "$file"; done' --
+        # --node-style original keeps quotes on YAML 1.1 booleans (ON/OFF/YES/NO) that CFN would otherwise read as true/false
+        entry: bash -c 'for file in "$@"; do rain fmt --node-style original -w "$file"; done' --
         language: system
         files: \.(yaml|yml|template)$
         exclude: (\.pre-commit-config\.yaml)|(buildspec.yaml)$

@@ -226,7 +226,7 @@ Resources:
         collation_connection: utf8mb4_unicode_ci
         collation_server: utf8mb4_unicode_ci
         time_zone: Australia/Sydney
-        event_scheduler: ON
+        event_scheduler: "ON"
       Tags:
         - Key: Name
           Value: !Sub ${pDbParamGrpFamily}-cluster-paramgrp
