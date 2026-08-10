@@ -70,3 +70,4 @@ Comma-separated key=value tag string built from .Values.tags, e.g. "product=logg
 {{- $tags = append $tags (printf "%s=%s" $key (index $.Values.tags $key)) -}}
 {{- end -}}
 {{- join "," $tags -}}
+{{- end }}
