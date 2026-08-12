@@ -1,4 +1,4 @@
-FROM ubuntu:24.04
+FROM ubuntu:26.04
 
 # Install system dependencies and Python tooling
 RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
